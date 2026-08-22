@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siisto & Skillset - Soo Gal (Log In)</title>
+    <title>Siisto & Skillset — Soo Gal (Log In)</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,29 +12,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #0f0e13;
+            background-color: #080a0f;
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #ffffff;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6 antialiased bg-[#0f0e13]">
+<body class="min-h-screen flex items-center justify-center p-6 antialiased bg-[#080a0f]">
 
     <div class="w-full max-w-md space-y-6">
         
         <!-- LOGO -->
         <div class="text-center space-y-1">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 via-pink-500 to-rose-400 flex items-center justify-center mx-auto shadow-lg shadow-purple-500/25">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center mx-auto shadow-lg shadow-blue-500/30">
                 <i class="fa-solid fa-dumbbell text-white text-xl"></i>
             </div>
             <h1 class="text-3xl font-black text-white tracking-tight">Siisto</h1>
-            <p class="text-xs text-purple-300 font-bold uppercase tracking-wider">AI Fitness & Pose Tracker</p>
+            <p class="text-xs text-cyan-300 font-bold uppercase tracking-wider">AI Fitness & Pose Tracker</p>
         </div>
 
-        <div class="bg-[#191622] border border-[#2e273f] rounded-3xl p-8 shadow-2xl space-y-6">
+        <div class="bg-[#0e131f] border border-[#1d283e] rounded-3xl p-8 shadow-2xl space-y-6">
             <div>
                 <h2 class="text-lg font-bold text-white">Soo Gal Koontadaada</h2>
-                <p class="text-xs text-[#9e9aa7]">Geli magacaaga iyo furaha sirta ah si aad u gasho.</p>
+                <p class="text-xs text-[#94a3b8]">Geli magacaaga iyo furaha sirta ah si aad u gasho.</p>
             </div>
 
             {% if form.errors %}
@@ -55,33 +55,33 @@
                 {% csrf_token %}
                 
                 <div>
-                    <label class="block text-xs font-bold text-purple-200 mb-1.5">Magaca (Username)</label>
+                    <label class="block text-xs font-bold text-blue-200 mb-1.5">Magaca (Username)</label>
                     <div class="relative">
-                        <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-[#736c82] text-xs"></i>
+                        <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748b] text-xs"></i>
                         <input type="text" name="username" placeholder="Geli magacaaga" required
-                               class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                               class="w-full bg-[#141b2d] border border-[#1d283e] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-[#64748b] focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-purple-200 mb-1.5">Furaha Sirta ah (Password)</label>
+                    <label class="block text-xs font-bold text-blue-200 mb-1.5">Furaha Sirta ah (Password)</label>
                     <div class="relative">
-                        <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-[#736c82] text-xs"></i>
+                        <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748b] text-xs"></i>
                         <input type="password" name="password" placeholder="••••••••" required
-                               class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                               class="w-full bg-[#141b2d] border border-[#1d283e] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-[#64748b] focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold">
                     </div>
                 </div>
 
                 <button type="submit" 
-                        class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-purple-500/25">
+                        class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-blue-500/30">
                     Soo Gal (Log In)
                 </button>
             </form>
         </div>
 
-        <p class="text-center text-xs text-[#9e9aa7] font-medium">
+        <p class="text-center text-xs text-[#94a3b8] font-medium">
             Koonto ma lihi? 
-            <a href="{% url 'signup' %}" class="text-purple-300 font-bold hover:underline ml-1">Is Diiwaangeli Hadda (Sign Up)</a>
+            <a href="{% url 'signup' %}" class="text-cyan-300 font-bold hover:underline ml-1">Is Diiwaangeli Hadda (Sign Up)</a>
         </p>
 
     </div>
