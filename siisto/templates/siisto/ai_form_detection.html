@@ -1,0 +1,905 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}AI Real-Time Exercise Form Detection | Siisto{% endblock %}
+
+{% block extra_head %}
+<!-- MediaPipe Pose & Camera Utilities -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+<style>
+    .video-feed-wrapper {
+        position: relative;
+        width: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        background-color: #0f0e13;
+        border: 2px solid #2e273f;
+    }
+
+    #webcamVideo {
+        transform: scaleX(-1);
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+    }
+
+    #outputCanvas {
+        width: 100%;
+        height: auto;
+        display: block;
+        transform: scaleX(-1);
+    }
+
+    .metric-gauge {
+        background: #201c2c;
+        border: 1px solid #2e273f;
+        border-radius: 18px;
+    }
+
+    .exercise-btn {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+
+    .exercise-btn.active-ex {
+        background: linear-gradient(135deg, #c084fc, #ec4899);
+        color: white;
+        box-shadow: 0 4px 16px rgba(192, 132, 252, 0.4);
+    }
+
+    .exercise-btn:not(.active-ex) {
+        background: #201c2c;
+        color: #9e9aa7;
+        border: 1px solid #2e273f;
+    }
+
+    .exercise-btn:not(.active-ex):hover {
+        background: #282337;
+        color: #d8b4fe;
+    }
+
+    .laser-glow-green {
+        filter: drop-shadow(0 0 8px #22c55e) drop-shadow(0 0 16px #22c55e);
+    }
+    .laser-glow-red {
+        filter: drop-shadow(0 0 8px #ef4444) drop-shadow(0 0 16px #ef4444);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- HEADER INTRO BANNER -->
+    <div class="skillset-mauve-card p-6 rounded-3xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4 border border-[#3d3454]">
+        <div class="space-y-1 z-10">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
+                    <i class="fa-solid fa-bolt text-emerald-400"></i> Real-Time AI Body Tracking
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-200 text-xs font-bold border border-purple-400/30">
+                    <i class="fa-solid fa-shield-halved text-purple-300"></i> Green = Sax ✅ | Red = Qalad ❌
+                </span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">AI Real-Time Exercise Form Detection</h2>
+            <p class="text-xs text-purple-200/80 max-w-xl">
+                MediaPipe Pose Landmarker ayaa kamaradaada ku falanqeynaya jirkaaga — xaglaha jilbaha, gacmaha, misigta, iyo dhabarka si toos ah.
+            </p>
+        </div>
+        <div class="z-10 flex items-center gap-3">
+            {% if not profile.has_active_pro %}
+            <a href="{% url 'upgrade_pro' %}"
+                class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-crown text-sm"></i>
+                <span>Upgrade Pro — Dhammaan Exercises</span>
+            </a>
+            {% endif %}
+            <button id="toggleCameraBtn" onclick="toggleCamera()"
+                class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/25 flex items-center gap-2 transition">
+                <i class="fa-solid fa-camera"></i>
+                <span id="cameraBtnText">Daar Kamarada (Start Camera)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN INTERFACE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT 8 COLS: CAMERA FEED & 3D GUIDE -->
+        <div class="lg:col-span-8 space-y-5">
+            <div class="skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+                <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                    <div class="flex items-center gap-2">
+                        <span id="statusDot" class="w-3 h-3 rounded-full bg-slate-500"></span>
+                        <h3 id="statusText" class="font-extrabold text-white text-sm">Kamaradu way xiran tahay</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="resetRepCounter()"
+                            class="px-3 py-1.5 rounded-xl bg-[#262134] hover:bg-[#342d47] text-purple-300 text-xs font-bold border border-[#3d3454]">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Reset Reps
+                        </button>
+                        <button onclick="toggleAudioFeedback()" id="audioToggleBtn"
+                            class="px-3 py-1.5 rounded-xl bg-[#262134] hover:bg-[#342d47] text-emerald-400 text-xs font-bold border border-[#3d3454]">
+                            <i class="fa-solid fa-volume-high mr-1"></i> Voice: ON
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LIVE CANVAS -->
+                <div class="video-feed-wrapper min-h-[380px] max-h-[540px] flex items-center justify-center relative shadow-2xl">
+                    <video id="webcamVideo" playsinline></video>
+                    <canvas id="outputCanvas" width="640" height="480"></canvas>
+
+                    <!-- FEEDBACK OVERLAY (TOP CENTER) -->
+                    <div id="liveFeedbackOverlay"
+                        class="absolute top-4 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-2xl bg-black/85 backdrop-blur-md border border-[#3d3454] shadow-2xl text-center hidden pointer-events-none z-20">
+                        <span id="feedbackText" class="text-sm sm:text-base font-extrabold text-white block">Diyaarso booskaaga...</span>
+                        <span id="feedbackSubtext" class="text-[11px] text-purple-300 font-semibold block">Istaag meel kamaradu wada arki karto jirkaaga</span>
+                    </div>
+
+                    <!-- REP COUNTER OVERLAY (BOTTOM LEFT) -->
+                    <div id="liveRepOverlay"
+                        class="absolute bottom-4 left-4 px-4 py-3 rounded-2xl bg-black/85 backdrop-blur-md border border-[#3d3454] shadow-2xl flex items-center gap-3 hidden z-20">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex flex-col items-center justify-center font-black text-xl">
+                            <span id="overlayRepCount">0</span>
+                        </div>
+                        <div>
+                            <span id="overlayExerciseName" class="text-[10px] text-[#9e9aa7] uppercase font-extrabold tracking-wider block">Reps</span>
+                            <span id="overlayFormQuality" class="text-xs font-extrabold text-emerald-400">Ready</span>
+                        </div>
+                    </div>
+
+                    <!-- EXERCISE TYPE BADGE (BOTTOM RIGHT) -->
+                    <div id="exerciseBadge"
+                        class="absolute bottom-4 right-4 px-3 py-1.5 rounded-xl bg-purple-500/20 border border-purple-500/30 backdrop-blur-md text-purple-200 text-xs font-extrabold hidden z-20">
+                        <i class="fa-solid fa-dumbbell mr-1"></i>
+                        <span id="exerciseBadgeText">Squats</span>
+                    </div>
+
+                    <!-- STANDBY PLACEHOLDER -->
+                    <div id="cameraStandbyPlaceholder" class="p-8 text-center space-y-3">
+                        <div class="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto border border-purple-500/20">
+                            <i class="fa-solid fa-video text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-base">MediaPipe AI Form Camera</h4>
+                        <p class="text-xs text-[#9e9aa7] max-w-sm mx-auto">
+                            Dooro jimicsigaaga <strong>midigta</strong>, kadibna guji <strong>"Daar Kamarada"</strong> si aad u bilowdo tababarka tooska ah.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- INSTRUCTIONS -->
+                <div class="p-4 rounded-2xl bg-[#201c2c] border border-[#2e273f] text-xs text-[#9e9aa7] space-y-2">
+                    <h5 class="font-extrabold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-purple-400"></i> Qaabka loo isticmaalo AI Form Detection:
+                    </h5>
+                    <ul class="list-disc pl-5 space-y-1 text-[11px] leading-relaxed">
+                        <li><strong class="text-emerald-300">Xariiqyo Cagaaran (Neon Green):</strong> Farsamadaadu waa saxan tahay ✅.</li>
+                        <li><strong class="text-rose-400">Xariiqyo Cas (Neon Red):</strong> Qalad ayaa jira ❌ — saxo xagasha jilibka ama gacmaha.</li>
+                        <li>Kamarada horteeda istaag masaafad ah 2-3 mitir si madaxa ilaa cagaha ay u muuqdaan.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT 4 COLS: EXERCISE SELECTOR + METRICS -->
+        <div class="lg:col-span-4 space-y-5">
+
+            <!-- EXERCISE SELECTOR -->
+            <div class="skillset-card p-5 bg-[#191622] border-[#2e273f] space-y-3">
+                <h4 class="font-extrabold text-white text-sm pb-2 border-b border-[#2e273f] flex items-center justify-between">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-purple-400"></i> Dooro Jimicsiga
+                    </span>
+                    <span class="text-[10px] text-purple-300 font-bold bg-purple-500/10 px-2 py-0.5 rounded-full">All Gym List</span>
+                </h4>
+
+                <!-- FREE exercises -->
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold text-[#736c82] uppercase tracking-wider">Free — Bilaash</p>
+                    <button onclick="selectExercise('squat')" id="btn-squat"
+                        class="exercise-btn active-ex w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🦵</span>
+                        <div><span class="block font-extrabold">Squats</span><span class="text-[10px] opacity-70">Knee + Hip Angles</span></div>
+                    </button>
+                    <button onclick="selectExercise('pushup')" id="btn-pushup"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">💪</span>
+                        <div><span class="block font-extrabold">Push-Ups</span><span class="text-[10px] opacity-70">Elbow + Shoulder Angles</span></div>
+                    </button>
+                </div>
+
+                <!-- PRO exercises -->
+                <div class="space-y-2 pt-2 border-t border-[#2e273f]">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Gym Library Exercises</p>
+                        {% if not profile.has_active_pro %}
+                        <span class="text-[10px] text-amber-400 font-bold"><i class="fa-solid fa-crown mr-1"></i> Pro</span>
+                        {% endif %}
+                    </div>
+
+                    <button onclick="selectExercise('bicep_curl')" id="btn-bicep_curl"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🏋️</span>
+                        <div><span class="block font-extrabold">Bicep Curls</span><span class="text-[10px] opacity-70">Elbow Flexion Angle</span></div>
+                    </button>
+                    <button onclick="selectExercise('shoulder_press')" id="btn-shoulder_press"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🔱</span>
+                        <div><span class="block font-extrabold">Shoulder Press</span><span class="text-[10px] opacity-70">Shoulder + Overhead Lockout</span></div>
+                    </button>
+                    <button onclick="selectExercise('lunge')" id="btn-lunge"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🦿</span>
+                        <div><span class="block font-extrabold">Lunges</span><span class="text-[10px] opacity-70">Front + Back Knee Angles</span></div>
+                    </button>
+                    <button onclick="selectExercise('plank')" id="btn-plank"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🧘</span>
+                        <div><span class="block font-extrabold">Plank</span><span class="text-[10px] opacity-70">Body Alignment + Hold Time</span></div>
+                    </button>
+                    <button onclick="selectExercise('situp')" id="btn-situp"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🔥</span>
+                        <div><span class="block font-extrabold">Sit-Ups / Crunches</span><span class="text-[10px] opacity-70">Hip + Torso Flexion</span></div>
+                    </button>
+                    <button onclick="selectExercise('lateral_raise')" id="btn-lateral_raise"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🦅</span>
+                        <div><span class="block font-extrabold">Lateral Raises</span><span class="text-[10px] opacity-70">Shoulder Abduction</span></div>
+                    </button>
+                    <button onclick="selectExercise('deadlift')" id="btn-deadlift"
+                        class="exercise-btn w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left">
+                        <span class="text-base">🏗️</span>
+                        <div><span class="block font-extrabold">Deadlifts</span><span class="text-[10px] opacity-70">Hip Hinge & Spine Angle</span></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- REP COUNTER CARD -->
+            <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] text-center space-y-3">
+                <span id="exerciseLabel" class="text-xs font-extrabold text-purple-300 uppercase tracking-wider block">Squats — Completed Reps</span>
+                <div class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-purple-500 via-pink-500 to-rose-400 text-white flex flex-col items-center justify-center mx-auto shadow-xl shadow-purple-500/20">
+                    <span id="repCounterDisplay" class="text-4xl font-black">0</span>
+                    <span class="text-[9px] uppercase font-extrabold tracking-widest text-purple-100">Reps</span>
+                </div>
+                <div class="flex items-center justify-center gap-2">
+                    <span id="formBadge" class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-extrabold">
+                        Form: Ready ✅
+                    </span>
+                    <span id="repStateBadge" class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 text-xs font-bold">
+                        State: Up
+                    </span>
+                </div>
+                <!-- PLANK TIMER -->
+                <div id="plankTimerContainer" class="hidden p-3 rounded-xl bg-[#201c2c] border border-[#2e273f]">
+                    <div class="text-xs text-[#9e9aa7] mb-1">Plank Hold Time</div>
+                    <div id="plankTimerDisplay" class="text-2xl font-black text-emerald-400">0s</div>
+                </div>
+            </div>
+
+            <!-- JOINT ANGLES GAUGES -->
+            <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-4">
+                <h4 class="font-extrabold text-white text-sm pb-2 border-b border-[#2e273f] flex items-center justify-between">
+                    <span id="gaugeTitle">Xaglaha Jilbaha (Knee & Hip)</span>
+                    <i class="fa-solid fa-chart-line text-purple-400"></i>
+                </h4>
+
+                <!-- ANGLE 1 -->
+                <div class="metric-gauge p-3 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span id="angle1Label" class="font-bold text-[#9e9aa7]">Knee Flexion</span>
+                        <span id="angle1Text" class="font-extrabold text-white">180°</span>
+                    </div>
+                    <div class="w-full bg-[#0f0e13] rounded-full h-2.5 overflow-hidden">
+                        <div id="angle1Bar" class="bg-emerald-500 h-full rounded-full transition-all duration-75" style="width: 100%;"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-[#736c82]">
+                        <span id="angle1Target">Target: ≤ 100°</span>
+                        <span id="angle1Status" class="text-emerald-400 font-bold">Standing</span>
+                    </div>
+                </div>
+
+                <!-- ANGLE 2 -->
+                <div class="metric-gauge p-3 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span id="angle2Label" class="font-bold text-[#9e9aa7]">Hip Flexion</span>
+                        <span id="angle2Text" class="font-extrabold text-white">180°</span>
+                    </div>
+                    <div class="w-full bg-[#0f0e13] rounded-full h-2.5 overflow-hidden">
+                        <div id="angle2Bar" class="bg-purple-500 h-full rounded-full transition-all duration-75" style="width: 100%;"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-[#736c82]">
+                        <span id="angle2Target">Ideal: 80° - 110°</span>
+                        <span id="angle2Status" class="text-purple-300 font-bold">Aligned</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let cameraInstance = null;
+    let isCameraRunning = false;
+    let voiceFeedbackEnabled = true;
+    let repCount = 0;
+    let exerciseStage = "UP";
+    let lastFeedbackSpeechTime = 0;
+    let currentExercise = 'squat';
+    let plankStartTime = null;
+    let plankTimerInterval = null;
+
+    const videoElement = document.getElementById('webcamVideo');
+    const canvasElement = document.getElementById('outputCanvas');
+    const canvasCtx = canvasElement.getContext('2d');
+
+    // ===== Exercise Definitions for All Categories =====
+    const EXERCISES = {
+        squat: {
+            name: 'Squats',
+            angle1Label: 'Knee Flexion (Jilibka)',
+            angle2Label: 'Hip Flexion (Misigta)',
+            angle1Target: 'Depth Target: ≤ 100°',
+            angle2Target: 'Ideal Hip: 80°-110°',
+            gaugeTitle: 'Xaglaha Jilbaha & Misigta',
+            repLabel: 'Squats — Completed Reps',
+            checkForm: checkSquatForm,
+            getLandmarks: getSquatLandmarks,
+        },
+        pushup: {
+            name: 'Push-Ups',
+            angle1Label: 'Elbow Flexion (Cuneecaha)',
+            angle2Label: 'Shoulder Angle (Garabka)',
+            angle1Target: 'Target: ≤ 90°',
+            angle2Target: 'Ideal: 40°-70°',
+            gaugeTitle: 'Xaglaha Gacmaha & Garabka',
+            repLabel: 'Push-Ups — Completed Reps',
+            checkForm: checkPushupForm,
+            getLandmarks: getPushupLandmarks,
+        },
+        bicep_curl: {
+            name: 'Bicep Curls',
+            angle1Label: 'Elbow Flexion Angle',
+            angle2Label: 'Shoulder Stability',
+            angle1Target: 'Target: ≤ 60° (curled)',
+            angle2Target: 'Ideal: > 150° (stable)',
+            gaugeTitle: 'Xaglaha Cuneecaha',
+            repLabel: 'Bicep Curls — Completed Reps',
+            checkForm: checkBicepCurlForm,
+            getLandmarks: getPushupLandmarks,
+        },
+        shoulder_press: {
+            name: 'Shoulder Press',
+            angle1Label: 'Elbow Angle (Cuneecaha)',
+            angle2Label: 'Shoulder Elevation',
+            angle1Target: 'Start: ≤ 90° | End: > 160°',
+            angle2Target: 'Full Range: > 160°',
+            gaugeTitle: 'Xaglaha Shoulder Press',
+            repLabel: 'Shoulder Press — Completed Reps',
+            checkForm: checkShoulderPressForm,
+            getLandmarks: getPushupLandmarks,
+        },
+        lunge: {
+            name: 'Lunges',
+            angle1Label: 'Front Knee (Jilibka Hore)',
+            angle2Label: 'Back Knee (Jilibka Dambe)',
+            angle1Target: 'Target: 85°-95°',
+            angle2Target: 'Target: 85°-100°',
+            gaugeTitle: 'Xaglaha Jilbaha (Lunge)',
+            repLabel: 'Lunges — Completed Reps',
+            checkForm: checkLungeForm,
+            getLandmarks: getSquatLandmarks,
+        },
+        plank: {
+            name: 'Plank',
+            angle1Label: 'Hip Alignment (Misigta)',
+            angle2Label: 'Shoulder Angle (Garabka)',
+            angle1Target: 'Ideal: 170°-180° (flat)',
+            angle2Target: 'Stable: > 80°',
+            gaugeTitle: 'Toosinta Jirka (Plank)',
+            repLabel: 'Plank — Hold Time',
+            checkForm: checkPlankForm,
+            getLandmarks: getSquatLandmarks,
+        },
+        situp: {
+            name: 'Sit-Ups',
+            angle1Label: 'Hip Flexion (Misigta)',
+            angle2Label: 'Spine Angle (Dhabarka)',
+            angle1Target: 'Down: 170°+ | Up: ≤ 70°',
+            angle2Target: 'Ideal: variable',
+            gaugeTitle: 'Xaglaha Sit-Ups',
+            repLabel: 'Sit-Ups — Completed Reps',
+            checkForm: checkSitupForm,
+            getLandmarks: getSquatLandmarks,
+        },
+        lateral_raise: {
+            name: 'Lateral Raises',
+            angle1Label: 'Shoulder Abduction',
+            angle2Label: 'Elbow Straightness',
+            angle1Target: 'Target: 80°-90°',
+            angle2Target: 'Ideal: > 160°',
+            gaugeTitle: 'Xaglaha Lateral Raise',
+            repLabel: 'Lateral Raises — Completed Reps',
+            checkForm: checkLateralRaiseForm,
+            getLandmarks: getPushupLandmarks,
+        },
+        deadlift: {
+            name: 'Deadlifts',
+            angle1Label: 'Hip Hinge Angle',
+            angle2Label: 'Spine / Back Alignment',
+            angle1Target: 'Hinge: 80°-100°',
+            angle2Target: 'Straight: 170°-180°',
+            gaugeTitle: 'Xaglaha Deadlift',
+            repLabel: 'Deadlifts — Completed Reps',
+            checkForm: checkDeadliftForm,
+            getLandmarks: getSquatLandmarks,
+        }
+    };
+
+    function calculateAngle(a, b, c) {
+        const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+        let angle = Math.abs(radians * 180.0 / Math.PI);
+        if (angle > 180.0) angle = 360.0 - angle;
+        return Math.round(angle);
+    }
+
+    function getSquatLandmarks(lm) {
+        const leftHip = lm[23], leftKnee = lm[25], leftAnkle = lm[27], leftShoulder = lm[11];
+        const rightHip = lm[24], rightKnee = lm[26], rightAnkle = lm[28], rightShoulder = lm[12];
+        let hip = leftHip, knee = leftKnee, ankle = leftAnkle, shoulder = leftShoulder;
+        if ((rightKnee.visibility || 0) > (leftKnee.visibility || 0)) {
+            hip = rightHip; knee = rightKnee; ankle = rightAnkle; shoulder = rightShoulder;
+        }
+        const angle1 = calculateAngle(hip, knee, ankle);
+        const angle2 = calculateAngle(shoulder, hip, knee);
+        return { angle1, angle2, hip, knee, ankle, shoulder };
+    }
+
+    function getPushupLandmarks(lm) {
+        const leftShoulder = lm[11], leftElbow = lm[13], leftWrist = lm[15];
+        const rightShoulder = lm[12], rightElbow = lm[14], rightWrist = lm[16];
+        let shoulder = leftShoulder, elbow = leftElbow, wrist = leftWrist;
+        if ((rightElbow.visibility || 0) > (leftElbow.visibility || 0)) {
+            shoulder = rightShoulder; elbow = rightElbow; wrist = rightWrist;
+        }
+        const hip = (lm[23].visibility || 0) > (lm[24].visibility || 0) ? lm[23] : lm[24];
+        const angle1 = calculateAngle(shoulder, elbow, wrist);
+        const angle2 = calculateAngle(hip, shoulder, elbow);
+        return { angle1, angle2, shoulder, elbow, wrist, hip };
+    }
+
+    function checkSquatForm(data) {
+        const { angle1: kneeAngle, angle2: hipAngle } = data;
+        let isFormCorrect = true, feedback = "Good form! Squat sax ah!", sub = "Jilbaha & misigtu waa waafaqsan yihiin";
+        let color = "#22c55e";
+
+        if (kneeAngle < 60) {
+            isFormCorrect = false; feedback = "Too low! Jilbaha ka ilaali."; sub = "Ha hoos ugu dhumin aad u badan"; color = "#ef4444";
+        } else if (exerciseStage === "DOWN" && kneeAngle > 115) {
+            isFormCorrect = false; feedback = "Hoos badan! Thighs parallel ku yeel."; sub = "Target: 90°-100° knee angle"; color = "#f59e0b";
+        }
+
+        if (kneeAngle > 155) {
+            exerciseStage = "UP";
+            document.getElementById('repStateBadge').textContent = "State: Up";
+        } else if (kneeAngle <= 100 && exerciseStage === "UP") {
+            exerciseStage = "DOWN";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Down (Squat)";
+            if (isFormCorrect) speakFeedback("Good rep!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: kneeAngle, angle2: hipAngle };
+    }
+
+    function checkPushupForm(data) {
+        const { angle1: elbowAngle, angle2: shoulderAngle } = data;
+        let isFormCorrect = true, feedback = "Good Push-Up Form!", sub = "Gacmaha iyo garabku waa saxan yihiin";
+        let color = "#22c55e";
+
+        if (elbowAngle < 50) {
+            isFormCorrect = false; feedback = "Aad u hoos!"; sub = "Jirkaaga si toosan u hay"; color = "#ef4444";
+        }
+
+        if (elbowAngle > 160) {
+            exerciseStage = "UP";
+            document.getElementById('repStateBadge').textContent = "State: Up";
+        } else if (elbowAngle <= 90 && exerciseStage === "UP") {
+            exerciseStage = "DOWN";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Down";
+            if (isFormCorrect) speakFeedback("Good push-up!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: elbowAngle, angle2: shoulderAngle };
+    }
+
+    function checkBicepCurlForm(data) {
+        const { angle1: elbowAngle, angle2: shoulderAngle } = data;
+        let isFormCorrect = true, feedback = "Bicep Curl — Fiican!", sub = "Cuneecaha si fiican u xaniba";
+        let color = "#22c55e";
+
+        if (shoulderAngle < 140) {
+            isFormCorrect = false; feedback = "Garabka ha dhaqaajisin!"; sub = "Garabka adag u hay"; color = "#ef4444";
+        }
+
+        if (elbowAngle > 150) {
+            exerciseStage = "UP";
+            document.getElementById('repStateBadge').textContent = "State: Down (Extended)";
+        } else if (elbowAngle <= 60 && exerciseStage === "UP") {
+            exerciseStage = "DOWN";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Curled (Up)";
+            if (isFormCorrect) speakFeedback("Good curl!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: elbowAngle, angle2: shoulderAngle };
+    }
+
+    function checkShoulderPressForm(data) {
+        const { angle1: elbowAngle, angle2: shoulderAngle } = data;
+        let isFormCorrect = true, feedback = "Shoulder Press — Fiican!", sub = "Garabka si toos ah u taag";
+        let color = "#22c55e";
+
+        if (elbowAngle <= 90 && exerciseStage === "UP") {
+            exerciseStage = "DOWN";
+        } else if (elbowAngle > 160 && exerciseStage === "DOWN") {
+            exerciseStage = "UP";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Pressed";
+            if (isFormCorrect) speakFeedback("Good shoulder press!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: elbowAngle, angle2: shoulderAngle };
+    }
+
+    function checkLungeForm(data) {
+        const { angle1: kneeAngle, angle2: hipAngle } = data;
+        let isFormCorrect = true, feedback = "Lunge — Fiican!", sub = "Jilbaha si toos ah u hay";
+        let color = "#22c55e";
+
+        if (kneeAngle < 75) {
+            isFormCorrect = false; feedback = "Jilibka hore aad u hoos!"; sub = "Target: 85°-95°"; color = "#ef4444";
+        }
+
+        if (kneeAngle > 150) {
+            exerciseStage = "UP";
+            document.getElementById('repStateBadge').textContent = "State: Standing";
+        } else if (kneeAngle <= 100 && exerciseStage === "UP") {
+            exerciseStage = "DOWN";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Lunge Down";
+            if (isFormCorrect) speakFeedback("Good lunge!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: kneeAngle, angle2: hipAngle };
+    }
+
+    function checkPlankForm(data) {
+        const { angle1: hipAngle, angle2: shoulderAngle } = data;
+        let isFormCorrect = hipAngle >= 155;
+        let feedback = isFormCorrect ? "Plank Fiican! Jir toosan ku hayso." : "Misigta toosi! Too high or low.";
+        let sub = isFormCorrect ? "Jirka si fiican ayuu u siman yahay" : "Dhabarka iyo misigta toosi";
+        let color = isFormCorrect ? "#22c55e" : "#ef4444";
+
+        if (isFormCorrect && !plankStartTime) {
+            plankStartTime = Date.now();
+            plankTimerInterval = setInterval(() => {
+                const elapsed = Math.round((Date.now() - plankStartTime) / 1000);
+                document.getElementById('plankTimerDisplay').textContent = elapsed + 's';
+                document.getElementById('repCounterDisplay').textContent = elapsed;
+            }, 200);
+        } else if (!isFormCorrect && plankStartTime) {
+            clearInterval(plankTimerInterval);
+            plankStartTime = null;
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: hipAngle, angle2: shoulderAngle };
+    }
+
+    function checkSitupForm(data) {
+        const { angle1: hipAngle, angle2: shoulderAngle } = data;
+        let isFormCorrect = true, feedback = "Sit-Up — Fiican!", sub = "Caloosha si fiican u shaqeyso";
+        let color = "#22c55e";
+
+        if (hipAngle > 155) {
+            exerciseStage = "UP";
+            document.getElementById('repStateBadge').textContent = "State: Lying";
+        } else if (hipAngle <= 70 && exerciseStage === "UP") {
+            exerciseStage = "DOWN";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Up";
+            if (isFormCorrect) speakFeedback("Good sit-up!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: hipAngle, angle2: shoulderAngle };
+    }
+
+    function checkLateralRaiseForm(data) {
+        const { angle1: shoulderAngle, angle2: elbowAngle } = data;
+        let isFormCorrect = true, feedback = "Lateral Raise — Fiican!", sub = "Gacmaha heerka garabka gaarsii";
+        let color = "#22c55e";
+
+        if (shoulderAngle > 105) {
+            isFormCorrect = false; feedback = "Ha ka qaadin heerka garabka!"; sub = "Target: 80°-90°"; color = "#ef4444";
+        }
+
+        if (shoulderAngle < 35) {
+            exerciseStage = "DOWN";
+            document.getElementById('repStateBadge').textContent = "State: Down";
+        } else if (shoulderAngle >= 80 && exerciseStage === "DOWN") {
+            exerciseStage = "UP";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Raised";
+            if (isFormCorrect) speakFeedback("Good raise!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: shoulderAngle, angle2: elbowAngle };
+    }
+
+    function checkDeadliftForm(data) {
+        const { angle1: hipAngle, angle2: backAngle } = data;
+        let isFormCorrect = true, feedback = "Deadlift — Fiican!", sub = "Dhabarka toosi oo misigta dib u riix";
+        let color = "#22c55e";
+
+        if (backAngle < 140) {
+            isFormCorrect = false; feedback = "Dhabarka ha qaloocin!"; sub = "Spine neutral ku hay"; color = "#ef4444";
+        }
+
+        if (hipAngle > 165) {
+            exerciseStage = "UP";
+            document.getElementById('repStateBadge').textContent = "State: Lockout";
+        } else if (hipAngle <= 100 && exerciseStage === "UP") {
+            exerciseStage = "DOWN";
+            repCount++;
+            updateRepCount();
+            document.getElementById('repStateBadge').textContent = "State: Hinge Down";
+            if (isFormCorrect) speakFeedback("Good deadlift!");
+        }
+
+        return { isFormCorrect, feedback, sub, color, angle1: hipAngle, angle2: backAngle };
+    }
+
+    function updateRepCount() {
+        document.getElementById('repCounterDisplay').textContent = repCount;
+        document.getElementById('overlayRepCount').textContent = repCount;
+    }
+
+    function selectExercise(exKey) {
+        currentExercise = exKey;
+        repCount = 0;
+        exerciseStage = "UP";
+        clearInterval(plankTimerInterval);
+        plankStartTime = null;
+
+        document.querySelectorAll('.exercise-btn').forEach(b => b.classList.remove('active-ex'));
+        const btn = document.getElementById('btn-' + exKey);
+        if (btn) btn.classList.add('active-ex');
+
+        const ex = EXERCISES[exKey];
+        if (!ex) return;
+
+        document.getElementById('exerciseLabel').textContent = ex.repLabel;
+        document.getElementById('overlayExerciseName').textContent = ex.name;
+        document.getElementById('exerciseBadgeText').textContent = ex.name;
+        document.getElementById('angle1Label').textContent = ex.angle1Label;
+        document.getElementById('angle2Label').textContent = ex.angle2Label;
+        document.getElementById('angle1Target').textContent = ex.angle1Target;
+        document.getElementById('angle2Target').textContent = ex.angle2Target;
+        document.getElementById('gaugeTitle').textContent = ex.gaugeTitle;
+        updateRepCount();
+        document.getElementById('repStateBadge').textContent = "State: Up";
+
+        const plankCont = document.getElementById('plankTimerContainer');
+        if (exKey === 'plank') {
+            plankCont.classList.remove('hidden');
+        } else {
+            plankCont.classList.add('hidden');
+        }
+    }
+
+    // Read URL param ?exercise=... on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const exParam = urlParams.get('exercise');
+        if (exParam) {
+            const lower = exParam.toLowerCase();
+            if (lower.includes('push')) selectExercise('pushup');
+            else if (lower.includes('curl')) selectExercise('bicep_curl');
+            else if (lower.includes('press')) selectExercise('shoulder_press');
+            else if (lower.includes('lunge')) selectExercise('lunge');
+            else if (lower.includes('plank')) selectExercise('plank');
+            else if (lower.includes('sit') || lower.includes('crunch')) selectExercise('situp');
+            else if (lower.includes('lateral')) selectExercise('lateral_raise');
+            else if (lower.includes('deadlift')) selectExercise('deadlift');
+            else selectExercise('squat');
+        }
+    });
+
+    function speakFeedback(text) {
+        if (!voiceFeedbackEnabled || !('speechSynthesis' in window)) return;
+        const now = Date.now();
+        if (now - lastFeedbackSpeechTime < 2500) return;
+        lastFeedbackSpeechTime = now;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.05;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleAudioFeedback() {
+        voiceFeedbackEnabled = !voiceFeedbackEnabled;
+        const btn = document.getElementById('audioToggleBtn');
+        if (voiceFeedbackEnabled) {
+            btn.innerHTML = `<i class="fa-solid fa-volume-high mr-1"></i> Voice: ON`;
+            btn.className = "px-3 py-1.5 rounded-xl bg-[#262134] hover:bg-[#342d47] text-emerald-400 text-xs font-bold border border-[#3d3454]";
+        } else {
+            btn.innerHTML = `<i class="fa-solid fa-volume-xmark mr-1"></i> Voice: OFF`;
+            btn.className = "px-3 py-1.5 rounded-xl bg-[#262134] hover:bg-[#342d47] text-rose-400 text-xs font-bold border border-[#3d3454]";
+        }
+    }
+
+    function resetRepCounter() {
+        repCount = 0;
+        exerciseStage = "UP";
+        clearInterval(plankTimerInterval);
+        plankStartTime = null;
+        updateRepCount();
+        document.getElementById('repStateBadge').textContent = "State: Up";
+        if (currentExercise === 'plank') {
+            document.getElementById('plankTimerDisplay').textContent = '0s';
+        }
+    }
+
+    // ===== MediaPipe Pose Setup =====
+    const pose = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+    pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        smoothSegmentation: false,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+    pose.onResults(onPoseResults);
+
+    function onPoseResults(results) {
+        if (!canvasElement || !canvasCtx) return;
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+        if (!results.poseLandmarks) { canvasCtx.restore(); return; }
+
+        const landmarks = results.poseLandmarks;
+        const ex = EXERCISES[currentExercise];
+        if (!ex) { canvasCtx.restore(); return; }
+
+        const landmarkData = ex.getLandmarks(landmarks);
+        const formResult = ex.checkForm(landmarkData);
+        const { isFormCorrect, feedback, sub, color, angle1, angle2 } = formResult;
+
+        document.getElementById('angle1Text').textContent = `${angle1}°`;
+        document.getElementById('angle2Text').textContent = `${angle2}°`;
+
+        const a1Pct = Math.min(Math.max((angle1 / 180) * 100, 10), 100);
+        const a2Pct = Math.min(Math.max((angle2 / 180) * 100, 10), 100);
+        document.getElementById('angle1Bar').style.width = `${a1Pct}%`;
+        document.getElementById('angle2Bar').style.width = `${a2Pct}%`;
+        document.getElementById('angle1Bar').className = isFormCorrect ? "bg-emerald-500 h-full rounded-full transition-all duration-75" : "bg-rose-500 h-full rounded-full transition-all duration-75";
+        document.getElementById('angle1Status').textContent = isFormCorrect ? "Good ✅" : "Adjust ❌";
+        document.getElementById('angle1Status').className = isFormCorrect ? "text-emerald-400 font-bold" : "text-rose-400 font-bold";
+
+        document.getElementById('feedbackText').textContent = feedback;
+        document.getElementById('feedbackSubtext').textContent = sub;
+        document.getElementById('overlayFormQuality').textContent = isFormCorrect ? "Good Form ✅" : "Fix Form ❌";
+        document.getElementById('overlayFormQuality').className = isFormCorrect ? "text-xs font-extrabold text-emerald-400" : "text-xs font-extrabold text-rose-400";
+        document.getElementById('formBadge').className = isFormCorrect ?
+            "px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-extrabold" :
+            "px-3 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-extrabold";
+        document.getElementById('formBadge').textContent = isFormCorrect ? "Form: Good ✅" : "Form: Fix ❌";
+
+        drawGlowingSkeleton(landmarks, canvasCtx, color, isFormCorrect);
+        canvasCtx.restore();
+    }
+
+    function drawGlowingSkeleton(landmarks, ctx, color, isCorrect) {
+        const connections = [
+            [11, 12], [11, 23], [12, 24], [23, 24],
+            [23, 25], [24, 26], [25, 27], [26, 28],
+            [11, 13], [13, 15], [12, 14], [14, 16],
+            [27, 29], [28, 30], [15, 17], [16, 18]
+        ];
+
+        // Draw laser lines with intense glow
+        ctx.shadowBlur = isCorrect ? 14 : 20;
+        ctx.shadowColor = color;
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = color;
+
+        connections.forEach(([i, j]) => {
+            const p1 = landmarks[i], p2 = landmarks[j];
+            if (p1 && p2 && (p1.visibility || 0) > 0.4 && (p2.visibility || 0) > 0.4) {
+                ctx.beginPath();
+                ctx.moveTo(p1.x * canvasElement.width, p1.y * canvasElement.height);
+                ctx.lineTo(p2.x * canvasElement.width, p2.y * canvasElement.height);
+                ctx.stroke();
+            }
+        });
+
+        // Draw glowing joint circles
+        ctx.shadowBlur = 0;
+        [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28].forEach(i => {
+            const p = landmarks[i];
+            if (p && (p.visibility || 0) > 0.4) {
+                ctx.beginPath();
+                ctx.arc(p.x * canvasElement.width, p.y * canvasElement.height, 7, 0, 2 * Math.PI);
+                ctx.fillStyle = "#ffffff";
+                ctx.fill();
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = color;
+                ctx.stroke();
+            }
+        });
+    }
+
+    async function toggleCamera() {
+        const btn = document.getElementById('toggleCameraBtn');
+        const btnText = document.getElementById('cameraBtnText');
+        const standby = document.getElementById('cameraStandbyPlaceholder');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const liveFeedback = document.getElementById('liveFeedbackOverlay');
+        const liveRep = document.getElementById('liveRepOverlay');
+        const exBadge = document.getElementById('exerciseBadge');
+
+        if (!isCameraRunning) {
+            btnText.textContent = "Jooji Kamarada (Stop Camera)";
+            btn.className = "px-6 py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition";
+            standby.classList.add('hidden');
+            liveFeedback.classList.remove('hidden');
+            liveRep.classList.remove('hidden');
+            exBadge.classList.remove('hidden');
+            statusDot.className = "w-3 h-3 rounded-full bg-emerald-400 animate-ping";
+            statusText.textContent = "Kamaradu waa toos (AI Pose Tracking Active)";
+
+            cameraInstance = new Camera(videoElement, {
+                onFrame: async () => { await pose.send({ image: videoElement }); },
+                width: 640, height: 480
+            });
+            await cameraInstance.start();
+            isCameraRunning = true;
+            speakFeedback("Camera started. Let's go!");
+        } else {
+            if (cameraInstance) await cameraInstance.stop();
+            clearInterval(plankTimerInterval);
+            plankStartTime = null;
+            btnText.textContent = "Daar Kamarada (Start Camera)";
+            btn.className = "px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition";
+            standby.classList.remove('hidden');
+            liveFeedback.classList.add('hidden');
+            liveRep.classList.add('hidden');
+            exBadge.classList.add('hidden');
+            statusDot.className = "w-3 h-3 rounded-full bg-slate-500";
+            statusText.textContent = "Kamaradu way xiran tahay";
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            isCameraRunning = false;
+        }
+    }
+</script>
+{% endblock %}

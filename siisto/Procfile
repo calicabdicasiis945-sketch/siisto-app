@@ -1,0 +1,2 @@
+web: gunicorn siisto_project.wsgi
+web: gunicorn config.wsgi

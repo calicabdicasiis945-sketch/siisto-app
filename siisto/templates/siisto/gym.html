@@ -1,0 +1,679 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Jimicsiyada & Maktabadda Gym-ka 3D | Siisto{% endblock %}
+
+{% block extra_head %}
+<style>
+    .muscle-tab-btn {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .muscle-tab-btn:hover {
+        transform: translateY(-2px);
+    }
+    .muscle-tab-btn.active {
+        background: linear-gradient(135deg, #c084fc 0%, #d988b9 50%, #ec4899 100%);
+        color: #FFFFFF;
+        box-shadow: 0 8px 24px -4px rgba(192, 132, 252, 0.45);
+    }
+    .exercise-card {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #1e1a2b;
+        border: 1px solid #2e273f;
+    }
+    .exercise-card:hover {
+        transform: translateY(-4px);
+        border-color: #7e42d8;
+        box-shadow: 0 16px 32px -8px rgba(192, 132, 252, 0.25);
+    }
+    
+    /* 3D Visualizer Canvas & Mannequin Viewport */
+    .mannequin-viewport {
+        background: radial-gradient(circle at center, #261f38 0%, #120e1c 70%, #0a0810 100%);
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid #3d3454;
+    }
+    
+    .laser-glow-green {
+        filter: drop-shadow(0 0 8px #22c55e) drop-shadow(0 0 16px #22c55e);
+    }
+    .laser-glow-red {
+        filter: drop-shadow(0 0 8px #ef4444) drop-shadow(0 0 16px #ef4444);
+    }
+
+    .form-indicator-badge {
+        box-shadow: 0 0 16px rgba(0,0,0,0.6);
+        backdrop-filter: blur(8px);
+        animation: badgePulse 2s infinite ease-in-out;
+    }
+    @keyframes badgePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- HEADER / INTRO BANNER -->
+    <div class="skillset-mauve-card p-6 sm:p-8 rounded-3xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border border-[#3d3454]">
+        <div class="space-y-2 z-10">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 text-purple-200 text-xs font-bold border border-purple-400/30">
+                    <i class="fa-solid fa-cube text-purple-300"></i> 3D Biomechanical & Exercise Library
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Green = Sax ✅
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold border border-rose-500/30">
+                    <i class="fa-solid fa-circle-xmark text-rose-400"></i> Red = Qalad ❌
+                </span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Jimicsiyada & Maktabadda 3D Biomechanics
+            </h2>
+            <p class="text-xs sm:text-sm text-purple-200/80 max-w-2xl">
+                Jimicsi walba wuxuu leeyahay <strong>3D Mannequin Animation</strong> leh xariiqyo laser ah (Posture Lines). 
+                Guji badhanka <strong>"Qaabka Saxda ah (Green)"</strong> ama <strong>"Qaladka (Red)"</strong> si aad u aragto farqiga farsamada saxda ah iyo qaladka.
+            </p>
+        </div>
+        <div class="z-10 flex flex-wrap items-center gap-3">
+            <a href="{% url 'ai_form_detection' %}" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-emerald-500/25 flex items-center gap-2">
+                <i class="fa-solid fa-camera text-sm"></i>
+                <span>AI Form Detection (Live Camera)</span>
+            </a>
+            <a href="{% url 'chatbot' %}" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition duration-150 shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-sparkles text-sm"></i>
+                <span>AI Coach Chatbot</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN WORKOUT WORKSPACE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT 8 COLS: MUSCLE SELECTOR & EXERCISE CARDS -->
+        <div class="lg:col-span-8 space-y-6">
+
+            <!-- 1. CATEGORY PILLS SELECTOR -->
+            <div class="skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-extrabold text-white text-sm flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">1</span>
+                        Dooro Qaybta Muruqa (Select Muscle Group)
+                    </h3>
+                    <span class="text-xs text-purple-300 font-semibold">7 Categories ({{ exercises|length }} Jimicsi)</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                    <button type="button" onclick="showMuscleCategory('Chest', this)"
+                            class="muscle-tab-btn active p-3 rounded-2xl text-white font-bold text-xs flex flex-col items-center gap-1.5 shadow-md">
+                        <i class="fa-solid fa-dumbbell text-base"></i>
+                        <span>Chest</span>
+                    </button>
+
+                    <button type="button" onclick="showMuscleCategory('Back', this)"
+                            class="muscle-tab-btn p-3 rounded-2xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] font-bold text-xs flex flex-col items-center gap-1.5 border border-[#2e273f]">
+                        <i class="fa-solid fa-shield-halved text-base text-purple-400"></i>
+                        <span>Back</span>
+                    </button>
+
+                    <button type="button" onclick="showMuscleCategory('Shoulders', this)"
+                            class="muscle-tab-btn p-3 rounded-2xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] font-bold text-xs flex flex-col items-center gap-1.5 border border-[#2e273f]">
+                        <i class="fa-solid fa-arrows-up-down-left-right text-base text-purple-400"></i>
+                        <span>Shoulders</span>
+                    </button>
+
+                    <button type="button" onclick="showMuscleCategory('Arms', this)"
+                            class="muscle-tab-btn p-3 rounded-2xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] font-bold text-xs flex flex-col items-center gap-1.5 border border-[#2e273f]">
+                        <i class="fa-solid fa-hand-fist text-base text-purple-400"></i>
+                        <span>Arms</span>
+                    </button>
+
+                    <button type="button" onclick="showMuscleCategory('Legs', this)"
+                            class="muscle-tab-btn p-3 rounded-2xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] font-bold text-xs flex flex-col items-center gap-1.5 border border-[#2e273f]">
+                        <i class="fa-solid fa-person-running text-base text-purple-400"></i>
+                        <span>Legs</span>
+                    </button>
+
+                    <button type="button" onclick="showMuscleCategory('Abs / Core', this)"
+                            class="muscle-tab-btn p-3 rounded-2xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] font-bold text-xs flex flex-col items-center gap-1.5 border border-[#2e273f]">
+                        <i class="fa-solid fa-fire text-base text-pink-400"></i>
+                        <span>Abs/Core</span>
+                    </button>
+
+                    <button type="button" onclick="showMuscleCategory('Cardio', this)"
+                            class="muscle-tab-btn p-3 rounded-2xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] font-bold text-xs flex flex-col items-center gap-1.5 border border-[#2e273f]">
+                        <i class="fa-solid fa-heart-pulse text-base text-rose-400"></i>
+                        <span>Cardio</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. EXERCISE CARDS GRID -->
+            <div class="skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+                <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                    <h3 class="font-extrabold text-white text-sm flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">2</span>
+                        Jimicsiyada La Heli Karo
+                    </h3>
+                    <span id="currentCategoryLabel" class="text-xs font-bold text-purple-300 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
+                        Chest Exercises
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="exerciseCardsContainer">
+                    {% for ex in exercises %}
+                    <div class="exercise-card category-{{ ex.category|slugify }} p-4 rounded-3xl flex flex-col justify-between space-y-3"
+                         data-category="{{ ex.category }}"
+                         data-subcategory="{{ ex.subcategory }}"
+                         data-id="{{ ex.id }}"
+                         data-name="{{ ex.name }}"
+                         data-duration="{{ ex.default_duration }}"
+                         data-sets="{{ ex.default_sets }}"
+                         data-reps="{{ ex.default_reps }}"
+                         data-videourl="{{ ex.video_3d_url|default:'' }}"
+                         data-instructions="{{ ex.correct_form_instructions|default:'' }}">
+                        
+                        <div>
+                            <!-- 3D MANNEQUIN BIOMECHANICAL VISUALIZER WITH GLOWING LASER LINES -->
+                            <div class="mannequin-viewport h-48 rounded-2xl relative flex items-center justify-center cursor-pointer group"
+                                 onclick="openExercise3DModal({{ ex.id }}, '{{ ex.name|escapejs }}', '{{ ex.category|escapejs }}', '{{ ex.video_3d_url|default:''|escapejs }}', '{{ ex.correct_form_instructions|default:''|escapejs }}')">
+                                
+                                <!-- Interactive 3D SVG Biomechanical Mannequin -->
+                                <svg class="w-full h-full p-2 select-none" viewBox="0 0 200 200" id="mannequin-svg-{{ ex.id }}">
+                                    <!-- Studio Ground Platform -->
+                                    <ellipse cx="100" cy="180" rx="60" ry="12" fill="#181325" stroke="#3d3454" stroke-width="1.5" />
+                                    
+                                    <!-- Mannequin Head & Torso -->
+                                    <circle cx="100" cy="45" r="14" fill="#e2e8f0" opacity="0.9" />
+                                    <path d="M92 60 L108 60 L115 110 L85 110 Z" fill="#cbd5e1" opacity="0.85" />
+                                    <!-- Shorts -->
+                                    <path d="M85 110 L115 110 L118 132 L82 132 Z" fill="#1e1b2e" />
+                                    
+                                    <!-- Legs -->
+                                    <path d="M88 132 L86 158 L84 178" stroke="#cbd5e1" stroke-width="8" stroke-linecap="round" fill="none" />
+                                    <path d="M112 132 L114 158 L116 178" stroke="#cbd5e1" stroke-width="8" stroke-linecap="round" fill="none" />
+                                    
+                                    <!-- Arms / Limbs -->
+                                    <path id="left-arm-{{ ex.id }}" d="M85 68 L70 95 L82 120" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" fill="none" />
+                                    <path id="right-arm-{{ ex.id }}" d="M115 68 L130 95 L118 120" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" fill="none" />
+                                    
+                                    <!-- Barbell / Weight Bar -->
+                                    <line id="barbell-{{ ex.id }}" x1="45" y1="110" x2="155" y2="110" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" />
+                                    <rect x="40" y="98" width="6" height="24" rx="2" fill="#475569" />
+                                    <rect x="154" y="98" width="6" height="24" rx="2" fill="#475569" />
+
+                                    <!-- GLOWING LASER POSTURE LINES (DYNAMIC GREEN/RED) -->
+                                    <g id="laser-lines-{{ ex.id }}" class="laser-glow-green">
+                                        <line x1="70" y1="95" x2="82" y2="120" stroke="#22c55e" stroke-width="3" stroke-linecap="round" />
+                                        <line x1="130" y1="95" x2="118" y2="120" stroke="#22c55e" stroke-width="3" stroke-linecap="round" />
+                                        <line x1="86" y1="132" x2="86" y2="158" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="3,3" />
+                                        <line x1="114" y1="132" x2="114" y2="158" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="3,3" />
+                                    </g>
+                                </svg>
+
+                                <!-- FLOATING FORM BADGE (GREEN CHECK / RED X) -->
+                                <div id="form-badge-{{ ex.id }}" class="form-indicator-badge absolute top-3 right-3 w-8 h-8 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-300">
+                                    <i class="fa-solid fa-check text-xs"></i>
+                                </div>
+
+                                <!-- FORM TOGGLE BUTTONS (CORRECT VS MISTAKE) -->
+                                <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-1.5 z-20" onclick="event.stopPropagation()">
+                                    <button type="button" onclick="setCardFormMode({{ ex.id }}, 'correct')" 
+                                            id="btn-form-correct-{{ ex.id }}"
+                                            class="flex-1 py-1 px-2 rounded-lg bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-400/40 text-[10px] font-extrabold flex items-center justify-center gap-1 transition">
+                                        <i class="fa-solid fa-check"></i> Form Saxan
+                                    </button>
+                                    <button type="button" onclick="setCardFormMode({{ ex.id }}, 'error')" 
+                                            id="btn-form-error-{{ ex.id }}"
+                                            class="flex-1 py-1 px-2 rounded-lg bg-[#201c2c]/80 hover:bg-rose-500/20 text-[#9e9aa7] hover:text-rose-300 border border-[#2e273f] hover:border-rose-500/40 text-[10px] font-extrabold flex items-center justify-center gap-1 transition">
+                                        <i class="fa-solid fa-xmark"></i> Qalad
+                                    </button>
+                                </div>
+
+                                <!-- Category & Duration Badges -->
+                                <span class="absolute top-3 left-3 bg-[#0f0e13]/85 backdrop-blur-md text-purple-300 font-bold text-[10px] px-2.5 py-0.5 rounded-lg border border-purple-500/30 z-20">
+                                    {{ ex.subcategory }}
+                                </span>
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-extrabold text-white text-sm">{{ ex.name }}</h4>
+                                    <span class="text-[10px] font-extrabold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                                        {{ ex.default_sets }} Sets × {{ ex.default_reps }} Reps
+                                    </span>
+                                </div>
+                                <span class="text-[11px] font-bold text-purple-400 block mt-0.5">{{ ex.target_muscle }}</span>
+                                <p class="text-xs text-[#9e9aa7] mt-1 leading-relaxed line-clamp-2">{{ ex.description }}</p>
+                            </div>
+                        </div>
+
+                        <!-- ACTION BUTTONS -->
+                        <div class="space-y-2 pt-2">
+                            <div class="flex items-center gap-2">
+                                <button type="button" 
+                                        onclick="selectExercise('{{ ex.name|escapejs }}', {{ ex.default_duration }}, {{ ex.default_sets }}, {{ ex.default_reps }}, 0, {{ ex.id }})" 
+                                        class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition duration-150 shadow-sm flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-check"></i> Dooro Jimicsigan
+                                </button>
+                                <button type="button" 
+                                        onclick="openExercise3DModal({{ ex.id }}, '{{ ex.name|escapejs }}', '{{ ex.category|escapejs }}', '{{ ex.video_3d_url|default:''|escapejs }}', '{{ ex.correct_form_instructions|default:''|escapejs }}')" 
+                                        class="px-3.5 py-2.5 rounded-xl bg-[#2a243a] hover:bg-[#342d47] text-purple-300 font-bold text-xs border border-[#3d3454] transition flex items-center justify-center"
+                                        title="3D Mannequin & Video Modal">
+                                    <i class="fa-solid fa-cube text-xs"></i>
+                                </button>
+                            </div>
+                            
+                            <a href="{% url 'ai_form_detection' %}?exercise={{ ex.name|urlencode }}" 
+                               class="w-full py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-bold text-[11px] border border-emerald-500/20 flex items-center justify-center gap-1.5 transition">
+                                <i class="fa-solid fa-camera text-[10px]"></i> AI Real-Time Camera Detection
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT 4 COLS: LOG WORKOUT FORM -->
+        <div class="lg:col-span-4 space-y-6">
+
+            <div class="skillset-card p-6 bg-[#191622] sticky top-6 space-y-5 border-[#2e273f]">
+                <div class="flex items-center gap-3 pb-4 border-b border-[#2e273f]">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-pen-to-square text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-white text-base">3. Diiwaangeli Tababarka</h3>
+                        <p class="text-xs text-[#9e9aa7]">Geli xogta jimicsigaaga maanta</p>
+                    </div>
+                </div>
+
+                <form id="workoutForm" method="POST" action="{% url 'add_workout' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" id="selectedExerciseId" name="exercise_id" value="">
+
+                    <div>
+                        <label class="block text-xs font-extrabold text-purple-200 uppercase tracking-wider mb-1.5">
+                            Jimicsiga La Doortay
+                        </label>
+                        <div class="relative">
+                            <i class="fa-solid fa-dumbbell absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 text-xs"></i>
+                            <input type="text" id="selectedExerciseName" name="name" required
+                                   placeholder="Dooro jimicsi kor ku yaal..."
+                                   class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 transition placeholder-[#736c82]">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-extrabold text-purple-200 uppercase tracking-wider mb-1.5">
+                            Muddada (Minutes / Daqiiqado)
+                        </label>
+                        <div class="relative">
+                            <i class="fa-regular fa-clock absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9e9aa7] text-xs"></i>
+                            <input type="number" id="workoutDuration" name="duration" min="1" required
+                                   placeholder="Tusaale: 15"
+                                   class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 transition placeholder-[#736c82]">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-[#9e9aa7] mb-1">Sets</label>
+                            <input type="number" id="workoutSets" name="sets" placeholder="4" min="1"
+                                   class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-3 py-2 text-xs text-white text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#9e9aa7] mb-1">Reps</label>
+                            <input type="number" id="workoutReps" name="reps" placeholder="10" min="1"
+                                   class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-3 py-2 text-xs text-white text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-[#9e9aa7] mb-1">Culeyska (KG - Ikhtiyaari)</label>
+                        <input type="number" id="workoutWeight" name="weight_kg" placeholder="0" min="0" step="0.5"
+                               class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-3 py-2 text-xs text-white text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Keydi Jimicsiga (Save Workout)</span>
+                    </button>
+                </form>
+
+                <div class="p-3 bg-purple-950/40 rounded-2xl border border-purple-800/40 text-[11px] text-purple-200 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-purple-400"></i>
+                    <span>Dooro kaarka jimicsiga si uu form-ka si toos ah ugu buuxsamo!</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 3D BIOMECHANICAL MANNEQUIN & VIDEO MODAL -->
+<div id="exercise3DModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="skillset-card p-6 bg-[#191622] border-[#3d3454] max-w-2xl w-full rounded-3xl space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+        
+        <!-- MODAL HEADER -->
+        <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center shadow">
+                    <i class="fa-solid fa-cube text-sm"></i>
+                </div>
+                <div>
+                    <h4 id="modalExerciseTitle" class="font-extrabold text-white text-base">Exercise Biomechanics</h4>
+                    <p id="modalExerciseCategory" class="text-xs text-purple-300">3D Mannequin & Form Analysis</p>
+                </div>
+            </div>
+            <button onclick="closeExercise3DModal()" class="w-9 h-9 rounded-full bg-[#262134] text-[#9e9aa7] hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- 3D INTERACTIVE MANNEQUIN STAGE -->
+        <div class="mannequin-viewport h-64 rounded-2xl relative flex items-center justify-center p-4">
+            <svg class="w-full h-full select-none" viewBox="0 0 240 220" id="modal-mannequin-svg">
+                <!-- Studio Ground Platform -->
+                <ellipse cx="120" cy="195" rx="80" ry="16" fill="#181325" stroke="#3d3454" stroke-width="2" />
+                
+                <!-- Mannequin Head & Torso -->
+                <circle cx="120" cy="45" r="16" fill="#e2e8f0" opacity="0.95" />
+                <path d="M110 62 L130 62 L138 120 L102 120 Z" fill="#cbd5e1" opacity="0.88" />
+                <!-- Shorts -->
+                <path d="M102 120 L138 120 L142 145 L98 145 Z" fill="#1e1b2e" />
+                
+                <!-- Legs -->
+                <path id="modal-left-leg" d="M105 145 L102 172 L100 195" stroke="#cbd5e1" stroke-width="10" stroke-linecap="round" fill="none" />
+                <path id="modal-right-leg" d="M135 145 L138 172 L140 195" stroke="#cbd5e1" stroke-width="10" stroke-linecap="round" fill="none" />
+                
+                <!-- Arms / Limbs -->
+                <path id="modal-left-arm" d="M102 72 L85 105 L100 132" stroke="#cbd5e1" stroke-width="9" stroke-linecap="round" fill="none" />
+                <path id="modal-right-arm" d="M138 72 L155 105 L140 132" stroke="#cbd5e1" stroke-width="9" stroke-linecap="round" fill="none" />
+                
+                <!-- Barbell / Weights -->
+                <line id="modal-barbell" x1="50" y1="120" x2="190" y2="120" stroke="#94a3b8" stroke-width="5" stroke-linecap="round" />
+                <rect x="44" y="105" width="8" height="30" rx="3" fill="#475569" />
+                <rect x="188" y="105" width="8" height="30" rx="3" fill="#475569" />
+
+                <!-- GLOWING LASER POSTURE LINES -->
+                <g id="modal-laser-group" class="laser-glow-green">
+                    <line id="modal-laser-1" x1="85" y1="105" x2="100" y2="132" stroke="#22c55e" stroke-width="4" stroke-linecap="round" />
+                    <line id="modal-laser-2" x1="155" y1="105" x2="140" y2="132" stroke="#22c55e" stroke-width="4" stroke-linecap="round" />
+                    <line id="modal-laser-spine" x1="120" y1="62" x2="120" y2="120" stroke="#22c55e" stroke-width="3" stroke-dasharray="4,4" />
+                </g>
+            </svg>
+
+            <!-- FLOATING BADGE -->
+            <div id="modalFormBadge" class="form-indicator-badge absolute top-4 right-4 px-3 py-1.5 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center gap-2 text-emerald-300 text-xs font-black">
+                <i class="fa-solid fa-check"></i>
+                <span id="modalFormBadgeText">FORM SAX AH</span>
+            </div>
+
+            <!-- LIVE MODE SWITCHER -->
+            <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-3">
+                <button type="button" onclick="setModalFormMode('correct')" id="modalBtnCorrect"
+                        class="flex-1 py-2 rounded-xl bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-circle-check"></i> Qaabka Saxda ah (Green Laser)
+                </button>
+                <button type="button" onclick="setModalFormMode('error')" id="modalBtnError"
+                        class="flex-1 py-2 rounded-xl bg-[#201c2c] text-[#9e9aa7] border border-[#3d3454] hover:text-rose-300 hover:border-rose-500 font-extrabold text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-circle-xmark"></i> Qalad Caadi ah (Red Laser)
+                </button>
+            </div>
+        </div>
+
+        <!-- FORM CUES & INSTRUCTIONS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
+                <h5 class="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Farsamada Saxda ah:
+                </h5>
+                <p id="modalInstructionsText" class="text-xs text-emerald-100/90 leading-relaxed"></p>
+            </div>
+            <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 space-y-2">
+                <h5 class="text-xs font-extrabold text-rose-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Qaladaadka La Iska Ilaaliyo:
+                </h5>
+                <p id="modalMistakesText" class="text-xs text-rose-100/90 leading-relaxed">
+                    Ka ilaali inaad dhabarka qaloociso, xaglaha gacmaha aad u kala furto, ama aad culeyska si degdeg ah u tuurto.
+                </p>
+            </div>
+        </div>
+
+        <!-- VIDEO EMBED & CUSTOM LINK -->
+        <div class="p-4 rounded-2xl bg-[#0f0e13] border border-[#2e273f] space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-purple-300 flex items-center gap-2">
+                    <i class="fa-solid fa-video text-purple-400"></i> 3D Video Demonstration & Custom URL
+                </span>
+                <div id="videoActionBtnContainer"></div>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="url" id="modalCustomVideoInput" 
+                       placeholder="Geli Video URL (YouTube, Pinterest, ama MP4 link)..."
+                       class="flex-1 bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
+                <button type="button" id="saveVideoBtn" onclick="saveCustomVideoToDb()" 
+                        class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs font-extrabold shadow-md flex items-center gap-1.5 flex-shrink-0">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Keydi</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER ACTIONS -->
+        <div class="flex items-center justify-between pt-2">
+            <button type="button" onclick="closeExercise3DModal()" class="px-5 py-2.5 rounded-xl bg-[#262134] hover:bg-[#322b44] text-white text-xs font-bold">
+                Xir (Close)
+            </button>
+            <a id="modalAiCameraBtn" href="{% url 'ai_form_detection' %}" 
+               class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/25 flex items-center gap-2">
+                <i class="fa-solid fa-camera"></i>
+                <span>Ku tababaro AI Camera (Detect Form)</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let activeExerciseId = null;
+    let modalFormState = 'correct';
+
+    function showMuscleCategory(category, btnElement) {
+        document.querySelectorAll('.muscle-tab-btn').forEach(btn => {
+            btn.classList.remove('active', 'text-white', 'shadow-md');
+            btn.classList.add('bg-[#201c2c]', 'text-[#9e9aa7]', 'border', 'border-[#2e273f]');
+        });
+        btnElement.classList.add('active', 'text-white', 'shadow-md');
+        btnElement.classList.remove('bg-[#201c2c]', 'text-[#9e9aa7]', 'border', 'border-[#2e273f]');
+
+        const label = document.getElementById('currentCategoryLabel');
+        if (label) label.textContent = category + ' Exercises';
+
+        document.querySelectorAll('.exercise-card').forEach(card => {
+            if (card.getAttribute('data-category') === category) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        showMuscleCategory('Chest', document.querySelector('.muscle-tab-btn'));
+    });
+
+    function selectExercise(name, duration, sets, reps, weight, exerciseId) {
+        const idInput = document.getElementById('selectedExerciseId');
+        const nameInput = document.getElementById('selectedExerciseName');
+        const durInput = document.getElementById('workoutDuration');
+        const setInput = document.getElementById('workoutSets');
+        const repInput = document.getElementById('workoutReps');
+        const weightInput = document.getElementById('workoutWeight');
+
+        if (idInput) idInput.value = exerciseId || '';
+        if (nameInput) nameInput.value = name;
+        if (durInput) durInput.value = duration || 15;
+        if (setInput && sets) setInput.value = sets;
+        if (repInput && reps) repInput.value = reps;
+        if (weightInput && weight !== undefined) weightInput.value = weight;
+
+        if (nameInput) {
+            nameInput.classList.add('ring-2', 'ring-purple-500', 'bg-[#2a243a]');
+            setTimeout(() => {
+                nameInput.classList.remove('ring-2', 'ring-purple-500', 'bg-[#2a243a]');
+            }, 600);
+        }
+    }
+
+    // Toggle card form mode (Correct = Green Laser, Error = Red Laser)
+    function setCardFormMode(exId, mode) {
+        const laserGroup = document.getElementById(`laser-lines-${exId}`);
+        const badge = document.getElementById(`form-badge-${exId}`);
+        const btnCorrect = document.getElementById(`btn-form-correct-${exId}`);
+        const btnError = document.getElementById(`btn-form-error-${exId}`);
+        if (!laserGroup || !badge) return;
+
+        if (mode === 'correct') {
+            laserGroup.setAttribute('class', 'laser-glow-green');
+            laserGroup.querySelectorAll('line').forEach(l => l.setAttribute('stroke', '#22c55e'));
+            badge.className = "form-indicator-badge absolute top-3 right-3 w-8 h-8 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-300";
+            badge.innerHTML = `<i class="fa-solid fa-check text-xs"></i>`;
+            if (btnCorrect) {
+                btnCorrect.className = "flex-1 py-1 px-2 rounded-lg bg-emerald-500/30 text-emerald-300 border border-emerald-400/40 text-[10px] font-extrabold flex items-center justify-center gap-1";
+            }
+            if (btnError) {
+                btnError.className = "flex-1 py-1 px-2 rounded-lg bg-[#201c2c]/80 text-[#9e9aa7] border border-[#2e273f] text-[10px] font-extrabold flex items-center justify-center gap-1";
+            }
+        } else {
+            laserGroup.setAttribute('class', 'laser-glow-red');
+            laserGroup.querySelectorAll('line').forEach(l => l.setAttribute('stroke', '#ef4444'));
+            badge.className = "form-indicator-badge absolute top-3 right-3 w-8 h-8 rounded-full bg-rose-500/20 border-2 border-rose-400 flex items-center justify-center text-rose-400";
+            badge.innerHTML = `<i class="fa-solid fa-xmark text-xs"></i>`;
+            if (btnError) {
+                btnError.className = "flex-1 py-1 px-2 rounded-lg bg-rose-500/30 text-rose-300 border border-rose-400/40 text-[10px] font-extrabold flex items-center justify-center gap-1";
+            }
+            if (btnCorrect) {
+                btnCorrect.className = "flex-1 py-1 px-2 rounded-lg bg-[#201c2c]/80 text-[#9e9aa7] border border-[#2e273f] text-[10px] font-extrabold flex items-center justify-center gap-1";
+            }
+        }
+    }
+
+    function openExercise3DModal(id, name, category, videoUrl, instructions) {
+        activeExerciseId = id;
+        document.getElementById('modalExerciseTitle').textContent = name;
+        document.getElementById('modalExerciseCategory').textContent = `${category} • 3D Biomechanics`;
+        document.getElementById('modalInstructionsText').textContent = instructions || 'Dhabarka toosi, xakamee dhaqdhaqaaqa, neefsashadana ha xanibin.';
+        document.getElementById('modalCustomVideoInput').value = videoUrl || '';
+        document.getElementById('modalAiCameraBtn').href = `/ai-form-detection/?exercise=${encodeURIComponent(name)}`;
+
+        const actionContainer = document.getElementById('videoActionBtnContainer');
+        if (videoUrl) {
+            actionContainer.innerHTML = `
+                <a href="${videoUrl}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 text-xs font-bold border border-purple-500/30">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Daawo Video
+                </a>
+            `;
+        } else {
+            actionContainer.innerHTML = `<span class="text-[11px] text-[#736c82]">Weli video link lama gelin.</span>`;
+        }
+
+        setModalFormMode('correct');
+        document.getElementById('exercise3DModal').classList.remove('hidden');
+    }
+
+    function setModalFormMode(mode) {
+        modalFormState = mode;
+        const laserGroup = document.getElementById('modal-laser-group');
+        const badge = document.getElementById('modalFormBadge');
+        const badgeText = document.getElementById('modalFormBadgeText');
+        const btnCorrect = document.getElementById('modalBtnCorrect');
+        const btnError = document.getElementById('modalBtnError');
+
+        if (mode === 'correct') {
+            laserGroup.setAttribute('class', 'laser-glow-green');
+            laserGroup.querySelectorAll('line').forEach(l => l.setAttribute('stroke', '#22c55e'));
+            badge.className = "form-indicator-badge absolute top-4 right-4 px-3 py-1.5 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center gap-2 text-emerald-300 text-xs font-black";
+            badge.innerHTML = `<i class="fa-solid fa-check"></i> <span>FORM SAX AH</span>`;
+            btnCorrect.className = "flex-1 py-2 rounded-xl bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2";
+            btnError.className = "flex-1 py-2 rounded-xl bg-[#201c2c] text-[#9e9aa7] border border-[#3d3454] font-extrabold text-xs flex items-center justify-center gap-2";
+        } else {
+            laserGroup.setAttribute('class', 'laser-glow-red');
+            laserGroup.querySelectorAll('line').forEach(l => l.setAttribute('stroke', '#ef4444'));
+            badge.className = "form-indicator-badge absolute top-4 right-4 px-3 py-1.5 rounded-full bg-rose-500/20 border-2 border-rose-500 flex items-center gap-2 text-rose-300 text-xs font-black";
+            badge.innerHTML = `<i class="fa-solid fa-xmark"></i> <span>QALAD AYAA JIRA</span>`;
+            btnError.className = "flex-1 py-2 rounded-xl bg-rose-500 text-white font-extrabold text-xs shadow-lg shadow-rose-500/30 flex items-center justify-center gap-2";
+            btnCorrect.className = "flex-1 py-2 rounded-xl bg-[#201c2c] text-[#9e9aa7] border border-[#3d3454] font-extrabold text-xs flex items-center justify-center gap-2";
+        }
+    }
+
+    function closeExercise3DModal() {
+        document.getElementById('exercise3DModal').classList.add('hidden');
+        activeExerciseId = null;
+    }
+
+    async function saveCustomVideoToDb() {
+        if (!activeExerciseId) return;
+
+        const videoUrl = document.getElementById('modalCustomVideoInput').value.trim();
+        const saveBtn = document.getElementById('saveVideoBtn');
+        const originalText = saveBtn.innerHTML;
+
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Keydinayaa...`;
+
+        try {
+            const response = await fetch(`/api/exercise/${activeExerciseId}/update-video/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ video_url: videoUrl })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                const card = document.querySelector(`.exercise-card[data-id="${activeExerciseId}"]`);
+                if (card) card.setAttribute('data-videourl', videoUrl);
+                alert(data.message || "Video link si guul leh ayaa loogu keydiyay database-ka!");
+                closeExercise3DModal();
+            } else {
+                alert("Khalad: " + (data.message || "Lama keydin karin"));
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Khalad ayaa dhacay marka link-ga la keydinayay.");
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

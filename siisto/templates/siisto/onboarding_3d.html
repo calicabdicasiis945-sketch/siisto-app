@@ -1,0 +1,1614 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="so" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D AI Body Scan & Fitness Assessment | Siisto</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        tech: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: {
+                        neon: {
+                            purple: '#a855f7',
+                            pink: '#ec4899',
+                            cyan: '#06b6d4',
+                            lime: '#10b981',
+                            amber: '#f59e0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+            background-color: #06050a;
+            color: #ffffff;
+        }
+        body {
+            background-color: #06050a;
+            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            touch-action: pan-y;
+        }
+
+        /* 3D Canvas Background fixed */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            cursor: grab;
+        }
+        #webgl-canvas:active {
+            cursor: grabbing;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(18, 14, 28, 0.76);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(168, 85, 247, 0.22);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        .glass-panel:hover {
+            border-color: rgba(168, 85, 247, 0.45);
+        }
+
+        .glass-card-interactive {
+            background: rgba(25, 20, 38, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .glass-card-interactive:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 15px 35px -5px rgba(168, 85, 247, 0.35);
+            background: rgba(35, 28, 55, 0.85);
+        }
+        .glass-card-interactive.selected {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(236, 72, 153, 0.25) 100%);
+            border: 2px solid #c084fc;
+            box-shadow: 0 0 30px rgba(192, 132, 252, 0.4), inset 0 0 15px rgba(192, 132, 252, 0.2);
+        }
+
+        /* Neon Glow Accents */
+        .neon-glow-purple {
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.45);
+        }
+        .neon-text-glow {
+            text-shadow: 0 0 18px rgba(192, 132, 252, 0.7);
+        }
+        .neon-cyan-glow {
+            text-shadow: 0 0 18px rgba(6, 182, 212, 0.7);
+        }
+
+        /* Step Section Layout */
+        .step-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+            padding: 80px 20px;
+        }
+
+        /* Custom Slider Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #251e36;
+            outline: none;
+            transition: opacity 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c084fc, #ec4899);
+            cursor: pointer;
+            border: 3px solid #ffffff;
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.8);
+            transition: transform 0.15s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Floating HUD Indicator */
+        .hud-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .hud-dot.active {
+            width: 24px;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #c084fc, #ec4899);
+            box-shadow: 0 0 12px #c084fc;
+        }
+
+        /* Scanline FX Overlay */
+        .cyber-grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Hologram Laser Scanning Beam Animation */
+        @keyframes scanLaser {
+            0% { top: 15%; opacity: 0.8; }
+            50% { top: 85%; opacity: 1; }
+            100% { top: 15%; opacity: 0.8; }
+        }
+        .laser-beam-line {
+            animation: scanLaser 3.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-[#06050a] text-white">
+
+    <!-- WebGL 3D Background Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+    <div class="cyber-grid-overlay"></div>
+
+    <!-- Top Floating Header / HUD -->
+    <header class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between pointer-events-auto">
+        <a href="{% url 'index' %}" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-105 transition">
+                <i class="fa-solid fa-cube text-white text-lg"></i>
+            </div>
+            <div>
+                <span class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1">
+                    SIISTO <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 font-mono">3D AI SCAN</span>
+                </span>
+                <p class="text-[11px] text-gray-400 font-medium">360° Hologram Biometric Assessment</p>
+            </div>
+        </a>
+
+        <!-- Sound & Navigation HUD -->
+        <div class="flex items-center gap-3">
+            <button id="soundToggleBtn" onclick="toggleAudio()" class="px-3.5 py-2 rounded-xl bg-purple-950/40 border border-purple-500/30 hover:border-purple-400 text-purple-300 text-xs font-semibold flex items-center gap-2 transition hover:bg-purple-900/40">
+                <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                <span id="soundLabel" class="hidden sm:inline">Audio FX</span>
+            </button>
+            <a href="{% url 'index' %}" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold transition flex items-center gap-2">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span class="hidden sm:inline">Ka bax (Dashboard)</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- FLOATING 3D BODY 360° SCAN & ROTATION CONTROLS (BOTTOM-LEFT) -->
+    <div class="fixed bottom-6 left-6 z-50 glass-panel p-3 sm:p-4 rounded-2xl flex flex-col gap-2.5 max-w-xs shadow-2xl border border-purple-500/40 pointer-events-auto">
+        <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                <span class="text-[11px] font-bold text-cyan-300 font-mono tracking-wider">3D SCAN: 360° ROTATION</span>
+            </div>
+            <span id="scanAngleText" class="text-[10px] text-purple-300 font-mono">0°</span>
+        </div>
+
+        <!-- Rotation & Angle Buttons -->
+        <div class="grid grid-cols-4 gap-1.5 text-xs">
+            <button id="autoRotateToggleBtn" onclick="toggleAutoRotate()" title="Dami/Shid Wareegga 360°" class="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold flex flex-col items-center justify-center gap-1 shadow-lg shadow-purple-500/30 hover:scale-105 transition">
+                <i id="autoRotateIcon" class="fa-solid fa-arrows-rotate animate-spin"></i>
+                <span class="text-[9px]">360°</span>
+            </button>
+            <button onclick="setAvatarAngle(0)" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 text-center font-medium transition text-[10px]">
+                <i class="fa-solid fa-user block text-xs mb-0.5 text-purple-300"></i> Horta
+            </button>
+            <button onclick="setAvatarAngle(Math.PI / 2)" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 text-center font-medium transition text-[10px]">
+                <i class="fa-solid fa-street-view block text-xs mb-0.5 text-cyan-300"></i> Dhinaca
+            </button>
+            <button onclick="setAvatarAngle(Math.PI)" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 text-center font-medium transition text-[10px]">
+                <i class="fa-solid fa-shield-halved block text-xs mb-0.5 text-pink-300"></i> Dhabar
+            </button>
+        </div>
+
+        <!-- Drag Tip -->
+        <div class="text-[10px] text-gray-400 flex items-center gap-1.5 pt-1">
+            <i class="fa-solid fa-hand-pointer text-purple-400"></i>
+            <span>Jiid jiirka ama farta si aad 360° ugu wareejiso jirka</span>
+        </div>
+    </div>
+
+    <!-- Right Side Step Progress Bar HUD -->
+    <div class="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col items-center gap-3 p-3 rounded-2xl glass-panel">
+        <span class="text-[10px] font-mono text-purple-300 font-bold uppercase tracking-widest" id="stepCounterText">01/07</span>
+        <div class="flex flex-col gap-2 my-1" id="hudDotsContainer">
+            <div class="hud-dot active" onclick="scrollToSection('step-hero')"></div>
+            <div class="hud-dot" onclick="scrollToSection('step-goal')"></div>
+            <div class="hud-dot" onclick="scrollToSection('step-weight')"></div>
+            <div class="hud-dot" onclick="scrollToSection('step-height')"></div>
+            <div class="hud-dot" onclick="scrollToSection('step-age-gender')"></div>
+            <div class="hud-dot" onclick="scrollToSection('step-activity')"></div>
+            <div class="hud-dot" onclick="scrollToSection('step-results')"></div>
+        </div>
+        <button onclick="scrollStep(1)" class="w-7 h-7 rounded-lg bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white flex items-center justify-center text-xs transition">
+            <i class="fa-solid fa-chevron-down"></i>
+        </button>
+    </div>
+
+    <!-- MAIN SCROLLABLE 3D CONTENT CONTAINER -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+
+        <!-- ================= STEP 0: HERO INTRO ================= -->
+        <section id="step-hero" class="step-section">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                        3D Hologram 360° Bio-Metric Engine Ready
+                    </div>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+                        Bilow Safarkaaga <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-glow">
+                            3D Jir-Dhis & AI Scan
+                        </span>
+                    </h1>
+                    <p class="text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
+                        Waxaan kuu samaynaynaa qiyaas 3D ah oo dynamic ah oo qofka wareejisa 360°, xisaabisa miisaankaaga, dhererkaaga, hadafkaaga, iyo qorshahaaga nafaqo iyo tababar.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-4 pt-4">
+                        <button onclick="scrollToSection('step-goal')" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-base shadow-xl shadow-purple-600/30 flex items-center gap-3 transition-all hover:scale-105 group">
+                            <span>Bilow Qiyaasta 3D-ga</span>
+                            <i class="fa-solid fa-arrow-down group-hover:translate-y-1 transition-transform"></i>
+                        </button>
+                        <div class="flex items-center gap-3 text-xs text-gray-400">
+                            <i class="fa-solid fa-mouse text-purple-400 text-lg animate-bounce"></i>
+                            <span>Hoos u rog (Scroll Down) si aad u bilowdo</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 hidden lg:block">
+                    <div class="p-6 rounded-3xl glass-panel border border-purple-500/20 text-center space-y-3">
+                        <div class="inline-block p-3 rounded-2xl bg-purple-500/10 text-purple-300 text-2xl">
+                            <i class="fa-solid fa-vr-cardboard"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-base">3D Interactive 360° Canvas</h4>
+                        <p class="text-xs text-gray-400">Qaabka jirkaaga 3D-ga ah wuxuu u wareegayaa 360° isagoo toos ula jaanqaadaya dhererka iyo miisaankaaga.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= STEP 1: FITNESS GOAL (HADAFKA) ================= -->
+        <section id="step-goal" class="step-section">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-bullseye"></i> Talaabada 01: Hadafkaaga Weyn
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                        Waa Maxay <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Hadafkaaga Ugu Weyn?</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm sm:text-base">
+                        Dooro natiijada aad rabto inaad ka gaarto safarkaaga tababarka si qorshuhu kuugu habboonaado:
+                    </p>
+
+                    <!-- Interactive Goal Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <!-- Goal 1: Weight Loss -->
+                        <div onclick="selectGoal('lose_weight', this)" class="glass-card-interactive selected p-5 rounded-2xl flex flex-col justify-between goal-card" data-goal="lose_weight">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-fire-flame-curved"></i>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-pink-500/10 text-pink-300 font-mono">Deficit</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-white mb-1">Miisaan Dhimis (Fat Loss)</h3>
+                                <p class="text-xs text-gray-300 leading-relaxed">Yaree duxda iyo baruurta, hel jir fudud oo caato ah.</p>
+                            </div>
+                        </div>
+
+                        <!-- Goal 2: Muscle Gain -->
+                        <div onclick="selectGoal('build_muscle', this)" class="glass-card-interactive p-5 rounded-2xl flex flex-col justify-between goal-card" data-goal="build_muscle">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-dumbbell"></i>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 font-mono">Surplus</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-white mb-1">Muruq Dhis (Muscle Gain)</h3>
+                                <p class="text-xs text-gray-300 leading-relaxed">Kordhi baaxadda murqaha iyo awoodda jirka oo dhan.</p>
+                            </div>
+                        </div>
+
+                        <!-- Goal 3: Athletic Endurance -->
+                        <div onclick="selectGoal('athletic_endurance', this)" class="glass-card-interactive p-5 rounded-2xl flex flex-col justify-between goal-card" data-goal="athletic_endurance">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 font-mono">Performance</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-white mb-1">Jir Dhis & Awood (Stamina)</h3>
+                                <p class="text-xs text-gray-300 leading-relaxed">Xooji wadnaha, dulqaadka orodka, iyo firfircoonida.</p>
+                            </div>
+                        </div>
+
+                        <!-- Goal 4: General Health -->
+                        <div onclick="selectGoal('general_health', this)" class="glass-card-interactive p-5 rounded-2xl flex flex-col justify-between goal-card" data-goal="general_health">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-heart-pulse"></i>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-300 font-mono">Longevity</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-white mb-1">Caafimaad Guud (Health)</h3>
+                                <p class="text-xs text-gray-300 leading-relaxed">Joogtee caafimaad dheellitiran iyo qaab nololeed firfircoon.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex items-center gap-4">
+                        <button onclick="scrollToSection('step-weight')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
+                            <span>Sii wad: Miisaankaaga</span>
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= STEP 2: WEIGHT (WEIGHT WAA IMISA?) ================= -->
+        <section id="step-weight" class="step-section">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-mono text-pink-400 font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-weight-scale"></i> Talaabada 02: Miisaankaaga Hadda
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                        Miisaankaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-400">Weight Waa Imisa?</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm sm:text-base">
+                        Gali ama jiid miisaankaaga hadda (kg). Avatar-ka 3D-ga ah ayaa si toos ah u weynaanaya ama u caataanaya:
+                    </p>
+
+                    <!-- Interactive Holographic Weight HUD -->
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6 border border-pink-500/30">
+                        <div class="flex items-end justify-between">
+                            <div>
+                                <span class="text-xs text-gray-400 font-mono uppercase">Miisaanka la doortay</span>
+                                <div class="flex items-baseline gap-2">
+                                    <span id="weightValueDisplay" class="text-5xl sm:text-6xl font-extrabold text-white font-tech neon-text-glow">70.0</span>
+                                    <span class="text-xl font-bold text-pink-400">KG</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-gray-400 font-mono">Pounds (LBS)</span>
+                                <div id="weightLbsDisplay" class="text-2xl font-bold text-gray-300 font-mono">154.3 lbs</div>
+                            </div>
+                        </div>
+
+                        <!-- Range Slider -->
+                        <div class="space-y-2">
+                            <input type="range" id="weightSlider" min="35" max="180" step="0.5" value="70" oninput="updateWeight(this.value)">
+                            <div class="flex justify-between text-[11px] text-gray-400 font-mono">
+                                <span>35 kg (Fudud)</span>
+                                <span>70 kg</span>
+                                <span>110 kg</span>
+                                <span>180 kg (Culus)</span>
+                            </div>
+                        </div>
+
+                        <!-- Quick Increment Steppers -->
+                        <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                            <div class="flex items-center gap-2">
+                                <button onclick="adjustWeight(-1)" class="w-10 h-10 rounded-xl bg-purple-900/40 hover:bg-purple-800 border border-purple-500/30 text-white font-bold flex items-center justify-center transition">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <button onclick="adjustWeight(1)" class="w-10 h-10 rounded-xl bg-purple-900/40 hover:bg-purple-800 border border-purple-500/30 text-white font-bold flex items-center justify-center transition">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="setWeight(60)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">60kg</button>
+                                <button onclick="setWeight(70)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">70kg</button>
+                                <button onclick="setWeight(80)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">80kg</button>
+                                <button onclick="setWeight(90)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">90kg</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-4">
+                        <button onclick="scrollToSection('step-height')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
+                            <span>Sii wad: Dhererkaaga (Height)</span>
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button onclick="scrollToSection('step-goal')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
+                            Dib u noqo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= STEP 3: HEIGHT (HEIGHT WAA INTEE?) ================= -->
+        <section id="step-height" class="step-section">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-ruler-vertical"></i> Talaabada 03: Dhererkaaga
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                        Dhererkaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Height Waa Intee?</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm sm:text-base">
+                        Dooro dhererkaaga (cm). 3D Hologram-ka ayaa si toos ah u dhereranaya:
+                    </p>
+
+                    <!-- Interactive Holographic Height HUD -->
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6 border border-cyan-500/30">
+                        <div class="flex items-end justify-between">
+                            <div>
+                                <span class="text-xs text-gray-400 font-mono uppercase">Dhererka la xushay</span>
+                                <div class="flex items-baseline gap-2">
+                                    <span id="heightValueDisplay" class="text-5xl sm:text-6xl font-extrabold text-white font-tech neon-cyan-glow">175</span>
+                                    <span class="text-xl font-bold text-cyan-400">CM</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-gray-400 font-mono">Feet & Inches</span>
+                                <div id="heightFeetDisplay" class="text-2xl font-bold text-gray-300 font-mono">5' 9"</div>
+                            </div>
+                        </div>
+
+                        <!-- Range Slider for Height -->
+                        <div class="space-y-2">
+                            <input type="range" id="heightSlider" min="130" max="220" step="1" value="175" oninput="updateHeight(this.value)">
+                            <div class="flex justify-between text-[11px] text-gray-400 font-mono">
+                                <span>130 cm</span>
+                                <span>160 cm</span>
+                                <span>175 cm (Celcelis)</span>
+                                <span>190 cm</span>
+                                <span>220 cm</span>
+                            </div>
+                        </div>
+
+                        <!-- Quick Preset Buttons -->
+                        <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                            <div class="flex items-center gap-2">
+                                <button onclick="adjustHeight(-1)" class="w-10 h-10 rounded-xl bg-cyan-950/40 hover:bg-cyan-900 border border-cyan-500/30 text-white font-bold flex items-center justify-center transition">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <button onclick="adjustHeight(1)" class="w-10 h-10 rounded-xl bg-cyan-950/40 hover:bg-cyan-900 border border-cyan-500/30 text-white font-bold flex items-center justify-center transition">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="setHeight(165)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">165cm</button>
+                                <button onclick="setHeight(175)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">175cm</button>
+                                <button onclick="setHeight(180)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">180cm</button>
+                                <button onclick="setHeight(185)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 font-medium">185cm</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-4">
+                        <button onclick="scrollToSection('step-age-gender')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
+                            <span>Sii wad: Da'da & Jinsiga</span>
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button onclick="scrollToSection('step-weight')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
+                            Dib u noqo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= STEP 4: AGE & GENDER (DA'DA & JINSIGA) ================= -->
+        <section id="step-age-gender" class="step-section">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-venus-mars"></i> Talaabada 04: Da'da & Jinsiga
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                        Dooro <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Jinsigaaga & Da'daada</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm sm:text-base">
+                        Xogtaani waxay naga caawinaysaa inaan xisaabino dheefshiidkaaga aasaasiga ah (BMR) iyo baahidaada kalooriyada:
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                        <!-- Gender Selection -->
+                        <div class="glass-panel p-6 rounded-3xl space-y-4">
+                            <span class="text-xs font-mono text-gray-400 uppercase">Jinsiga (Gender)</span>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button type="button" onclick="selectGender('male', this)" id="btnGenderMale" class="gender-btn p-4 rounded-2xl bg-purple-600/30 border-2 border-purple-500 text-center transition hover:bg-purple-600/50 flex flex-col items-center gap-2">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-300 text-2xl flex items-center justify-center">
+                                        <i class="fa-solid fa-person"></i>
+                                    </div>
+                                    <span class="font-bold text-sm text-white">Lab (Male)</span>
+                                </button>
+
+                                <button type="button" onclick="selectGender('female', this)" id="btnGenderFemale" class="gender-btn p-4 rounded-2xl bg-white/5 border border-white/10 text-center transition hover:bg-white/10 flex flex-col items-center gap-2">
+                                    <div class="w-12 h-12 rounded-xl bg-pink-500/20 text-pink-300 text-2xl flex items-center justify-center">
+                                        <i class="fa-solid fa-person-dress"></i>
+                                    </div>
+                                    <span class="font-bold text-sm text-white">Dhedig (Female)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Age Selection -->
+                        <div class="glass-panel p-6 rounded-3xl space-y-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-gray-400 uppercase">Da'daada (Age)</span>
+                                <span id="ageGroupBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-medium">Qaan-gaar</span>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <span id="ageDisplay" class="text-5xl font-extrabold text-white font-tech">25</span>
+                                <span class="text-lg font-semibold text-gray-400">Sano jir</span>
+                            </div>
+                            <input type="range" id="ageSlider" min="14" max="80" step="1" value="25" oninput="updateAge(this.value)">
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-4">
+                        <button onclick="scrollToSection('step-activity')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
+                            <span>Sii wad: Firfircoonida & Yoolka</span>
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button onclick="scrollToSection('step-height')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
+                            Dib u noqo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= STEP 5: ACTIVITY & TARGET WEIGHT ================= -->
+        <section id="step-activity" class="step-section">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-gauge-high"></i> Talaabada 05: Firfircoonida & Yoolka
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                        Heerkaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400">Dhaqdhaqaaqa & Miisaanka Yoolka</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm sm:text-base">
+                        Sidee ayuu u egyahay dhaqdhaqaaqaaga maalinlaha ah iyo miisaanka aad higsaneyso?
+                    </p>
+
+                    <!-- Activity Level Options -->
+                    <div class="space-y-3">
+                        <div onclick="selectActivity('sedentary', this)" class="glass-card-interactive p-4 rounded-2xl flex items-center justify-between activity-card" data-act="sedentary">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-gray-700/50 text-gray-300 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-chair"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">Fadhi Badan (Sedentary)</h4>
+                                    <p class="text-xs text-gray-400">Shaqo xafiis, jimicsi aad u yar ama aan jirin.</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400 font-mono">1.2x BMR</span>
+                        </div>
+
+                        <div onclick="selectActivity('moderate', this)" class="glass-card-interactive selected p-4 rounded-2xl flex items-center justify-between activity-card" data-act="moderate">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-person-walking"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">Dhexdhexaad (Moderate)</h4>
+                                    <p class="text-xs text-gray-400">Tababar 3-4 maalmood toddobaadkii + socod.</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-purple-300 font-mono">1.45x BMR</span>
+                        </div>
+
+                        <div onclick="selectActivity('active', this)" class="glass-card-interactive p-4 rounded-2xl flex items-center justify-between activity-card" data-act="active">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-lime-500/20 text-lime-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-person-running"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">Aad u Firfircoon (Very Active)</h4>
+                                    <p class="text-xs text-gray-400">Jimicsi culus 5-7 maalmood toddobaadkii.</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-lime-300 font-mono">1.75x BMR</span>
+                        </div>
+                    </div>
+
+                    <!-- Target Weight Goal -->
+                    <div class="glass-panel p-5 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono text-gray-400 uppercase">Miisaanka aad rabto inaad gaarto (Target Weight)</span>
+                            <div class="flex items-baseline gap-1">
+                                <span id="targetWeightDisplay" class="text-2xl font-bold text-purple-300 font-tech">65.0</span>
+                                <span class="text-xs text-purple-400 font-bold">KG</span>
+                            </div>
+                        </div>
+                        <input type="range" id="targetWeightSlider" min="35" max="180" step="0.5" value="65" oninput="updateTargetWeight(this.value)">
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-4">
+                        <button onclick="calculateAndShowResults()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-lime-500 text-white font-extrabold text-base shadow-xl shadow-purple-500/30 flex items-center gap-3 hover:scale-105 transition">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Xisaabi Natiijada 3D Scan</span>
+                        </button>
+                        <button onclick="scrollToSection('step-age-gender')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
+                            Dib u noqo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= STEP 6: INSTANT 3D RESULTS & GMAIL VERIFICATION ================= -->
+        <section id="step-results" class="step-section">
+            <div class="w-full space-y-8">
+                <div class="text-center max-w-2xl mx-auto space-y-3">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-lime-500/20 text-lime-300 border border-lime-500/40 text-xs font-mono">
+                        <i class="fa-solid fa-circle-check"></i> 3D AI Biometrics Generated
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                        Natiijadaada <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-lime-400">3D AI Body Scan</span>
+                    </h2>
+                    <p class="text-gray-300 text-xs sm:text-sm">
+                        Qiyaasta caafimaadkaaga, heerka kalooriyada maalinlaha ah, iyo qorshaha lagu gaarayo yoolkaaga:
+                    </p>
+                </div>
+
+                <!-- 4 Metrics Key Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Metric 1: BMI -->
+                    <div class="glass-panel p-6 rounded-3xl border border-purple-500/30 space-y-2 relative overflow-hidden">
+                        <div class="flex items-center justify-between text-xs text-gray-400 font-mono">
+                            <span>BMI INDEX</span>
+                            <i class="fa-solid fa-gauge text-purple-400"></i>
+                        </div>
+                        <div id="resBmiValue" class="text-4xl font-extrabold text-white font-tech">22.9</div>
+                        <div id="resBmiBadge" class="inline-block text-[11px] font-bold px-2.5 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                            Miisaan Caafimaad Leh
+                        </div>
+                    </div>
+
+                    <!-- Metric 2: Daily Calories -->
+                    <div class="glass-panel p-6 rounded-3xl border border-pink-500/30 space-y-2">
+                        <div class="flex items-center justify-between text-xs text-gray-400 font-mono">
+                            <span>KALOORIYADA (CALORIES)</span>
+                            <i class="fa-solid fa-fire text-pink-400"></i>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resCaloriesValue" class="text-4xl font-extrabold text-white font-tech">2,050</span>
+                            <span class="text-xs text-pink-400 font-bold font-mono">kcal/maalintii</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400">Heerka kalooriyada lagu gaarayo hadafkaaga.</p>
+                    </div>
+
+                    <!-- Metric 3: Water Hydration -->
+                    <div class="glass-panel p-6 rounded-3xl border border-cyan-500/30 space-y-2">
+                        <div class="flex items-center justify-between text-xs text-gray-400 font-mono">
+                            <span>BIYAHA MAALINLAHA AH</span>
+                            <i class="fa-solid fa-droplet text-cyan-400"></i>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resWaterValue" class="text-4xl font-extrabold text-white font-tech">2.5</span>
+                            <span class="text-xs text-cyan-400 font-bold font-mono">Liters/maalintii</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400">Biyo ku filan dheefshiidka iyo murqaha.</p>
+                    </div>
+
+                    <!-- Metric 4: Target Timeline -->
+                    <div class="glass-panel p-6 rounded-3xl border border-lime-500/30 space-y-2">
+                        <div class="flex items-center justify-between text-xs text-gray-400 font-mono">
+                            <span>MUDDADA YOOLKA</span>
+                            <i class="fa-solid fa-calendar-check text-lime-400"></i>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resTimelineValue" class="text-4xl font-extrabold text-white font-tech">~10</span>
+                            <span class="text-xs text-lime-400 font-bold font-mono">Toddobaad</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400">Miisaan dhimis / dhisid caafimaad leh (0.5kg/w).</p>
+                    </div>
+                </div>
+
+                <!-- Macronutrient Split Breakdown -->
+                <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h4 class="font-bold text-white text-base">Qaybinta Nafaqada Maalinlaha ah (Macro Split)</h4>
+                            <p class="text-xs text-gray-400">Borotiin, Kaarbohaydrayt, iyo Dufan caafimaad leh oo ku saleysan hadafkaaga.</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs font-mono">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-purple-500"></span> Borotiin: <b id="resProteinVal" class="text-white">140g</b></span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cyan-500"></span> Kaarbo: <b id="resCarbsVal" class="text-white">210g</b></span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Dufan: <b id="resFatsVal" class="text-white">55g</b></span>
+                        </div>
+                    </div>
+
+                    <!-- Macro Progress Bar -->
+                    <div class="w-full h-3 rounded-full bg-gray-800 flex overflow-hidden">
+                        <div id="barProtein" class="bg-gradient-to-r from-purple-600 to-purple-400 h-full transition-all" style="width: 35%"></div>
+                        <div id="barCarbs" class="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full transition-all" style="width: 45%"></div>
+                        <div id="barFats" class="bg-gradient-to-r from-amber-600 to-amber-400 h-full transition-all" style="width: 20%"></div>
+                    </div>
+                </div>
+
+                <!-- ================= GMAIL / EMAIL CAPTURE & DELIVERY CARD ================= -->
+                <div class="glass-panel p-6 sm:p-8 rounded-3xl border-2 border-purple-500/40 bg-gradient-to-r from-purple-950/60 via-[#181228] to-pink-950/40 shadow-2xl space-y-5">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-white text-xl shadow-lg shadow-pink-500/30">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    Geli Gmail-kaaga <span class="text-xs px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 font-mono">Google Mail</span>
+                                </h3>
+                                <p class="text-xs text-gray-300">Si laguu soo diro Natiijada Buuxda ee 3D Scan, Kalooriyada, iyo Qorshahaaga Cuntada & Tababarka:</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="appendEmailDomain('@gmail.com')" class="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800 border border-purple-500/30 text-xs font-mono text-purple-200 transition">
+                                +@gmail.com
+                            </button>
+                            <button type="button" onclick="appendEmailDomain('@outlook.com')" class="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800 border border-purple-500/30 text-xs font-mono text-purple-200 transition">
+                                +@outlook.com
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="relative">
+                            <i class="fa-solid fa-at absolute left-4 top-1/2 -translate-y-1/2 text-pink-400 text-sm"></i>
+                            <input type="email" id="userGmailInput" oninput="userState.email = this.value" placeholder="magacaaga@gmail.com" 
+                                   class="w-full bg-[#110c1c] border-2 border-purple-500/40 focus:border-pink-500 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-gray-500 focus:outline-none transition shadow-inner font-semibold">
+                        </div>
+                        <p class="text-[11px] text-gray-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-lock text-green-400"></i>
+                            <span>Xogtaada Gmail-ka waa ammaan, wax spam ah laguma soo diri doono.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Save & Dashboard Entry -->
+                <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-purple-500/40 text-center space-y-4 bg-gradient-to-b from-purple-950/30 to-black/60">
+                    <h3 class="text-2xl font-bold text-white">Diyaar Ma U Tahay Inaad Bilowdo?</h3>
+                    <p class="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto">
+                        Xogtaada 3D-ga ah iyo Gmail-kaaga waxaa lagu keydin doonaa profile-kaaga si toos ah, waxaana laguugu diyaarin doonaa jimicsiyada iyo cuntada ku habboon.
+                    </p>
+                    <div class="flex flex-wrap justify-center items-center gap-4 pt-2">
+                        <button id="btnSaveOnboarding" onclick="submitOnboardingData()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold text-base shadow-2xl shadow-purple-600/50 flex items-center gap-3 transition-all hover:scale-105">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Keydi Xogta & Gal Dashboard-ka</span>
+                        </button>
+                        <a href="{% url 'ai_coach' %}" class="px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-robot text-purple-400"></i>
+                            <span>Kala Tasho AI Coach</span>
+                        </a>
+                    </div>
+                    <div id="saveStatusMsg" class="text-xs text-green-400 font-mono hidden pt-2">
+                        <i class="fa-solid fa-circle-check"></i> Xogta si guul leh ayaa loo keydiyay! Waxaa laguu wareejinayaa Dashboard-ka...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Passing Initial Data to JS -->
+    {{ initial_data|json_script:"initial-data-json" }}
+
+    <!-- JAVASCRIPT: 3D THREE.JS ENGINE + INTERACTIVE APP LOGIC -->
+    <script>
+        // CSRF helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // State variables
+        const initialData = JSON.parse(document.getElementById('initial-data-json').textContent);
+        let userState = {
+            weight: parseFloat(initialData.weight) || 70,
+            height: parseFloat(initialData.height) || 175,
+            age: parseInt(initialData.age) || 25,
+            gender: initialData.gender || 'male',
+            goal: initialData.goal || 'lose_weight',
+            activity_level: initialData.activity_level || 'moderate',
+            target_weight: parseFloat(initialData.target_weight) || 65,
+            email: initialData.email || '',
+        };
+
+        // Helper to append domain
+        function appendEmailDomain(domain) {
+            const input = document.getElementById('userGmailInput');
+            if (!input.value) {
+                input.value = 'user' + domain;
+            } else if (!input.value.includes('@')) {
+                input.value += domain;
+            }
+            userState.email = input.value;
+            playTone(587.33, 'sine', 0.1);
+        }
+
+        // Audio synthesizer with Web Audio API
+        let audioCtx = null;
+        let audioEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.08) {
+            if (!audioEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('soundIcon');
+            const label = document.getElementById('soundLabel');
+            if (audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+                label.innerText = 'Audio On';
+                playTone(520, 'triangle', 0.2);
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark';
+                label.innerText = 'Audio Muted';
+            }
+        }
+
+        // ================= THREE.JS 3D ENGINE =================
+        let scene, camera, renderer;
+        let avatarGroup, scalePlatform, dumbbellMesh, laserScanRing, particleSystem;
+        let targetCameraZ = 12;
+        let targetCameraY = 0;
+        let currentScrollProgress = 0;
+
+        // Interactive 360 Rotation Controls
+        let isAutoRotating = true;
+        let currentAvatarRotationY = 0;
+        let isPointerDragging = false;
+        let previousPointerPosition = { x: 0, y: 0 };
+
+        function initThreeJS() {
+            const canvas = document.getElementById('webgl-canvas');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x06050a, 0.035);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 14);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+            scene.add(ambientLight);
+
+            const pointLight1 = new THREE.PointLight(0xa855f7, 3.0, 50);
+            pointLight1.position.set(5, 5, 8);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0x06b6d4, 3.0, 50);
+            pointLight2.position.set(-5, -3, 8);
+            scene.add(pointLight2);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            dirLight.position.set(0, 10, 10);
+            scene.add(dirLight);
+
+            // 1. Build 3D Cyber Avatar Group
+            avatarGroup = new THREE.Group();
+
+            buildAvatarMesh();
+
+            // 2. Holographic Biometric Laser Scanning Ring
+            const laserRingGeo = new THREE.TorusGeometry(1.4, 0.03, 8, 32);
+            const laserRingMat = new THREE.MeshBasicMaterial({ 
+                color: 0x06b6d4, 
+                transparent: true, 
+                opacity: 0.9 
+            });
+            laserScanRing = new THREE.Mesh(laserRingGeo, laserRingMat);
+            laserScanRing.rotation.x = Math.PI / 2;
+            laserScanRing.position.y = 1.0;
+            avatarGroup.add(laserScanRing);
+
+            // Platform Base (Scale)
+            const platGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.2, 24);
+            const platMat = new THREE.MeshStandardMaterial({
+                color: 0x2e1065,
+                emissive: 0x9333ea,
+                emissiveIntensity: 0.4,
+                roughness: 0.3
+            });
+            scalePlatform = new THREE.Mesh(platGeo, platMat);
+            scalePlatform.position.y = -1.4;
+            avatarGroup.add(scalePlatform);
+
+            // Glowing ring around scale
+            const ringGeo = new THREE.TorusGeometry(1.9, 0.04, 8, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = Math.PI / 2;
+            ringMesh.position.y = -1.35;
+            avatarGroup.add(ringMesh);
+
+            // Position Avatar on right side for desktop
+            if (window.innerWidth > 992) {
+                avatarGroup.position.set(3.2, 0, 0);
+            } else {
+                avatarGroup.position.set(0, -0.5, -2);
+            }
+            scene.add(avatarGroup);
+
+            // 3. Floating Chrome Dumbbell
+            const dumbGroup = new THREE.Group();
+            const barGeo = new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8);
+            const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.1 });
+            const barMesh = new THREE.Mesh(barGeo, chromeMat);
+            barMesh.rotation.z = Math.PI / 2;
+            dumbGroup.add(barMesh);
+
+            const plateMat = new THREE.MeshStandardMaterial({ color: 0x3b0764, roughness: 0.3, metalness: 0.8 });
+            const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.15, 16), plateMat);
+            p1.rotation.z = Math.PI / 2;
+            p1.position.x = -0.5;
+            dumbGroup.add(p1);
+
+            const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.15, 16), plateMat);
+            p2.rotation.z = Math.PI / 2;
+            p2.position.x = 0.5;
+            dumbGroup.add(p2);
+
+            dumbbellMesh = dumbGroup;
+            dumbbellMesh.position.set(3.5, 2.5, 2);
+            dumbbellMesh.scale.set(0.7, 0.7, 0.7);
+            scene.add(dumbbellMesh);
+
+            // 4. Floating 3D Starfield / Particle Dust
+            const particleCount = 1400;
+            const particleGeo = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 40;
+                positions[i + 1] = (Math.random() - 0.5) * 40;
+                positions[i + 2] = (Math.random() - 0.5) * 30;
+
+                if (Math.random() > 0.5) {
+                    colors[i] = 0.75; colors[i+1] = 0.5; colors[i+2] = 1.0;
+                } else {
+                    colors[i] = 0.1; colors[i+1] = 0.8; colors[i+2] = 1.0;
+                }
+            }
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const particleMat = new THREE.PointsMaterial({
+                size: 0.08,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.7,
+                blending: THREE.AdditiveBlending
+            });
+            particleSystem = new THREE.Points(particleGeo, particleMat);
+            scene.add(particleSystem);
+
+            // Event Listeners for Resize, Scroll, and Interactive 360 Dragging
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('scroll', onWindowScroll);
+            initPointerDragControls();
+
+            animateThree();
+            updateAvatarVisuals();
+        }
+
+        function buildAvatarMesh() {
+            // Materials
+            const wireframeMat = new THREE.MeshStandardMaterial({
+                color: userState.gender === 'female' ? 0xf472b6 : 0xc084fc,
+                wireframe: true,
+                emissive: userState.gender === 'female' ? 0x831843 : 0x581c87,
+                emissiveIntensity: 0.5,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+
+            const jointMat = new THREE.MeshStandardMaterial({
+                color: 0x06b6d4,
+                emissive: 0x06b6d4,
+                emissiveIntensity: 0.9,
+                roughness: 0.1
+            });
+
+            const bodyMat = new THREE.MeshStandardMaterial({
+                color: 0x1e1833,
+                roughness: 0.4,
+                metalness: 0.7,
+                transparent: true,
+                opacity: 0.85
+            });
+
+            // Head
+            const headGeo = new THREE.SphereGeometry(0.45, 16, 16);
+            const headMesh = new THREE.Mesh(headGeo, wireframeMat);
+            headMesh.position.y = 2.4;
+            avatarGroup.add(headMesh);
+
+            // Head Sensor Visor
+            const visorGeo = new THREE.BoxGeometry(0.5, 0.12, 0.3);
+            const visorMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+            const visorMesh = new THREE.Mesh(visorGeo, visorMat);
+            visorMesh.position.set(0, 2.45, 0.35);
+            avatarGroup.add(visorMesh);
+
+            // Torso / Chest (Adjust geometry according to gender)
+            const isFemale = userState.gender === 'female';
+            const topRadius = isFemale ? 0.55 : 0.75;
+            const bottomRadius = isFemale ? 0.65 : 0.5;
+            const torsoGeo = new THREE.CylinderGeometry(topRadius, bottomRadius, 1.4, 12);
+            const torsoMesh = new THREE.Mesh(torsoGeo, bodyMat);
+            torsoMesh.position.y = 1.2;
+            avatarGroup.add(torsoMesh);
+
+            const torsoWire = new THREE.Mesh(torsoGeo, wireframeMat);
+            torsoWire.position.y = 1.2;
+            torsoWire.scale.set(1.02, 1.02, 1.02);
+            avatarGroup.add(torsoWire);
+
+            // Spine Glowing Nodes
+            for(let i=0; i<5; i++) {
+                const nodeGeo = new THREE.SphereGeometry(0.08, 8, 8);
+                const nodeMesh = new THREE.Mesh(nodeGeo, jointMat);
+                nodeMesh.position.set(0, 0.6 + i * 0.35, 0.35);
+                avatarGroup.add(nodeMesh);
+            }
+
+            // Left Arm & Right Arm
+            const limbMat = bodyMat;
+            const armGeo = new THREE.CylinderGeometry(0.18, 0.15, 1.2, 8);
+            
+            const leftArm = new THREE.Mesh(armGeo, limbMat);
+            leftArm.position.set(-1.0, 1.2, 0);
+            leftArm.rotation.z = 0.25;
+            avatarGroup.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeo, limbMat);
+            rightArm.position.set(1.0, 1.2, 0);
+            rightArm.rotation.z = -0.25;
+            avatarGroup.add(rightArm);
+
+            // Legs
+            const legGeo = new THREE.CylinderGeometry(0.22, 0.16, 1.6, 8);
+            const leftLeg = new THREE.Mesh(legGeo, limbMat);
+            leftLeg.position.set(-0.4, -0.5, 0);
+            avatarGroup.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(legGeo, limbMat);
+            rightLeg.position.set(0.4, -0.5, 0);
+            avatarGroup.add(rightLeg);
+        }
+
+        // ================= INTERACTIVE 360 DRAG CONTROLS =================
+        function initPointerDragControls() {
+            window.addEventListener('pointerdown', (e) => {
+                // If clicked on input or button, don't drag
+                if (e.target.closest('input, button, a, select, textarea')) return;
+                isPointerDragging = true;
+                previousPointerPosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('pointermove', (e) => {
+                if (!isPointerDragging || !avatarGroup) return;
+                const deltaX = e.clientX - previousPointerPosition.x;
+                currentAvatarRotationY += deltaX * 0.008;
+                avatarGroup.rotation.y = currentAvatarRotationY;
+                previousPointerPosition = { x: e.clientX, y: e.clientY };
+                updateAngleReadout();
+            });
+
+            window.addEventListener('pointerup', () => {
+                isPointerDragging = false;
+            });
+        }
+
+        function toggleAutoRotate() {
+            isAutoRotating = !isAutoRotating;
+            const btn = document.getElementById('autoRotateToggleBtn');
+            const icon = document.getElementById('autoRotateIcon');
+            if (isAutoRotating) {
+                btn.className = 'p-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold flex flex-col items-center justify-center gap-1 shadow-lg shadow-purple-500/30 hover:scale-105 transition';
+                icon.className = 'fa-solid fa-arrows-rotate animate-spin';
+                playTone(660, 'sine', 0.15);
+            } else {
+                btn.className = 'p-2 rounded-xl bg-white/10 text-gray-400 font-bold flex flex-col items-center justify-center gap-1 hover:scale-105 transition';
+                icon.className = 'fa-solid fa-pause';
+                playTone(440, 'sine', 0.15);
+            }
+        }
+
+        function setAvatarAngle(angleRad) {
+            isAutoRotating = false;
+            currentAvatarRotationY = angleRad;
+            if (avatarGroup) avatarGroup.rotation.y = angleRad;
+            const btn = document.getElementById('autoRotateToggleBtn');
+            const icon = document.getElementById('autoRotateIcon');
+            btn.className = 'p-2 rounded-xl bg-white/10 text-gray-400 font-bold flex flex-col items-center justify-center gap-1 hover:scale-105 transition';
+            icon.className = 'fa-solid fa-play';
+            updateAngleReadout();
+            playTone(520, 'triangle', 0.12);
+        }
+
+        function updateAngleReadout() {
+            const angleDeg = Math.round(((currentAvatarRotationY % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2) * (180 / Math.PI));
+            const angleEl = document.getElementById('scanAngleText');
+            if (angleEl) angleEl.innerText = `${angleDeg}°`;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (window.innerWidth > 992) {
+                avatarGroup.position.set(3.2, 0, 0);
+            } else {
+                avatarGroup.position.set(0, -0.5, -2);
+            }
+        }
+
+        // Scroll listener for 3D Camera & Scene morphing
+        function onWindowScroll() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = Math.max(0, Math.min(1, scrollTop / (scrollHeight || 1)));
+            currentScrollProgress = progress;
+
+            targetCameraY = -progress * 2;
+            targetCameraZ = 13 - Math.sin(progress * Math.PI) * 2;
+
+            // Highlight corresponding HUD Dot
+            updateActiveHudDot(progress);
+        }
+
+        function updateActiveHudDot(progress) {
+            const dots = document.querySelectorAll('.hud-dot');
+            const totalSteps = dots.length;
+            const activeIdx = Math.min(Math.floor(progress * totalSteps), totalSteps - 1);
+            dots.forEach((dot, idx) => {
+                if (idx === activeIdx) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+            const counter = document.getElementById('stepCounterText');
+            if (counter) {
+                counter.innerText = `0${activeIdx + 1}/07`;
+            }
+        }
+
+        function updateAvatarVisuals() {
+            if (!avatarGroup) return;
+            // Morph height: 130cm -> 220cm maps to Y-scale 0.85 -> 1.25
+            const heightScale = 0.85 + ((userState.height - 130) / 90) * 0.4;
+            // Morph weight: 40kg -> 160kg maps to XZ-scale 0.8 -> 1.3
+            const weightScale = 0.8 + ((userState.weight - 40) / 120) * 0.5;
+
+            avatarGroup.scale.set(weightScale, heightScale, weightScale);
+        }
+
+        // Animation Loop with Continuous 360° Rotation & Laser Scan Beam
+        let clock = new THREE.Clock();
+        function animateThree() {
+            requestAnimationFrame(animateThree);
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            // Smooth continuous 360° rotation
+            if (avatarGroup) {
+                if (isAutoRotating && !isPointerDragging) {
+                    currentAvatarRotationY += 0.012;
+                    avatarGroup.rotation.y = currentAvatarRotationY;
+                    updateAngleReadout();
+                }
+                // Idle breathing floating effect
+                avatarGroup.position.y = Math.sin(time * 1.5) * 0.08 + (window.innerWidth > 992 ? 0 : -0.5);
+            }
+
+            // Continuous Laser Scanner Beam sweep up and down
+            if (laserScanRing) {
+                laserScanRing.position.y = Math.sin(time * 2.2) * 1.8 + 0.6;
+            }
+
+            if (dumbbellMesh) {
+                dumbbellMesh.rotation.x += 0.01;
+                dumbbellMesh.rotation.y += 0.015;
+                dumbbellMesh.position.y = 2.2 + Math.cos(time * 2) * 0.2;
+            }
+
+            if (particleSystem) {
+                particleSystem.rotation.y += 0.0008;
+                particleSystem.rotation.x = Math.sin(time * 0.2) * 0.05;
+            }
+
+            camera.position.y += (targetCameraY - camera.position.y) * 0.05;
+            camera.position.z += (targetCameraZ - camera.position.z) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        // ================= INTERACTIVE APPLICATION LOGIC =================
+        function scrollToSection(sectionId) {
+            const el = document.getElementById(sectionId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+                playTone(440, 'sine', 0.15);
+            }
+        }
+
+        function scrollStep(direction) {
+            const sections = ['step-hero', 'step-goal', 'step-weight', 'step-height', 'step-age-gender', 'step-activity', 'step-results'];
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = Math.max(0, Math.min(1, scrollTop / (scrollHeight || 1)));
+            let idx = Math.floor(progress * sections.length) + direction;
+            idx = Math.max(0, Math.min(sections.length - 1, idx));
+            scrollToSection(sections[idx]);
+        }
+
+        // 1. Goal Selection
+        function selectGoal(goalKey, el) {
+            userState.goal = goalKey;
+            document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+            playTone(587.33, 'triangle', 0.2); // D5
+        }
+
+        // 2. Weight Handlers
+        function updateWeight(val) {
+            userState.weight = parseFloat(val);
+            document.getElementById('weightValueDisplay').innerText = userState.weight.toFixed(1);
+            document.getElementById('weightLbsDisplay').innerText = (userState.weight * 2.20462).toFixed(1) + ' lbs';
+            updateAvatarVisuals();
+            playTone(200 + userState.weight * 2, 'sine', 0.05, 0.03);
+        }
+
+        function adjustWeight(delta) {
+            let newVal = Math.max(35, Math.min(180, userState.weight + delta));
+            document.getElementById('weightSlider').value = newVal;
+            updateWeight(newVal);
+        }
+
+        function setWeight(val) {
+            document.getElementById('weightSlider').value = val;
+            updateWeight(val);
+            playTone(523.25, 'triangle', 0.15);
+        }
+
+        // 3. Height Handlers
+        function updateHeight(val) {
+            userState.height = parseFloat(val);
+            document.getElementById('heightValueDisplay').innerText = Math.round(userState.height);
+            
+            // Convert to ft/inches
+            const totalInches = userState.height / 2.54;
+            const feet = Math.floor(totalInches / 12);
+            const inches = Math.round(totalInches % 12);
+            document.getElementById('heightFeetDisplay').innerText = `${feet}' ${inches}"`;
+
+            updateAvatarVisuals();
+            playTone(300 + userState.height * 1.5, 'sine', 0.05, 0.03);
+        }
+
+        function adjustHeight(delta) {
+            let newVal = Math.max(130, Math.min(220, userState.height + delta));
+            document.getElementById('heightSlider').value = newVal;
+            updateHeight(newVal);
+        }
+
+        function setHeight(val) {
+            document.getElementById('heightSlider').value = val;
+            updateHeight(val);
+            playTone(659.25, 'triangle', 0.15);
+        }
+
+        // 4. Age & Gender Handlers
+        function selectGender(genderKey, el) {
+            userState.gender = genderKey;
+            const btnMale = document.getElementById('btnGenderMale');
+            const btnFemale = document.getElementById('btnGenderFemale');
+            if (genderKey === 'male') {
+                if (btnMale) btnMale.className = 'gender-btn p-4 rounded-2xl bg-purple-600/30 border-2 border-purple-500 text-center transition flex flex-col items-center gap-2';
+                if (btnFemale) btnFemale.className = 'gender-btn p-4 rounded-2xl bg-white/5 border border-white/10 text-center transition flex flex-col items-center gap-2';
+            } else {
+                if (btnFemale) btnFemale.className = 'gender-btn p-4 rounded-2xl bg-pink-600/30 border-2 border-pink-500 text-center transition flex flex-col items-center gap-2';
+                if (btnMale) btnMale.className = 'gender-btn p-4 rounded-2xl bg-white/5 border border-white/10 text-center transition flex flex-col items-center gap-2';
+            }
+            // Rebuild Avatar for distinct silhouette
+            if (avatarGroup) {
+                while(avatarGroup.children.length > 0) {
+                    avatarGroup.remove(avatarGroup.children[0]);
+                }
+                buildAvatarMesh();
+                // re-add laser scan ring & scale
+                if (laserScanRing) avatarGroup.add(laserScanRing);
+                if (scalePlatform) avatarGroup.add(scalePlatform);
+            }
+            playTone(493.88, 'triangle', 0.2);
+        }
+
+        function updateAge(val) {
+            userState.age = parseInt(val);
+            document.getElementById('ageDisplay').innerText = userState.age;
+            const badge = document.getElementById('ageGroupBadge');
+            if (userState.age < 20) badge.innerText = 'Dhallinyaro (Teen)';
+            else if (userState.age < 35) badge.innerText = 'Qaan-gaar (Young Adult)';
+            else if (userState.age < 50) badge.innerText = 'Dhexdhexaad (Adult)';
+            else badge.innerText = 'Khibrad Leh (Senior)';
+            playTone(350 + userState.age * 3, 'sine', 0.05, 0.03);
+        }
+
+        // 5. Activity & Target Weight
+        function selectActivity(actKey, el) {
+            userState.activity_level = actKey;
+            document.querySelectorAll('.activity-card').forEach(c => c.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+            playTone(659.25, 'triangle', 0.15);
+        }
+
+        function updateTargetWeight(val) {
+            userState.target_weight = parseFloat(val);
+            document.getElementById('targetWeightDisplay').innerText = userState.target_weight.toFixed(1);
+            playTone(400, 'sine', 0.05, 0.03);
+        }
+
+        // 6. Calculate & Render Instant Results
+        function calculateAndShowResults() {
+            // Local calculation formulas
+            const hM = userState.height / 100.0;
+            const bmi = (userState.weight / (hM * hM)).toFixed(1);
+
+            let bmr = (userState.gender === 'female') 
+                ? (10 * userState.weight) + (6.25 * userState.height) - (5 * userState.age) - 161
+                : (10 * userState.weight) + (6.25 * userState.height) - (5 * userState.age) + 5;
+            
+            const multMap = { 'sedentary': 1.2, 'moderate': 1.45, 'active': 1.75 };
+            const tdee = Math.round(bmr * (multMap[userState.activity_level] || 1.45));
+
+            let targetCals = tdee;
+            let proteinFactor = 1.8;
+            if (userState.goal === 'lose_weight') {
+                targetCals = Math.max(tdee - 450, 1250);
+                proteinFactor = 2.0;
+            } else if (userState.goal === 'build_muscle') {
+                targetCals = tdee + 350;
+                proteinFactor = 2.2;
+            } else if (userState.goal === 'athletic_endurance') {
+                targetCals = tdee + 100;
+                proteinFactor = 1.9;
+            }
+
+            const waterL = (userState.weight * 0.035).toFixed(1);
+            const diff = Math.abs(userState.weight - userState.target_weight);
+            const weeks = Math.max(Math.round(diff / 0.5), 1);
+
+            const proteinG = Math.round(userState.weight * proteinFactor);
+            const fatsG = Math.round((targetCals * 0.25) / 9);
+            const carbsG = Math.max(Math.round((targetCals - (proteinG * 4 + fatsG * 9)) / 4), 60);
+
+            // Populate DOM
+            document.getElementById('resBmiValue').innerText = bmi;
+            const badge = document.getElementById('resBmiBadge');
+            if (bmi < 18.5) {
+                badge.innerText = 'Miisaan Hooseeya (Underweight)';
+                badge.className = 'inline-block text-[11px] font-bold px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
+            } else if (bmi < 25.0) {
+                badge.innerText = 'Miisaan Caafimaad Leh (Normal)';
+                badge.className = 'inline-block text-[11px] font-bold px-2.5 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30';
+            } else if (bmi < 30.0) {
+                badge.innerText = "Miisaan Zaa'id ah (Overweight)";
+                badge.className = 'inline-block text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30';
+            } else {
+                badge.innerText = 'Buran / Cayil Sare (Obese)';
+                badge.className = 'inline-block text-[11px] font-bold px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30';
+            }
+
+            document.getElementById('resCaloriesValue').innerText = Number(targetCals).toLocaleString();
+            document.getElementById('resWaterValue').innerText = waterL;
+            document.getElementById('resTimelineValue').innerText = `~${weeks}`;
+
+            document.getElementById('resProteinVal').innerText = `${proteinG}g`;
+            document.getElementById('resCarbsVal').innerText = `${carbsG}g`;
+            document.getElementById('resFatsVal').innerText = `${fatsG}g`;
+
+            // Progress macro bars
+            const totalMacroCals = (proteinG * 4) + (carbsG * 4) + (fatsG * 9);
+            document.getElementById('barProtein').style.width = `${Math.round(((proteinG * 4) / totalMacroCals) * 100)}%`;
+            document.getElementById('barCarbs').style.width = `${Math.round(((carbsG * 4) / totalMacroCals) * 100)}%`;
+            document.getElementById('barFats').style.width = `${Math.round(((fatsG * 9) / totalMacroCals) * 100)}%`;
+
+            // Trigger Confetti explosion
+            try {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } catch(e) {}
+
+            playTone(880, 'triangle', 0.4); // High A5 chime
+
+            scrollToSection('step-results');
+        }
+
+        // 7. Submit Onboarding & Gmail Data to Django API
+        async function submitOnboardingData() {
+            const btn = document.getElementById('btnSaveOnboarding');
+            const gmailInput = document.getElementById('userGmailInput');
+            if (gmailInput && gmailInput.value) {
+                userState.email = gmailInput.value.trim();
+            }
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Keydinaya xogta & Gmail-ka...</span>`;
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/save-onboarding/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify(userState)
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    const statusMsg = document.getElementById('saveStatusMsg');
+                    statusMsg.innerHTML = `<i class="fa-solid fa-circle-check"></i> Xogta iyo Gmail-kaaga (${userState.email || 'La keydiyay'}) si guul leh ayaa loo qabtay! Waxaa laguu wareejinayaa Dashboard-ka...`;
+                    statusMsg.classList.remove('hidden');
+                    playTone(1046.5, 'sine', 0.5); // C6 victory tone
+                    
+                    try {
+                        confetti({
+                            particleCount: 120,
+                            spread: 90,
+                            origin: { y: 0.5 }
+                        });
+                    } catch(e) {}
+
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url || '/';
+                    }, 1400);
+                } else {
+                    alert("Khalad ayaa dhacay: " + (data.message || "Fadlan isku day markale"));
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>Keydi Xogta & Gal Dashboard-ka</span>`;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                window.location.href = '/';
+            }
+        }
+
+        // Initialize state & Three.js on DOM load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Apply initial values
+            if (userState.weight) {
+                document.getElementById('weightSlider').value = userState.weight;
+                updateWeight(userState.weight);
+            }
+            if (userState.height) {
+                document.getElementById('heightSlider').value = userState.height;
+                updateHeight(userState.height);
+            }
+            if (userState.age) {
+                document.getElementById('ageSlider').value = userState.age;
+                updateAge(userState.age);
+            }
+            if (userState.gender) {
+                selectGender(userState.gender, null);
+            }
+            if (userState.goal) {
+                const targetCard = document.querySelector(`.goal-card[data-goal="${userState.goal}"]`);
+                if (targetCard) selectGoal(userState.goal, targetCard);
+            }
+            if (userState.activity_level) {
+                const targetAct = document.querySelector(`.activity-card[data-act="${userState.activity_level}"]`);
+                if (targetAct) selectActivity(userState.activity_level, targetAct);
+            }
+            if (userState.target_weight) {
+                document.getElementById('targetWeightSlider').value = userState.target_weight;
+                updateTargetWeight(userState.target_weight);
+            }
+            if (userState.email) {
+                const gmailInput = document.getElementById('userGmailInput');
+                if (gmailInput) gmailInput.value = userState.email;
+            }
+
+            initThreeJS();
+        });
+    </script>
+</body>
+</html>

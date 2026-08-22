@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siisto - {{ page_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'siisto-dark': '#101010',
+                        'siisto-card': '#1a1a1a',
+                        'siisto-neon': '#39ff14',
+                        'siisto-gray': '#e0e0e0',
+                        'siisto-accent': '#2d2d2d',
+                    },
+                    borderRadius: { 'custom': '20px' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #101010;
+            background-image: linear-gradient(180deg, rgba(10,10,12,0.88) 0%, rgba(10,10,12,0.96) 100%),
+                url('https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #e0e0e0;
+        }
+        .btn-premium {
+            background-color: #39ff14;
+            color: #101010;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-premium:hover {
+            box-shadow: 0 0 25px rgba(57,255,20,0.6);
+            transform: translateY(-2px);
+        }
+        .glass-card {
+            background: rgba(22,22,24,0.84);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        /* Markdown styling */
+        .ai-markdown h1, .ai-markdown h2, .ai-markdown h3 {
+            color: #39ff14; font-weight: 700;
+            margin-top: 1rem; margin-bottom: 0.4rem;
+        }
+        .ai-markdown h1 { font-size: 1.15rem; }
+        .ai-markdown h2 { font-size: 1.05rem; }
+        .ai-markdown h3 { font-size: 0.95rem; }
+        .ai-markdown p { margin-bottom: 0.6rem; }
+        .ai-markdown ul { list-style-type: disc; padding-left: 1.3rem; margin-bottom: 0.6rem; }
+        .ai-markdown ol { list-style-type: decimal; padding-left: 1.3rem; margin-bottom: 0.6rem; }
+        .ai-markdown li { margin-bottom: 0.25rem; }
+        .ai-markdown strong { color: #ffffff; font-weight: 700; }
+        .ai-markdown em { color: #d1d5db; }
+        .ai-markdown code {
+            background: rgba(57,255,20,0.08);
+            border: 1px solid rgba(57,255,20,0.2);
+            border-radius: 4px;
+            padding: 0.1rem 0.3rem;
+            font-size: 0.8rem;
+            font-family: monospace;
+            color: #39ff14;
+        }
+        .ai-markdown pre {
+            background: rgba(0,0,0,0.4);
+            border-radius: 8px;
+            padding: 0.75rem;
+            overflow-x: auto;
+            margin-bottom: 0.6rem;
+        }
+        .ai-markdown blockquote {
+            border-left: 3px solid #39ff14;
+            padding-left: 0.75rem;
+            color: #9ca3af;
+            margin-bottom: 0.6rem;
+        }
+        .ai-markdown hr { border-color: rgba(255,255,255,0.1); margin: 0.75rem 0; }
+    </style>
+</head>
+
+<body class="font-sans antialiased min-h-screen">
+
+    <!-- Nav -->
+    <nav class="bg-siisto-card/90 backdrop-blur-md sticky top-0 z-50 shadow-xl border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="{% url 'index' %}" class="text-2xl font-extrabold text-siisto-neon flex items-center">
+                    <i class="fa-solid fa-dumbbell mr-3"></i>SIISTO TRACKER
+                </a>
+                <div class="flex items-baseline space-x-5 text-sm font-semibold text-gray-300">
+                    <a href="{% url 'index' %}" class="hover:text-siisto-neon transition"><i class="fa-solid fa-house mr-1"></i>Dashboard</a>
+                    <a href="{% url 'chatbot' %}" class="hover:text-siisto-neon transition"><i class="fa-solid fa-robot mr-1"></i>AI Coach</a>
+                    <a href="{% url 'workout_recommendation' %}" class="hover:text-siisto-neon transition"><i class="fa-solid fa-dumbbell mr-1"></i>Workout Plan</a>
+                    <a href="{% url 'meal_recommendation' %}" class="hover:text-siisto-neon transition"><i class="fa-solid fa-bowl-food mr-1"></i>Meal Plan</a>
+                    <form method="POST" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-400 hover:text-red-300 transition font-semibold">
+                            <i class="fa-solid fa-sign-out-alt mr-1"></i>Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <!-- Header -->
+        <div class="mb-8">
+            <p class="text-siisto-neon font-bold text-sm tracking-widest uppercase flex items-center gap-2 mb-2">
+                <span class="w-2 h-2 rounded-full bg-siisto-neon animate-pulse"></span>
+                AI-Powered Recommendation
+            </p>
+            <h1 class="text-4xl font-extrabold text-white">{{ page_title }}</h1>
+            <p class="text-gray-400 mt-2">Personalized for {{ request.user.username|title }} based on your profile &amp; history</p>
+        </div>
+
+        <!-- Context Cards (if available) -->
+        {% if profile %}
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            {% if profile.current_weight %}
+            <div class="glass-card p-4 rounded-xl text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Current Weight</p>
+                <p class="text-xl font-black text-siisto-neon mt-1">{{ profile.current_weight }} kg</p>
+            </div>
+            {% endif %}
+            {% if profile.target_weight %}
+            <div class="glass-card p-4 rounded-xl text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Target Weight</p>
+                <p class="text-xl font-black text-blue-400 mt-1">{{ profile.target_weight }} kg</p>
+            </div>
+            {% endif %}
+            {% if total_cals_today is not None %}
+            <div class="glass-card p-4 rounded-xl text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Calories Today</p>
+                <p class="text-xl font-black text-yellow-400 mt-1">{{ total_cals_today }} kcal</p>
+            </div>
+            {% endif %}
+            {% if total_protein_today is not None %}
+            <div class="glass-card p-4 rounded-xl text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Protein Today</p>
+                <p class="text-xl font-black text-orange-400 mt-1">{{ total_protein_today|floatformat:0 }}g</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- AI Recommendation Card -->
+        <div class="glass-card p-8 rounded-custom shadow-2xl mb-8">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
+                <div class="bg-siisto-neon/10 p-3 rounded-full border border-siisto-neon/20">
+                    <i class="fa-solid fa-robot text-xl text-siisto-neon"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-white">Siisto AI Coach</h2>
+                    <p class="text-xs text-gray-400">Powered by Llama 3.3 · Personalized recommendation</p>
+                </div>
+            </div>
+            <div id="recommendation-content" class="ai-markdown leading-relaxed text-gray-200">
+                {{ recommendation }}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4">
+            <a href="{% url 'chatbot' %}" class="btn-premium px-6 py-3 rounded-xl flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-comment-dots"></i> Continue in AI Chat
+            </a>
+            <a href="{% url 'workout_recommendation' %}" class="glass-card px-6 py-3 rounded-xl flex items-center gap-2 text-sm font-bold text-siisto-neon border border-siisto-neon/30 hover:bg-siisto-neon/10 transition">
+                <i class="fa-solid fa-dumbbell"></i> New Workout Plan
+            </a>
+            <a href="{% url 'meal_recommendation' %}" class="glass-card px-6 py-3 rounded-xl flex items-center gap-2 text-sm font-bold text-blue-400 border border-blue-400/30 hover:bg-blue-400/10 transition">
+                <i class="fa-solid fa-bowl-food"></i> New Meal Plan
+            </a>
+            <a href="{% url 'index' %}" class="glass-card px-6 py-3 rounded-xl flex items-center gap-2 text-sm font-bold text-gray-300 border border-white/10 hover:bg-white/5 transition">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
+
+        <p class="text-xs text-gray-600 mt-6">
+            ⚠️ These recommendations are general fitness guidance only, not medical advice. 
+            Consult a healthcare professional before making major changes to your diet or exercise routine.
+        </p>
+
+    </main>
+
+    <script>
+        marked.setOptions({ breaks: true, gfm: true });
+        const el = document.getElementById('recommendation-content');
+        if (el) {
+            el.innerHTML = marked.parse(el.textContent || '');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Upgrade To Pro — $9.99/Month | Siisto{% endblock %}
+
+{% block extra_head %}
+<style>
+    .feature-row-pro { color: #a3e635; }
+    .feature-row-free { color: #6b7280; }
+    .plan-card { transition: all 0.3s ease; }
+    .plan-card:hover { transform: translateY(-2px); }
+    .badge-crown {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .payment-method-label { cursor: pointer; }
+    .shimmer-border {
+        background: linear-gradient(135deg, #2a1f3d 0%, #1e192c 60%, #14111d 100%);
+        border: 1px solid transparent;
+        background-clip: padding-box;
+        position: relative;
+    }
+    .shimmer-border::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        background: linear-gradient(135deg, rgba(192,132,252,0.5), rgba(236,72,153,0.3), rgba(192,132,252,0.5));
+        z-index: -1;
+        border-radius: 24px;
+        animation: shimmerBorder 3s ease infinite;
+    }
+    @keyframes shimmerBorder {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- HERO PRO BANNER -->
+    <div class="skillset-mauve-card p-8 rounded-3xl relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl border border-[#3d3454]">
+        <div class="space-y-3 z-10 max-w-xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-bold border border-amber-400/30">
+                <i class="fa-solid fa-crown text-amber-400"></i> VIP Fitness & AI Experience
+            </div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+                Unlock <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Siisto Pro</span> Membership
+            </h2>
+            <p class="text-xs md:text-sm text-purple-200/80">
+                Hel marin buuxa oo aan xadidnayn — AI Smart Coach, 3D Gym Library, Real-Time Pose Tracking, iyo wax badan.
+            </p>
+            <div class="flex items-center gap-4 pt-1">
+                <div class="flex items-center gap-1.5 text-xs text-emerald-400 font-bold">
+                    <i class="fa-solid fa-circle-check"></i> Cancel anytime
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-emerald-400 font-bold">
+                    <i class="fa-solid fa-circle-check"></i> Instant activate
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-emerald-400 font-bold">
+                    <i class="fa-solid fa-circle-check"></i> Secure payment
+                </div>
+            </div>
+        </div>
+        <div class="z-10 text-center flex-shrink-0 shimmer-border p-6 rounded-3xl shadow-2xl">
+            <div class="text-xs text-[#9e9aa7] font-semibold mb-1 uppercase tracking-wider">Monthly Plan</div>
+            <div class="text-5xl md:text-6xl font-black text-white">$9<span class="text-3xl">.99</span></div>
+            <span class="text-[11px] text-purple-300 font-bold block mt-1">/ Bishii (Per Month)</span>
+            <div class="mt-3 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400 font-bold">
+                🔥 Best Value Plan
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAN COMPARISON + PAYMENT FORM GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+        <!-- LEFT 5 COLS: PLAN COMPARISON -->
+        <div class="md:col-span-5 space-y-4">
+
+            <!-- PRO FEATURES -->
+            <div class="skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
+                    Maxaad ka helaysaa Pro?
+                </h3>
+
+                <div class="space-y-2.5">
+                    {% for feat in "A,B,C,D,E,F,G,H"|split:"," %}{% endfor %}
+                    <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#201c2c] border border-[#2e273f]">
+                        <i class="fa-solid fa-infinity text-purple-400 mt-0.5 text-sm flex-shrink-0"></i>
+                        <div>
+                            <span class="text-xs font-bold text-white block">Chatbot AI Unlimited</span>
+                            <span class="text-[10px] text-[#9e9aa7]">Free: 5 fariin/day • Pro: Aan xad lahayn</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#201c2c] border border-[#2e273f]">
+                        <i class="fa-solid fa-camera text-emerald-400 mt-0.5 text-sm flex-shrink-0"></i>
+                        <div>
+                            <span class="text-xs font-bold text-white block">AI Meal Photo Recognition</span>
+                            <span class="text-[10px] text-[#9e9aa7]">Free: 2 scan/day • Pro: Aan xad lahayn</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#201c2c] border border-[#2e273f]">
+                        <i class="fa-solid fa-person-running text-pink-400 mt-0.5 text-sm flex-shrink-0"></i>
+                        <div>
+                            <span class="text-xs font-bold text-white block">AI Form Detection — Dhammaan</span>
+                            <span class="text-[10px] text-[#9e9aa7]">Free: Squat oo kaliya • Pro: 7+ exercises</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#201c2c] border border-[#2e273f]">
+                        <i class="fa-solid fa-dumbbell text-amber-400 mt-0.5 text-sm flex-shrink-0"></i>
+                        <div>
+                            <span class="text-xs font-bold text-white block">3D Gym Library Full Access</span>
+                            <span class="text-[10px] text-[#9e9aa7]">Video links + custom 3D animations</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#201c2c] border border-[#2e273f]">
+                        <i class="fa-solid fa-chart-line text-cyan-400 mt-0.5 text-sm flex-shrink-0"></i>
+                        <div>
+                            <span class="text-xs font-bold text-white block">Advanced Progress Analytics</span>
+                            <span class="text-[10px] text-[#9e9aa7]">Charts, trends, iyo weekly reports</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATUS BANNER -->
+                <div class="p-4 rounded-2xl bg-[#201c2c] border border-[#2e273f] text-[11px]">
+                    {% if profile.has_active_pro %}
+                    <div class="text-emerald-400 font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-lg"></i>
+                        <div>
+                            <span class="block text-sm">Xubinnimadaada Pro waa firfircoon tahay! 🎉</span>
+                            <span class="text-purple-300 font-normal">Waxay dhacaysaa: {{ profile.pro_expires_at|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="flex items-start gap-2">
+                        <i class="fa-solid fa-lock text-[#736c82] mt-0.5"></i>
+                        <div>
+                            <span class="text-white font-bold block">Hadda: Free Plan</span>
+                            <span class="text-[#9e9aa7]">Ku biir Pro si aad u hesho adeegyada oo dhan!</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT 7 COLS: PAYMENT CHECKOUT -->
+        <div class="md:col-span-7 skillset-card p-6 sm:p-8 bg-[#191622] border-[#2e273f]">
+            <h3 class="font-bold text-white text-lg mb-1">Dooro Qaabka Lacag Bixinta</h3>
+            <p class="text-xs text-[#9e9aa7] mb-6">Lacag bixintu waa ammaan — <strong class="text-white">$9.99 USD / Bishii</strong></p>
+
+            <form method="POST" action="{% url 'process_payment' %}" class="space-y-5" id="paymentForm">
+                {% csrf_token %}
+                <input type="hidden" name="plan_name" value="Siisto Pro Monthly">
+
+                <!-- PAYMENT METHOD SELECTION -->
+                <div>
+                    <label class="block text-xs font-bold text-purple-200 mb-2 uppercase tracking-wider">Habka Lacag Bixinta</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <label class="payment-method-label">
+                            <input type="radio" name="payment_method" value="EVC Plus" class="peer sr-only" checked>
+                            <div class="p-3 text-center rounded-2xl border border-[#2e273f] peer-checked:border-purple-500 peer-checked:bg-purple-600/20 peer-checked:text-white transition duration-150 bg-[#201c2c] hover:bg-[#282337]">
+                                <i class="fa-solid fa-mobile-screen text-base text-purple-400 block mb-1"></i>
+                                <span class="text-xs font-bold block">EVC Plus</span>
+                                <span class="text-[9px] text-purple-300">Hormuud</span>
+                            </div>
+                        </label>
+
+                        <label class="payment-method-label">
+                            <input type="radio" name="payment_method" value="Zaad" class="peer sr-only">
+                            <div class="p-3 text-center rounded-2xl border border-[#2e273f] peer-checked:border-purple-500 peer-checked:bg-purple-600/20 peer-checked:text-white transition duration-150 bg-[#201c2c] hover:bg-[#282337]">
+                                <i class="fa-solid fa-signal text-base text-blue-400 block mb-1"></i>
+                                <span class="text-xs font-bold block">Zaad</span>
+                                <span class="text-[9px] text-purple-300">Telesom</span>
+                            </div>
+                        </label>
+
+                        <label class="payment-method-label">
+                            <input type="radio" name="payment_method" value="Sahal" class="peer sr-only">
+                            <div class="p-3 text-center rounded-2xl border border-[#2e273f] peer-checked:border-purple-500 peer-checked:bg-purple-600/20 peer-checked:text-white transition duration-150 bg-[#201c2c] hover:bg-[#282337]">
+                                <i class="fa-solid fa-wallet text-base text-emerald-400 block mb-1"></i>
+                                <span class="text-xs font-bold block">Sahal</span>
+                                <span class="text-[9px] text-purple-300">Golis</span>
+                            </div>
+                        </label>
+
+                        <label class="payment-method-label">
+                            <input type="radio" name="payment_method" value="Credit Card" class="peer sr-only">
+                            <div class="p-3 text-center rounded-2xl border border-[#2e273f] peer-checked:border-purple-500 peer-checked:bg-purple-600/20 peer-checked:text-white transition duration-150 bg-[#201c2c] hover:bg-[#282337]">
+                                <i class="fa-solid fa-credit-card text-base text-amber-400 block mb-1"></i>
+                                <span class="text-xs font-bold block">Card</span>
+                                <span class="text-[9px] text-purple-300">Visa/Master</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- PHONE NUMBER -->
+                <div>
+                    <label class="block text-xs font-bold text-purple-200 mb-1.5">
+                        Telefoonka Lacag Bixinta
+                    </label>
+                    <div class="relative">
+                        <i class="fa-solid fa-mobile-screen absolute left-3.5 top-1/2 -translate-y-1/2 text-[#736c82] text-xs"></i>
+                        <input type="text" name="phone_number" placeholder="Tusaale: +252 61XXXXXXX"
+                               value="{{ request.user.profile.location|default:'' }}"
+                               required
+                               class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+
+                <!-- SUMMARY ROW -->
+                <div class="p-4 rounded-2xl bg-[#201c2c] border border-[#2e273f]">
+                    <div class="flex items-center justify-between text-xs font-semibold mb-2">
+                        <span class="text-[#9e9aa7]">Siisto Pro Monthly (30 days)</span>
+                        <span class="text-white font-bold">$9.99</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs font-semibold mb-3">
+                        <span class="text-[#9e9aa7]">Activation fee</span>
+                        <span class="text-emerald-400 font-bold">FREE</span>
+                    </div>
+                    <div class="border-t border-[#2e273f] pt-3 flex items-center justify-between">
+                        <span class="text-sm font-extrabold text-white">Isugeynta (Total):</span>
+                        <span class="text-xl font-black text-white">$9.99 <span class="text-xs font-normal text-purple-300">USD</span></span>
+                    </div>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" id="paySubmitBtn"
+                        class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 text-white font-extrabold text-sm transition duration-150 shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-lock text-xs text-amber-300"></i>
+                    <span>Bixi $9.99 & Fur Pro Hadda</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+
+                <p class="text-center text-[10px] text-[#736c82]">
+                    <i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i>
+                    Lacagbixinta waa ammaan. Waxaad joojin kartaa mar kasta.
+                </p>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- RECENT TRANSACTIONS TABLE -->
+    {% if recent_payments %}
+    <div class="skillset-card p-6 bg-[#191622] border-[#2e273f]">
+        <h3 class="font-bold text-white text-sm mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-receipt text-purple-400"></i>
+            Taariikhda Lacag Bixintaada (Payment History)
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="text-[#736c82] border-b border-[#2e273f] uppercase tracking-wider font-semibold text-[10px]">
+                        <th class="pb-2 pr-4">Tx ID</th>
+                        <th class="pb-2 pr-4">Qorshaha</th>
+                        <th class="pb-2 pr-4">Habka</th>
+                        <th class="pb-2 pr-4">Qiimaha</th>
+                        <th class="pb-2 pr-4">Taariikhda</th>
+                        <th class="pb-2 text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#2e273f]">
+                    {% for tx in recent_payments %}
+                    <tr class="hover:bg-[#201c2c] transition">
+                        <td class="py-3 pr-4 font-mono text-purple-300 font-bold">#{{ tx.transaction_id|slice:":8"|upper }}</td>
+                        <td class="py-3 pr-4 font-medium text-white">{{ tx.plan_name }}</td>
+                        <td class="py-3 pr-4 text-[#9e9aa7]">{{ tx.payment_method }}</td>
+                        <td class="py-3 pr-4 font-bold text-white">${{ tx.amount|floatformat:2 }}</td>
+                        <td class="py-3 pr-4 text-[#736c82]">{{ tx.created_at|date:"d M Y" }}</td>
+                        <td class="py-3 text-right">
+                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                                {{ tx.status|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('paySubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Lacagta la xareeynayaa...';
+    });
+</script>
+{% endblock %}

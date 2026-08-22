@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siisto Tracker - Edit Meal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'siisto-dark': '#101010',
+                        'siisto-card': '#1a1a1a',
+                        'siisto-neon': '#39ff14',
+                        'siisto-gray': '#e0e0e0',
+                        'siisto-accent': '#2d2d2d',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-[#101010] text-white font-sans antialiased min-h-screen flex flex-col justify-center p-6">
+
+    <div class="max-w-xl mx-auto w-full">
+
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-lime-400 tracking-wider flex items-center justify-center gap-2">
+                <i class="fa-solid fa-dumbbell text-lime-400"></i> SIISTO TRACKER
+            </h1>
+            <p class="text-xs text-gray-400 font-bold tracking-widest uppercase mt-2">Edit Meal Details</p>
+        </div>
+
+        <div class="bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-lime-500/10 rounded-full blur-3xl"></div>
+
+            <div class="flex items-center space-x-3 mb-6 border-b border-white/5 pb-4">
+                <div class="bg-lime-400/10 p-3 rounded-xl text-lime-400">
+                    <i class="fa-solid fa-pen-to-square text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Edit Meal</h2>
+                    <p class="text-xs text-gray-400">Update nutrients and calories for {{ meal.name }}</p>
+                </div>
+            </div>
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Meal Name</label>
+                    <input type="text" name="name" value="{{ meal.name }}" required
+                        class="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-lime-400 transition">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Calories (kcal)</label>
+                        <input type="number" name="calories" value="{{ meal.calories }}" required
+                            class="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-lime-400 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Protein (g)</label>
+                        <input type="number" step="0.1" name="protein" value="{{ meal.protein }}" required
+                            class="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-lime-400 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Carbs (g)</label>
+                        <input type="number" step="0.1" name="carbs" value="{{ meal.carbs }}" required
+                            class="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-lime-400 transition">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex flex-col sm:flex-row gap-3">
+                    <button type="submit"
+                        class="flex-1 bg-lime-400 hover:bg-lime-500 text-black text-xs font-black py-4 rounded-xl transition uppercase tracking-wider shadow-lg shadow-lime-400/20 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    </button>
+                    <a href="{% url 'history' %}"
+                        class="bg-transparent hover:bg-white/5 border border-white/10 text-gray-400 hover:text-white text-xs font-bold py-4 px-6 rounded-xl transition uppercase tracking-wider text-center">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

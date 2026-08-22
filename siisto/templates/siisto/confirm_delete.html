@@ -1,0 +1,27 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Xaqiiji Tirtirista (Confirm Delete){% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-8">
+    <div class="skillset-card p-6 sm:p-8 bg-[#191622] border-[#2e273f] text-center space-y-4 shadow-2xl">
+        <div class="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/20">
+            <i class="fa-solid fa-trash-can text-2xl"></i>
+        </div>
+        <h3 class="font-extrabold text-white text-lg">Ma hubtaa inaad tirtirto?</h3>
+        <p class="text-xs text-[#9e9aa7]">
+            Waxaad tirtiraysaa <strong class="text-purple-300">"{{ item_name }}"</strong>. Ficilkan dib looma celin karo.
+        </p>
+
+        <form method="POST" class="flex items-center justify-center gap-3 pt-3">
+            {% csrf_token %}
+            <a href="{% url 'history' %}" class="px-5 py-2.5 rounded-xl bg-[#262134] text-white font-bold text-xs hover:bg-[#322b44] transition">
+                Ka Noqo (Cancel)
+            </a>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-extrabold text-xs transition shadow-md shadow-rose-500/25">
+                Haa, Tirtir (Delete)
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

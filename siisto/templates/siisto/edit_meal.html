@@ -1,0 +1,64 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Wax ka beddel Cuntada (Edit Meal){% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto space-y-6">
+    <div class="skillset-card p-6 sm:p-8 bg-[#191622] border-[#2e273f] space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+            <div>
+                <h3 class="font-bold text-white text-lg">Wax ka beddel Cuntada</h3>
+                <p class="text-xs text-[#9e9aa7]">Cusbooneysii magaca ama qiyamka nafaqada</p>
+            </div>
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-pen-to-square text-sm"></i>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-xs font-bold text-purple-200 mb-1.5">Magaca Cuntada</label>
+                <input type="text" name="name" value="{{ meal.name }}" required
+                       class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Calories (kcal)</label>
+                    <input type="number" name="calories" value="{{ meal.calories }}" required
+                           class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Protein (g)</label>
+                    <input type="number" step="0.1" name="protein" value="{{ meal.protein }}"
+                           class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Carbs (g)</label>
+                    <input type="number" step="0.1" name="carbs" value="{{ meal.carbs }}"
+                           class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Fats (g)</label>
+                    <input type="number" step="0.1" name="fats" value="{{ meal.fats }}"
+                           class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3">
+                <a href="{% url 'history' %}" class="px-5 py-2.5 rounded-xl bg-[#262134] text-white font-bold text-xs hover:bg-[#322b44] transition">
+                    Ka Noqo (Cancel)
+                </a>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition shadow-md shadow-purple-500/25">
+                    Cusbooneysii (Save Changes)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

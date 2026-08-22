@@ -1,0 +1,121 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Diiwaanka Taariikhda (History Logs){% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- OVERVIEW STATS ROW -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="skillset-mauve-card p-6 rounded-2xl flex items-center justify-between shadow-xl border border-[#3d3454]">
+            <div>
+                <span class="text-xs text-purple-200 font-semibold">Cuntooyinka Diiwaangashan</span>
+                <div class="text-2xl font-black text-white mt-1">{{ cuntooyinka.count }}</div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-300">
+                <i class="fa-solid fa-bowl-food"></i>
+            </div>
+        </div>
+
+        <div class="skillset-card p-6 bg-[#191622] flex items-center justify-between border-[#2e273f]">
+            <div>
+                <span class="text-xs text-[#9e9aa7] font-semibold">Jimicsiyada La Sameeyay</span>
+                <div class="text-2xl font-black text-white mt-1">{{ jimicsiyada.count }}</div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+        </div>
+
+        <div class="skillset-card p-6 bg-[#191622] flex items-center justify-between border-[#2e273f]">
+            <div>
+                <span class="text-xs text-[#9e9aa7] font-semibold">Lacag-bixinta Pro ($10/mo)</span>
+                <div class="text-2xl font-black text-white mt-1">${{ payments.count|default:1|stringformat:"d0.00" }}</div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS / SPLIT LISTS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- MEALS HISTORY -->
+        <div class="skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+            <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-bowl-food text-pink-400"></i>
+                    Diiwaanka Cuntooyinka (Meals)
+                </h3>
+                <a href="{% url 'add_meal' %}" class="text-xs font-bold text-purple-300 hover:text-white">+ Ku dar</a>
+            </div>
+
+            <div class="space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-1">
+                {% for meal in cuntooyinka %}
+                <div class="p-3.5 rounded-2xl bg-[#201c2c] border border-[#2e273f] flex items-center justify-between gap-3">
+                    <div>
+                        <h4 class="font-bold text-white text-xs">{{ meal.name }}</h4>
+                        <p class="text-[11px] text-[#9e9aa7] mt-0.5">
+                            <span class="font-bold text-purple-300">{{ meal.calories }} kcal</span> • 
+                            P: {{ meal.protein }}g | C: {{ meal.carbs }}g | F: {{ meal.fats }}g
+                        </p>
+                        <span class="text-[10px] text-[#736c82] block mt-0.5">{{ meal.date|date:"d M Y, h:i A" }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <a href="{% url 'edit_meal' meal.id %}" class="w-7 h-7 rounded-lg bg-[#2a243a] border border-[#3d3454] flex items-center justify-center text-purple-300 hover:text-white transition text-xs shadow-sm">
+                            <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                        </a>
+                        <a href="{% url 'delete_meal' meal.id %}" class="w-7 h-7 rounded-lg bg-[#2a243a] border border-[#3d3454] flex items-center justify-center text-rose-400 hover:text-rose-300 transition text-xs shadow-sm">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-[#736c82] text-xs">Wax cunto ah lama diiwaangelin.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- WORKOUTS HISTORY -->
+        <div class="skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+            <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-dumbbell text-purple-400"></i>
+                    Diiwaanka Jimicsiga (Workouts)
+                </h3>
+                <a href="{% url 'add_workout' %}" class="text-xs font-bold text-purple-300 hover:text-white">+ Ku dar</a>
+            </div>
+
+            <div class="space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-1">
+                {% for workout in jimicsiyada %}
+                <div class="p-3.5 rounded-2xl bg-[#201c2c] border border-[#2e273f] flex items-center justify-between gap-3">
+                    <div>
+                        <h4 class="font-bold text-white text-xs">{{ workout.name }}</h4>
+                        <p class="text-[11px] text-[#9e9aa7] mt-0.5">
+                            <span class="font-bold text-purple-300">{{ workout.duration }} Daqiiqo</span> •
+                            Sets: {{ workout.sets|default:4 }} | Reps: {{ workout.reps|default:10 }}
+                        </p>
+                        <span class="text-[10px] text-[#736c82] block mt-0.5">{{ workout.date|date:"d M Y, h:i A" }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <a href="{% url 'edit_workout' workout.id %}" class="w-7 h-7 rounded-lg bg-[#2a243a] border border-[#3d3454] flex items-center justify-center text-purple-300 hover:text-white transition text-xs shadow-sm">
+                            <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                        </a>
+                        <a href="{% url 'delete_workout' workout.id %}" class="w-7 h-7 rounded-lg bg-[#2a243a] border border-[#3d3454] flex items-center justify-center text-rose-400 hover:text-rose-300 transition text-xs shadow-sm">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-[#736c82] text-xs">Wax jimicsi ah lama diiwaangelin.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

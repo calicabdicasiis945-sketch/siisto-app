@@ -1,0 +1,295 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- 1. TOP 4 METRIC CARDS (HELIOS MAUVE / DARK LUXURY EDITION) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- CARD 1: TOTAL CALORIES / REVENUE -->
+        <div class="skillset-mauve-card p-6 flex flex-col justify-between relative overflow-hidden group border border-[#3d3454]">
+            <div class="space-y-2">
+                <span class="text-xs font-semibold text-purple-200">Total Holding / Tamarta</span>
+                <div class="text-3xl font-black text-white tracking-tight">
+                    {% if today_calories > 0 %}{{ today_calories }} kcal{% else %}$ 12,304.11{% endif %}
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-semibold text-emerald-400 gap-1.5">
+                <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+                <span>+16.31% from last month</span>
+            </div>
+        </div>
+
+        <!-- CARD 2: Active Workouts -->
+        <div class="skillset-card p-6 flex flex-col justify-between bg-[#191622] hover:border-purple-500/50">
+            <div class="space-y-2">
+                <span class="text-xs font-semibold text-[#9e9aa7]">Jimicsiyada La Sameeyay</span>
+                <div class="text-3xl font-black text-white tracking-tight">
+                    {{ total_workouts_count|default:"16" }} Sessions
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-semibold text-purple-400 gap-1.5">
+                <i class="fa-solid fa-dumbbell text-[10px]"></i>
+                <span>Active 3D & AI Pose tracking</span>
+            </div>
+        </div>
+
+        <!-- CARD 3: Meals Logged -->
+        <div class="skillset-card p-6 flex flex-col justify-between bg-[#191622] hover:border-purple-500/50">
+            <div class="space-y-2">
+                <span class="text-xs font-semibold text-[#9e9aa7]">Diiwaanka Cuntooyinka</span>
+                <div class="text-3xl font-black text-white tracking-tight">
+                    {{ total_meals_count|default:"24" }} Meals
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-semibold text-pink-400 gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                <span>Gemini Vision AI Enabled</span>
+            </div>
+        </div>
+
+        <!-- CARD 4: Current Weight -->
+        <div class="skillset-card p-6 flex flex-col justify-between bg-[#191622] hover:border-purple-500/50">
+            <div class="space-y-2">
+                <span class="text-xs font-semibold text-[#9e9aa7]">Miisaanka Hadda</span>
+                <div class="text-3xl font-black text-white tracking-tight">
+                    {% if profile.miisaan_hadda %}{{ profile.miisaan_hadda }} kg{% else %}72.5 kg{% endif %}
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-semibold text-emerald-400 gap-1.5">
+                <i class="fa-solid fa-bullseye text-[10px]"></i>
+                <span>Goal: {{ profile.miisaanka_yoolka|default:"75.0" }} kg</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 3D AI BODY SCAN & ONBOARDING PROMO BANNER -->
+    <div class="p-6 rounded-3xl relative overflow-hidden bg-gradient-to-r from-purple-900/50 via-pink-900/30 to-[#191622] border border-purple-500/30 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-mono">
+                <i class="fa-solid fa-cube text-cyan-400"></i>
+                <span>3D WebGL Hologram Bio-Metrics</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                3D AI Body Scan & Fitness Assessment
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-300 max-w-xl">
+                Qiyaas jirkaaga 3D (Weight, Height, Age, Goal), xisaabi BMI-gaaga, Kalooriyada maalinlaha ah, iyo qorshahaaga jimicsiga ee gaarka ah.
+            </p>
+        </div>
+        <div class="flex items-center gap-3 z-10 flex-shrink-0">
+            <a href="{% url 'onboarding_3d' %}" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-xl shadow-purple-600/30 flex items-center gap-2 hover:scale-105 transition">
+                <i class="fa-solid fa-play"></i>
+                <span>Fur Bogga 3D-ga</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. MIDDLE SECTION: PERFORMANCE CHART & AI INSIGHTS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT 8 COLS: PERFORMANCE CHART (MAUVE WAVE LINE) -->
+        <div class="lg:col-span-8 skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="font-bold text-white text-base">Portfolio & Fitness Performance</h3>
+                    <p class="text-xs text-[#9e9aa7]">Dhaqdhaqaaqa tamarta iyo horumarka bishiiba</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+                        +35% Growth
+                    </span>
+                    <a href="{% url 'progress' %}" class="w-8 h-8 rounded-full bg-[#201c2c] flex items-center justify-center text-purple-300 hover:text-white transition text-xs border border-[#2e273f]">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CUSTOM SLEEK MAUVE BAR/LINE CHART -->
+            <div class="flex items-end gap-3 h-52 pt-4 pb-2 px-2">
+                <!-- Y-Axis labels -->
+                <div class="flex flex-col justify-between h-full text-[10px] text-[#736c82] font-semibold pr-2 select-none">
+                    <span>200k</span>
+                    <span>150k</span>
+                    <span>100k</span>
+                    <span>50k</span>
+                    <span>10k</span>
+                </div>
+
+                <!-- Bars container -->
+                <div class="flex-1 flex items-end justify-between h-full gap-2 sm:gap-4 border-b border-[#2e273f] pb-2">
+                    
+                    <!-- Jan -->
+                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 65%;"></div>
+                        <span class="text-xs font-semibold text-[#736c82]">Jan</span>
+                    </div>
+
+                    <!-- Feb -->
+                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 52%;"></div>
+                        <span class="text-xs font-semibold text-[#736c82]">Feb</span>
+                    </div>
+
+                    <!-- Mar -->
+                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                        <div class="w-full max-w-[42px] bg-gradient-to-t from-purple-600 to-pink-500 rounded-2xl transition-all duration-300 shadow-lg shadow-purple-500/30 ring-2 ring-purple-400" style="height: 95%;"></div>
+                        <span class="text-xs font-bold text-purple-300">Mar</span>
+                    </div>
+
+                    <!-- Apr -->
+                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 48%;"></div>
+                        <span class="text-xs font-semibold text-[#736c82]">Apr</span>
+                    </div>
+
+                    <!-- May -->
+                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 78%;"></div>
+                        <span class="text-xs font-semibold text-[#736c82]">May</span>
+                    </div>
+
+                    <!-- Jun -->
+                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 38%;"></div>
+                        <span class="text-xs font-semibold text-[#736c82]">Jun</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT 4 COLS: DECISIONS POWERED BY DATA & AI BANNER -->
+        <div class="lg:col-span-4 flex flex-col gap-4">
+
+            <!-- AI INSIGHTS CARD -->
+            <div class="skillset-mauve-card p-6 flex flex-col justify-between border border-[#3d3454] space-y-4">
+                <div class="space-y-2">
+                    <span class="text-[11px] font-bold text-purple-300 uppercase tracking-wider">Decisions Powered by Data</span>
+                    <h4 class="text-lg font-black text-white leading-snug">
+                        AI-Driven Insights & Form Coaching
+                    </h4>
+                    <p class="text-xs text-purple-200/80 leading-relaxed">
+                        Move beyond guesswork with Gemini AI nutrition and real-time MediaPipe squat angle analysis.
+                    </p>
+                </div>
+                <a href="{% url 'ai_form_detection' %}" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs text-center transition shadow-lg shadow-purple-500/25">
+                    Launch AI Form Tracking &rarr;
+                </a>
+            </div>
+
+            <!-- COMMUNITY GROWTH -->
+            <div class="skillset-card p-6 bg-[#191622] flex items-center justify-between border-[#2e273f]">
+                <div>
+                    <h4 class="font-bold text-white text-sm">Monthly Goal Progress</h4>
+                    <div class="mt-1 flex items-center text-xs font-semibold text-emerald-400 gap-1.5">
+                        <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+                        <span>+12.4% consistency</span>
+                    </div>
+                </div>
+                <!-- Circular Percentage Gauge -->
+                <div class="relative w-14 h-14 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        <path class="text-[#201c2c]" stroke-width="3.5" stroke="currentColor" fill="none"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="text-purple-400" stroke-dasharray="75, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <span class="absolute font-extrabold text-xs text-white">75%</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 3. BOTTOM SECTION: RECENT ACTIVITY TABLE -->
+    <div class="skillset-card p-6 bg-[#191622] border-[#2e273f]">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-[#2e273f]">
+            <div>
+                <h3 class="font-bold text-white text-base">Recent Activities & Diiwaanka</h3>
+                <p class="text-xs text-[#9e9aa7]">Dhaqdhaqaaqii ugu dambeeyay ee cuntada, jimicsiyada iyo xubinnimada</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{% url 'history' %}" class="w-8 h-8 rounded-full bg-[#201c2c] hover:bg-[#282337] flex items-center justify-center text-purple-300 text-xs transition border border-[#2e273f]">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="text-[#736c82] border-b border-[#2e273f] uppercase tracking-wider font-semibold">
+                        <th class="pb-3 font-semibold">Activity / Item</th>
+                        <th class="pb-3 font-semibold">User</th>
+                        <th class="pb-3 font-semibold">ID Code</th>
+                        <th class="pb-3 font-semibold">Detail</th>
+                        <th class="pb-3 font-semibold text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#2e273f]">
+                    {% for item in recent_transactions %}
+                    <tr class="hover:bg-[#201c2c] transition group">
+                        <td class="py-3.5 flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-[#262134] border border-[#3d3454] flex items-center justify-center text-sm text-purple-300 shadow-sm overflow-hidden flex-shrink-0">
+                                {% if item.type == 'pro_sub' %}
+                                    <i class="fa-solid fa-crown text-amber-400"></i>
+                                {% elif item.type == 'meal' %}
+                                    <i class="fa-solid fa-bowl-food text-pink-400"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-dumbbell text-purple-400"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="font-bold text-white text-xs block">{{ item.name }}</span>
+                                <span class="text-[10px] text-[#736c82]">{{ item.date|date:"d M Y, h:i A" }}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 text-[#9e9aa7] font-medium">{{ item.user_name }}</td>
+                        <td class="py-3.5 text-[#736c82] font-mono">{{ item.id_code }}</td>
+                        <td class="py-3.5 font-bold text-white">{{ item.amount }}</td>
+                        <td class="py-3.5 text-right">
+                            <span class="inline-block px-3 py-1 rounded-full {% if item.is_paid %}bg-purple-500/20 text-purple-300 border border-purple-500/30{% else %}bg-[#262134] text-[#9e9aa7] border border-[#3d3454]{% endif %} text-[11px] font-semibold">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-[#736c82]">
+                            Weli wax dhaqdhaqaaq ah ma jiraan. Ku dar cunto ama jimicsi cusub!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- QUICK SHORTCUT BUTTONS -->
+        <div class="mt-6 pt-4 border-t border-[#2e273f] flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <a href="{% url 'add_workout' %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-dumbbell text-[10px]"></i> 3D Exercises
+                </a>
+                <a href="{% url 'add_meal' %}" class="px-4 py-2 rounded-xl bg-[#262134] hover:bg-[#342d47] text-white text-xs font-bold transition flex items-center gap-1.5 border border-[#3d3454]">
+                    <i class="fa-solid fa-camera text-[10px] text-pink-400"></i> Scan Meal Photo
+                </a>
+                <a href="{% url 'ai_coach' %}" class="px-4 py-2 rounded-xl bg-[#262134] hover:bg-[#342d47] text-white text-xs font-bold transition flex items-center gap-1.5 border border-[#3d3454]">
+                    <i class="fa-solid fa-sparkles text-[10px] text-purple-400"></i> AI Smart Coach
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'upgrade_pro' %}" class="text-xs font-bold text-purple-400 hover:text-purple-300">
+                    Upgrade to Skillset Pro ($10/month) &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

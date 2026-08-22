@@ -1,0 +1,102 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Analytics & Hormarka (Progress Insights){% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- TOP PROGRESS METRICS -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        
+        <div class="skillset-mauve-card p-6 rounded-2xl flex flex-col justify-between shadow-xl border border-[#3d3454]">
+            <span class="text-xs text-purple-200 font-semibold">Weekly Consistency Goal</span>
+            <div class="my-3 flex items-baseline gap-2">
+                <span class="text-3xl font-black text-white">{{ percentage }}%</span>
+                <span class="text-xs text-purple-300 font-semibold">Target: 14 Logs</span>
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full bg-[#0f0e13] h-2.5 rounded-full overflow-hidden border border-[#3d3454]">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-500 shadow-sm" style="width: {{ percentage }}%;"></div>
+            </div>
+        </div>
+
+        <div class="skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
+            <span class="text-xs text-[#9e9aa7] font-semibold">Wadarta Cuntooyinka</span>
+            <div class="my-2">
+                <span class="text-3xl font-black text-white">{{ total_meals }}</span>
+                <span class="text-xs text-[#736c82] block mt-0.5">Diiwaanka nafaqada iyo macros</span>
+            </div>
+            <div class="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Cuntooyinkaagu waa kuwo diiwaangashan
+            </div>
+        </div>
+
+        <div class="skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
+            <span class="text-xs text-[#9e9aa7] font-semibold">Wadarta Jimicsiyada</span>
+            <div class="my-2">
+                <span class="text-3xl font-black text-white">{{ total_workouts }}</span>
+                <span class="text-xs text-[#736c82] block mt-0.5">Fadhiyada gym-ka & AI Pose Tracking</span>
+            </div>
+            <div class="text-[11px] text-purple-400 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-dumbbell"></i> Tababarkaagu wuu socdaa
+            </div>
+        </div>
+
+    </div>
+
+    <!-- WEIGHT LOGS & TARGET GOAL PROGRESS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <div class="lg:col-span-6 skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+                <i class="fa-solid fa-weight-scale text-purple-400"></i>
+                Miisaankaaga & Yoolka (Weight Analysis)
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-[#201c2c] border border-[#2e273f]">
+                <div>
+                    <span class="text-[11px] text-[#9e9aa7] font-semibold block">Miisaanka Hadda</span>
+                    <span class="text-2xl font-black text-white">
+                        {% if profile.miisaan_hadda %}{{ profile.miisaan_hadda }} kg{% else %}--{% endif %}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-[11px] text-[#9e9aa7] font-semibold block">Miisaanka Yoolka</span>
+                    <span class="text-2xl font-black text-purple-300">
+                        {% if profile.miisaanka_yoolka %}{{ profile.miisaanka_yoolka }} kg{% else %}--{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <p class="text-xs text-[#9e9aa7] leading-relaxed">
+                Haddii aad doonayso inaad miisaanka kordhiso ama dhinto, la xiriir <strong>Siisto Gemini AI Coach</strong> si aad u hesho qorshe toddobaadle ah oo Caloric Surplus / Deficit ah.
+            </p>
+
+            <a href="{% url 'ai_coach' %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-extrabold hover:from-purple-600 hover:to-pink-600 transition shadow-lg shadow-purple-500/25">
+                <i class="fa-solid fa-sparkles text-white text-xs"></i>
+                <span>Weydii AI Coach Qorshahaaga</span>
+            </a>
+        </div>
+
+        <div class="lg:col-span-6 skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+            <div class="flex items-center justify-between pb-2 border-b border-[#2e273f]">
+                <h3 class="font-bold text-white text-base">Taariikhda Miisaanka (Weight Logs)</h3>
+                <a href="{% url 'profile' %}" class="text-xs font-bold text-purple-300 hover:text-white">+ Diiwaangeli</a>
+            </div>
+
+            <div class="space-y-2.5 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                {% for log in weight_logs %}
+                <div class="p-3 rounded-xl bg-[#201c2c] border border-[#2e273f] flex items-center justify-between">
+                    <span class="font-bold text-purple-300 text-xs">{{ log.weight }} kg</span>
+                    <span class="text-[11px] text-[#736c82]">{{ log.date|date:"d M Y" }}</span>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-[#736c82] text-xs">Weli miisaan maadan diiwaangelin.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

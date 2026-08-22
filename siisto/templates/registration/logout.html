@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="so" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siisto & Skillset - Waad Ka Baxday (Logged Out)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0f0e13;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 antialiased bg-[#0f0e13]">
+
+    <div class="w-full max-w-md space-y-6 text-center">
+        
+        <div class="bg-[#191622] border border-[#2e273f] rounded-3xl p-8 shadow-2xl space-y-5">
+            <div class="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto border border-purple-500/20">
+                <i class="fa-solid fa-arrow-right-from-bracket text-2xl"></i>
+            </div>
+
+            <div class="space-y-1">
+                <h2 class="text-xl font-black text-white">Si Guul Leh Ayaad Uga Baxday</h2>
+                <p class="text-xs text-[#9e9aa7]">Waad ku mahadsan tahay isticmaalka Siisto Fitness Tracker.</p>
+            </div>
+
+            <a href="{% url 'login' %}" 
+               class="inline-block w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-purple-500/25">
+                Dib U Soo Gal (Log Back In)
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>
