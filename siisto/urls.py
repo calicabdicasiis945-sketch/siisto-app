@@ -10,6 +10,7 @@ urlpatterns = [
     
     # Nutrition / Meals
     path('add-meal/', views.add_meal, name='add_meal'),
+    path('food/', views.add_meal, name='food'),
     path('edit-meal/<int:meal_id>/', views.edit_meal, name='edit_meal'),
     path('delete-meal/<int:meal_id>/', views.delete_meal, name='delete_meal'),
     path('api/analyze-meal-photo/', views.api_analyze_meal_photo, name='api_analyze_meal_photo'),
