@@ -1,242 +1,352 @@
 {% extends 'siisto/base.html' %}
+{% load static %}
 
-{% block page_title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard — Helios & Gymflow Edition | Siisto{% endblock %}
+
+{% block extra_head %}
+<style>
+    .helios-glow-card {
+        background: #15111e;
+        border: 1px solid #2a2238;
+        border-radius: 24px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .helios-glow-card:hover {
+        border-color: #583d7a;
+        box-shadow: 0 12px 36px -10px rgba(192, 132, 252, 0.15);
+    }
+    .helios-pill-btn {
+        background: #1f192b;
+        color: #9e9aa7;
+        border: 1px solid #2f273f;
+        transition: all 0.2s ease;
+    }
+    .helios-pill-btn:hover {
+        background: #2a223a;
+        color: #d8b4fe;
+    }
+    .helios-pill-btn.active {
+        background: linear-gradient(135deg, #442a5c 0%, #2f1d42 100%);
+        color: #ffffff;
+        border-color: #7e42d8;
+        box-shadow: 0 4px 16px rgba(126, 66, 216, 0.3);
+    }
+    .chart-glow-curve {
+        filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.6)) drop-shadow(0 0 16px rgba(192, 132, 252, 0.4));
+    }
+    .goku-poster-card {
+        background: radial-gradient(circle at top, rgba(192,132,252,0.15) 0%, rgba(15,14,19,0.95) 75%);
+        border: 1px solid #3d3454;
+    }
+    .goku-poster-card:hover {
+        border-color: #ec4899;
+        box-shadow: 0 16px 40px -10px rgba(236, 72, 153, 0.25);
+    }
+    .neon-pulse-dot {
+        box-shadow: 0 0 12px #ec4899, 0 0 24px #ec4899;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
 
-    <!-- 1. TOP 4 METRIC CARDS (HELIOS MAUVE / DARK LUXURY EDITION) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- TOP HEADER: WELCOME + QUICK PILLS + SEARCH (HELIOS STYLE) -->
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-2">
+        <div class="space-y-1">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                <span>Welcome, <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-white bg-clip-text text-transparent">{{ request.user.username|title }}</span></span>
+                <span class="text-xl">👋</span>
+            </h1>
+            <p class="text-xs text-[#9e9aa7]">Here's your fitness & physical development portfolio overview</p>
+        </div>
+
+        <!-- QUICK PILL TABS + SEARCH BAR -->
+        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-[#15111e] border border-[#2a2238]">
+                <button type="button" class="helios-pill-btn active px-4 py-1.5 rounded-xl text-xs font-extrabold">Overview</button>
+                <a href="{% url 'food' %}" class="helios-pill-btn px-4 py-1.5 rounded-xl text-xs font-extrabold">Nutrition</a>
+                <a href="{% url 'gym' %}" class="helios-pill-btn px-4 py-1.5 rounded-xl text-xs font-extrabold">Workouts</a>
+                <a href="{% url 'progress' %}" class="helios-pill-btn px-4 py-1.5 rounded-xl text-xs font-extrabold">Analytics</a>
+            </div>
+
+            <!-- SEARCH BAR (ASK AI) -->
+            <form action="{% url 'chatbot' %}" method="POST" class="relative flex-1 lg:w-64">
+                {% csrf_token %}
+                <i class="fa-solid fa-microphone absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 text-xs"></i>
+                <input type="text" name="user_message" placeholder="Ask Siisto AI anything..."
+                       class="w-full bg-[#15111e] border border-[#2a2238] rounded-2xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#736c82] focus:outline-none focus:border-purple-500 transition">
+            </form>
+        </div>
+    </div>
+
+    <!-- 1. TOP 4 GRID CARDS: TOTAL HOLDING + AI DECISIONS + WATCHLIST + PORTFOLIO -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
         
-        <!-- CARD 1: TOTAL CALORIES / REVENUE -->
-        <div class="skillset-mauve-card p-6 flex flex-col justify-between relative overflow-hidden group border border-[#3d3454]">
-            <div class="space-y-2">
-                <span class="text-xs font-semibold text-purple-200">Total Holding / Tamarta</span>
-                <div class="text-3xl font-black text-white tracking-tight">
-                    {% if today_calories > 0 %}{{ today_calories }} kcal{% else %}$ 12,304.11{% endif %}
+        <!-- CARD 1: TOTAL HOLDING / CALORIES (4 COLS) -->
+        <div class="lg:col-span-4 helios-glow-card p-6 flex flex-col justify-between space-y-6 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-[#9e9aa7] tracking-wider uppercase">Total Energy Holding</span>
+                <span class="px-2.5 py-1 rounded-full bg-[#20192e] text-purple-300 text-[10px] font-bold border border-[#352a4a]">6M <i class="fa-solid fa-chevron-down ml-1 text-[8px]"></i></span>
+            </div>
+            
+            <div class="space-y-1">
+                <div class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    {% if today_calories > 0 %}{{ today_calories }} <span class="text-xl text-purple-300 font-bold">kcal</span>{% else %}$ 12,304<span class="text-xl text-purple-300">.11</span>{% endif %}
+                </div>
+                <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                    <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+                    <span>+16.31% from target baseline</span>
                 </div>
             </div>
-            <div class="mt-4 flex items-center text-xs font-semibold text-emerald-400 gap-1.5">
-                <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
-                <span>+16.31% from last month</span>
+
+            <!-- MINI ENERGY ORB CARD -->
+            <div class="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 to-pink-950/30 border border-purple-800/30 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] text-purple-300 font-bold uppercase block">Caloric Deficit / Surplus</span>
+                    <span class="text-sm font-extrabold text-white">+450 kcal Hypertrophy</span>
+                </div>
+                <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
             </div>
         </div>
 
-        <!-- CARD 2: Active Workouts -->
-        <div class="skillset-card p-6 flex flex-col justify-between bg-[#191622] hover:border-purple-500/50">
-            <div class="space-y-2">
-                <span class="text-xs font-semibold text-[#9e9aa7]">Jimicsiyada La Sameeyay</span>
-                <div class="text-3xl font-black text-white tracking-tight">
-                    {{ total_workouts_count|default:"16" }} Sessions
-                </div>
+        <!-- CARD 2: DECISIONS POWERED BY DATA / AI (4 COLS) -->
+        <div class="lg:col-span-4 helios-glow-card p-6 flex flex-col justify-between space-y-5 relative overflow-hidden bg-gradient-to-b from-[#181324] via-[#14101e] to-[#120e1b]">
+            <div>
+                <span class="text-[10px] font-extrabold text-purple-300 uppercase tracking-wider block mb-1">AI Intelligence</span>
+                <h3 class="text-lg font-black text-white leading-snug">Decisions Powered by Data</h3>
+                <p class="text-xs text-[#9e9aa7] mt-1.5 leading-relaxed">
+                    Move beyond guesswork with AI-driven investment in your health & biomechanical insights tailored to your strategy.
+                </p>
             </div>
-            <div class="mt-4 flex items-center text-xs font-semibold text-purple-400 gap-1.5">
-                <i class="fa-solid fa-dumbbell text-[10px]"></i>
-                <span>Active 3D & AI Pose tracking</span>
+
+            <!-- Glowing Orb Effect -->
+            <div class="relative py-2 flex items-center justify-center">
+                <div class="w-28 h-8 rounded-full bg-gradient-to-r from-purple-500/30 via-pink-500/40 to-purple-500/30 blur-xl"></div>
+                <a href="{% url 'chatbot' %}" 
+                   class="relative px-6 py-2.5 rounded-full bg-gradient-to-r from-[#9333ea]/80 via-[#ec4899]/80 to-[#9333ea]/80 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs shadow-lg shadow-purple-500/20 transition duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-sparkles text-[11px]"></i>
+                    <span>Explore AI Insights</span>
+                </a>
             </div>
         </div>
 
-        <!-- CARD 3: Meals Logged -->
-        <div class="skillset-card p-6 flex flex-col justify-between bg-[#191622] hover:border-purple-500/50">
-            <div class="space-y-2">
-                <span class="text-xs font-semibold text-[#9e9aa7]">Diiwaanka Cuntooyinka</span>
-                <div class="text-3xl font-black text-white tracking-tight">
-                    {{ total_meals_count|default:"24" }} Meals
+        <!-- CARD 3: WATCHLIST / TOP WORKOUTS (4 COLS) -->
+        <div class="lg:col-span-4 helios-glow-card p-6 flex flex-col justify-between space-y-4">
+            <div class="flex items-center justify-between">
+                <h4 class="text-xs font-extrabold text-white tracking-wider uppercase">Watchlist Routines</h4>
+                <div class="flex items-center gap-1">
+                    <span class="px-2 py-0.5 rounded-md bg-[#251d36] text-purple-300 text-[10px] font-bold">Most Done</span>
+                    <span class="px-2 py-0.5 rounded-md text-[#736c82] text-[10px]">Gain</span>
                 </div>
             </div>
-            <div class="mt-4 flex items-center text-xs font-semibold text-pink-400 gap-1.5">
-                <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
-                <span>Gemini Vision AI Enabled</span>
-            </div>
-        </div>
 
-        <!-- CARD 4: Current Weight -->
-        <div class="skillset-card p-6 flex flex-col justify-between bg-[#191622] hover:border-purple-500/50">
-            <div class="space-y-2">
-                <span class="text-xs font-semibold text-[#9e9aa7]">Miisaanka Hadda</span>
-                <div class="text-3xl font-black text-white tracking-tight">
-                    {% if profile.miisaan_hadda %}{{ profile.miisaan_hadda }} kg{% else %}72.5 kg{% endif %}
+            <div class="space-y-2.5">
+                <!-- Item 1 -->
+                <div class="flex items-center justify-between p-2 rounded-xl bg-[#1a1426] border border-[#2d2342] text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-[10px]">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-white block">Bench Press</span>
+                            <span class="text-[10px] text-[#736c82]">Chest • 4 x 10</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-extrabold text-white block">85 kg</span>
+                        <span class="text-[10px] text-emerald-400 font-bold">+16.31%</span>
+                    </div>
                 </div>
-            </div>
-            <div class="mt-4 flex items-center text-xs font-semibold text-emerald-400 gap-1.5">
-                <i class="fa-solid fa-bullseye text-[10px]"></i>
-                <span>Goal: {{ profile.miisaanka_yoolka|default:"75.0" }} kg</span>
+
+                <!-- Item 2 -->
+                <div class="flex items-center justify-between p-2 rounded-xl bg-[#1a1426] border border-[#2d2342] text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-300 flex items-center justify-center text-[10px]">
+                            <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-white block">Barbell Squats</span>
+                            <span class="text-[10px] text-[#736c82]">Legs • 4 x 12</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-extrabold text-white block">110 kg</span>
+                        <span class="text-[10px] text-emerald-400 font-bold">+8.11%</span>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="flex items-center justify-between p-2 rounded-xl bg-[#1a1426] border border-[#2d2342] text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-[10px]">
+                            <i class="fa-solid fa-hand-fist"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-white block">Bicep Curls</span>
+                            <span class="text-[10px] text-[#736c82]">Arms • 3 x 12</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-extrabold text-white block">18 kg</span>
+                        <span class="text-[10px] text-emerald-400 font-bold">+4.89%</span>
+                    </div>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <!-- 3D AI BODY SCAN & ONBOARDING PROMO BANNER -->
-    <div class="p-6 rounded-3xl relative overflow-hidden bg-gradient-to-r from-purple-900/50 via-pink-900/30 to-[#191622] border border-purple-500/30 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="space-y-2 z-10">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-mono">
-                <i class="fa-solid fa-cube text-cyan-400"></i>
-                <span>3D WebGL Hologram Bio-Metrics</span>
-            </div>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                3D AI Body Scan & Fitness Assessment
-            </h3>
-            <p class="text-xs sm:text-sm text-gray-300 max-w-xl">
-                Qiyaas jirkaaga 3D (Weight, Height, Age, Goal), xisaabi BMI-gaaga, Kalooriyada maalinlaha ah, iyo qorshahaaga jimicsiga ee gaarka ah.
-            </p>
-        </div>
-        <div class="flex items-center gap-3 z-10 flex-shrink-0">
-            <a href="{% url 'onboarding_3d' %}" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-xl shadow-purple-600/30 flex items-center gap-2 hover:scale-105 transition">
-                <i class="fa-solid fa-play"></i>
-                <span>Fur Bogga 3D-ga</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- 2. MIDDLE SECTION: PERFORMANCE CHART & AI INSIGHTS -->
+    <!-- 2. MIDDLE ROW: PORTFOLIO PERFORMANCE CHART + GOKU 3D BODY SCAN POSTER -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT 8 COLS: PERFORMANCE CHART (MAUVE WAVE LINE) -->
-        <div class="lg:col-span-8 skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
-            <div class="flex items-center justify-between mb-6">
+        <!-- LEFT 8 COLS: PERFORMANCE CHART (SMOOTH NEON CURVE MATCHING SCREENSHOT) -->
+        <div class="lg:col-span-8 helios-glow-card p-6 space-y-6 flex flex-col justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2a2238]">
                 <div>
-                    <h3 class="font-bold text-white text-base">Portfolio & Fitness Performance</h3>
+                    <h3 class="font-extrabold text-white text-base">Portfolio Performance</h3>
                     <p class="text-xs text-[#9e9aa7]">Dhaqdhaqaaqa tamarta iyo horumarka bishiiba</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
-                        +35% Growth
-                    </span>
-                    <a href="{% url 'progress' %}" class="w-8 h-8 rounded-full bg-[#201c2c] flex items-center justify-center text-purple-300 hover:text-white transition text-xs border border-[#2e273f]">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
+                
+                <!-- TIMELINE FILTER PILLS -->
+                <div class="flex items-center gap-1 p-1 rounded-xl bg-[#1f192b] border border-[#2f273f]">
+                    <button class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-[#736c82] hover:text-white">1D</button>
+                    <button class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-[#736c82] hover:text-white">1W</button>
+                    <button class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-[#736c82] hover:text-white">1M</button>
+                    <button class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-white bg-[#352549] border border-purple-500/40">6M</button>
+                    <button class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-[#736c82] hover:text-white">1Y</button>
                 </div>
             </div>
 
-            <!-- CUSTOM SLEEK MAUVE BAR/LINE CHART -->
-            <div class="flex items-end gap-3 h-52 pt-4 pb-2 px-2">
-                <!-- Y-Axis labels -->
-                <div class="flex flex-col justify-between h-full text-[10px] text-[#736c82] font-semibold pr-2 select-none">
-                    <span>200k</span>
-                    <span>150k</span>
-                    <span>100k</span>
-                    <span>50k</span>
-                    <span>10k</span>
+            <!-- INTERACTIVE SVG GLOWING CURVE CHART -->
+            <div class="relative h-60 w-full pt-4">
+                <!-- FLOATING PEAK TOOLTIP (MATCHING SCREENSHOT) -->
+                <div class="absolute top-4 left-[52%] -translate-x-1/2 p-2.5 rounded-xl bg-[#1e172d]/90 border border-purple-500/40 shadow-2xl backdrop-blur-md z-20 pointer-events-none">
+                    <span class="text-[9px] text-[#9e9aa7] block">1st Jun 2026</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-black text-white">$ 16,500</span>
+                        <span class="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded-md">+35%</span>
+                    </div>
                 </div>
 
-                <!-- Bars container -->
-                <div class="flex-1 flex items-end justify-between h-full gap-2 sm:gap-4 border-b border-[#2e273f] pb-2">
-                    
-                    <!-- Jan -->
-                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 65%;"></div>
-                        <span class="text-xs font-semibold text-[#736c82]">Jan</span>
-                    </div>
+                <svg class="w-full h-full overflow-visible" viewBox="0 0 600 200" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="heliosAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#ec4899" stop-opacity="0.35" />
+                            <stop offset="50%" stop-color="#9333ea" stop-opacity="0.15" />
+                            <stop offset="100%" stop-color="#15111e" stop-opacity="0.0" />
+                        </linearGradient>
+                    </defs>
 
-                    <!-- Feb -->
-                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 52%;"></div>
-                        <span class="text-xs font-semibold text-[#736c82]">Feb</span>
-                    </div>
+                    <!-- Background Grid horizontal lines -->
+                    <line x1="0" y1="40" x2="600" y2="40" stroke="#251d34" stroke-width="1" stroke-dasharray="3,3" />
+                    <line x1="0" y1="90" x2="600" y2="90" stroke="#251d34" stroke-width="1" stroke-dasharray="3,3" />
+                    <line x1="0" y1="140" x2="600" y2="140" stroke="#251d34" stroke-width="1" stroke-dasharray="3,3" />
 
-                    <!-- Mar -->
-                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                        <div class="w-full max-w-[42px] bg-gradient-to-t from-purple-600 to-pink-500 rounded-2xl transition-all duration-300 shadow-lg shadow-purple-500/30 ring-2 ring-purple-400" style="height: 95%;"></div>
-                        <span class="text-xs font-bold text-purple-300">Mar</span>
-                    </div>
+                    <!-- Area fill under curve -->
+                    <path d="M 0,90 
+                             Q 60,60 120,85 
+                             T 240,70 
+                             T 320,35 
+                             T 400,105 
+                             T 480,95 
+                             T 600,135 
+                             L 600,200 L 0,200 Z" 
+                          fill="url(#heliosAreaGrad)" />
 
-                    <!-- Apr -->
-                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 48%;"></div>
-                        <span class="text-xs font-semibold text-[#736c82]">Apr</span>
-                    </div>
+                    <!-- Glowing wave stroke -->
+                    <path class="chart-glow-curve" 
+                          d="M 0,90 
+                             Q 60,60 120,85 
+                             T 240,70 
+                             T 320,35 
+                             T 400,105 
+                             T 480,95 
+                             T 600,135" 
+                          fill="none" stroke="#d988b9" stroke-width="3.5" stroke-linecap="round" />
 
-                    <!-- May -->
-                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 78%;"></div>
-                        <span class="text-xs font-semibold text-[#736c82]">May</span>
-                    </div>
+                    <!-- Peak Indicator Dot with Vertical Dash -->
+                    <line x1="320" y1="35" x2="320" y2="200" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="3,3" />
+                    <circle cx="320" cy="35" r="5.5" fill="#ffffff" stroke="#ec4899" stroke-width="3" class="neon-pulse-dot" />
+                </svg>
 
-                    <!-- Jun -->
-                    <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                        <div class="w-full max-w-[42px] bg-[#2a243a] rounded-2xl transition-all duration-300 group-hover:bg-purple-500" style="height: 38%;"></div>
-                        <span class="text-xs font-semibold text-[#736c82]">Jun</span>
-                    </div>
-
+                <!-- Month labels -->
+                <div class="flex items-center justify-between text-[10px] text-[#736c82] font-semibold pt-2">
+                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                    <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT 4 COLS: DECISIONS POWERED BY DATA & AI BANNER -->
-        <div class="lg:col-span-4 flex flex-col gap-4">
-
-            <!-- AI INSIGHTS CARD -->
-            <div class="skillset-mauve-card p-6 flex flex-col justify-between border border-[#3d3454] space-y-4">
-                <div class="space-y-2">
-                    <span class="text-[11px] font-bold text-purple-300 uppercase tracking-wider">Decisions Powered by Data</span>
-                    <h4 class="text-lg font-black text-white leading-snug">
-                        AI-Driven Insights & Form Coaching
-                    </h4>
-                    <p class="text-xs text-purple-200/80 leading-relaxed">
-                        Move beyond guesswork with Gemini AI nutrition and real-time MediaPipe squat angle analysis.
-                    </p>
-                </div>
-                <a href="{% url 'ai_form_detection' %}" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs text-center transition shadow-lg shadow-purple-500/25">
-                    Launch AI Form Tracking &rarr;
+        <!-- RIGHT 4 COLS: GOKU 3D BODY SCAN & BEAST POSTER CARD (REQUESTED IMAGE 3) -->
+        <div class="lg:col-span-4 goku-poster-card rounded-3xl p-5 flex flex-col justify-between space-y-4 shadow-2xl relative overflow-hidden group">
+            
+            <div class="flex items-center justify-between z-10">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-xs font-black border border-pink-500/30">
+                    <i class="fa-solid fa-fire text-amber-400"></i> BEAST MODE
+                </span>
+                <a href="{% url 'profile' %}" class="text-[10px] text-purple-300 hover:text-white font-extrabold flex items-center gap-1">
+                    <span>Profile</span> <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
 
-            <!-- COMMUNITY GROWTH -->
-            <div class="skillset-card p-6 bg-[#191622] flex items-center justify-between border-[#2e273f]">
-                <div>
-                    <h4 class="font-bold text-white text-sm">Monthly Goal Progress</h4>
-                    <div class="mt-1 flex items-center text-xs font-semibold text-emerald-400 gap-1.5">
-                        <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
-                        <span>+12.4% consistency</span>
-                    </div>
-                </div>
-                <!-- Circular Percentage Gauge -->
-                <div class="relative w-14 h-14 flex items-center justify-center">
-                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                        <path class="text-[#201c2c]" stroke-width="3.5" stroke="currentColor" fill="none"
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="text-purple-400" stroke-dasharray="75, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                    <span class="absolute font-extrabold text-xs text-white">75%</span>
+            <!-- GOKU POSTER ARTWORK EMBED (BEAST IS BUILT NOT BORN) -->
+            <div class="h-56 rounded-2xl overflow-hidden relative border border-[#442a5c] shadow-inner flex items-center justify-center bg-black/60">
+                <img src="{% static 'images/goku_beast.jpg' %}" alt="Beast Is Built Not Born - Goku Bodybuilding Motivation" 
+                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-3">
+                    <span class="text-xs font-black text-white tracking-wide">3D Body Scan & Physique</span>
+                    <span class="text-[10px] text-purple-200">Weight: {{ profile.miisaan_hadda|default:"72.5" }} kg • Height: {{ profile.dhererka|default:"175" }} cm</span>
                 </div>
             </div>
 
+            <!-- QUICK CALL TO ACTION -->
+            <div class="flex items-center gap-2 pt-1 z-10">
+                <a href="{% url 'onboarding_3d' %}" 
+                   class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold text-xs text-center transition shadow-md shadow-pink-500/20">
+                    <i class="fa-solid fa-cube mr-1"></i> Scan 3D Body
+                </a>
+                <a href="{% url 'ai_form_detection' %}" 
+                   class="px-3 py-2.5 rounded-xl bg-[#251b38] hover:bg-[#34244d] text-emerald-300 text-xs font-bold border border-[#3e2d5c] transition"
+                   title="AI Pose Tracking">
+                    <i class="fa-solid fa-camera"></i>
+                </a>
+            </div>
         </div>
 
     </div>
 
-    <!-- 3. BOTTOM SECTION: RECENT ACTIVITY TABLE -->
-    <div class="skillset-card p-6 bg-[#191622] border-[#2e273f]">
-        <div class="flex items-center justify-between mb-6 pb-3 border-b border-[#2e273f]">
+    <!-- 3. BOTTOM SECTION: RECENT ACTIVITIES TABLE & TRANSACTIONS -->
+    <div class="helios-glow-card p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-[#2a2238]">
             <div>
-                <h3 class="font-bold text-white text-base">Recent Activities & Diiwaanka</h3>
-                <p class="text-xs text-[#9e9aa7]">Dhaqdhaqaaqii ugu dambeeyay ee cuntada, jimicsiyada iyo xubinnimada</p>
+                <h3 class="font-extrabold text-white text-base">Recent Activities & Transactions</h3>
+                <p class="text-xs text-[#9e9aa7]">Dhaqdhaqaaqii ugu dambeeyay ee tababarka, cuntada, iyo xubinnimada</p>
             </div>
-            <div class="flex items-center gap-2">
-                <a href="{% url 'history' %}" class="w-8 h-8 rounded-full bg-[#201c2c] hover:bg-[#282337] flex items-center justify-center text-purple-300 text-xs transition border border-[#2e273f]">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                </a>
-            </div>
+            <a href="{% url 'history' %}" class="px-3.5 py-1.5 rounded-xl bg-[#1f192b] hover:bg-[#2c223e] text-purple-300 text-xs font-bold transition border border-[#2f273f]">
+                View All &rarr;
+            </a>
         </div>
 
-        <!-- TABLE -->
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
                 <thead>
-                    <tr class="text-[#736c82] border-b border-[#2e273f] uppercase tracking-wider font-semibold">
-                        <th class="pb-3 font-semibold">Activity / Item</th>
-                        <th class="pb-3 font-semibold">User</th>
-                        <th class="pb-3 font-semibold">ID Code</th>
-                        <th class="pb-3 font-semibold">Detail</th>
-                        <th class="pb-3 font-semibold text-right">Status</th>
+                    <tr class="text-[#736c82] border-b border-[#2a2238] uppercase tracking-wider font-bold">
+                        <th class="pb-3">Activity / Item</th>
+                        <th class="pb-3">User</th>
+                        <th class="pb-3">ID Code</th>
+                        <th class="pb-3">Detail</th>
+                        <th class="pb-3 text-right">Status</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#2e273f]">
+                <tbody class="divide-y divide-[#2a2238]">
                     {% for item in recent_transactions %}
-                    <tr class="hover:bg-[#201c2c] transition group">
+                    <tr class="hover:bg-[#1a1426] transition group">
                         <td class="py-3.5 flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-[#262134] border border-[#3d3454] flex items-center justify-center text-sm text-purple-300 shadow-sm overflow-hidden flex-shrink-0">
+                            <div class="w-9 h-9 rounded-xl bg-[#221b30] border border-[#372b4d] flex items-center justify-center text-sm text-purple-300 shadow-sm flex-shrink-0">
                                 {% if item.type == 'pro_sub' %}
                                     <i class="fa-solid fa-crown text-amber-400"></i>
                                 {% elif item.type == 'meal' %}
@@ -252,9 +362,9 @@
                         </td>
                         <td class="py-3.5 text-[#9e9aa7] font-medium">{{ item.user_name }}</td>
                         <td class="py-3.5 text-[#736c82] font-mono">{{ item.id_code }}</td>
-                        <td class="py-3.5 font-bold text-white">{{ item.amount }}</td>
+                        <td class="py-3.5 font-extrabold text-white">{{ item.amount }}</td>
                         <td class="py-3.5 text-right">
-                            <span class="inline-block px-3 py-1 rounded-full {% if item.is_paid %}bg-purple-500/20 text-purple-300 border border-purple-500/30{% else %}bg-[#262134] text-[#9e9aa7] border border-[#3d3454]{% endif %} text-[11px] font-semibold">
+                            <span class="inline-block px-3 py-1 rounded-full {% if item.is_paid %}bg-purple-500/20 text-purple-300 border border-purple-500/30{% else %}bg-[#221b30] text-[#9e9aa7] border border-[#372b4d]{% endif %} text-[11px] font-semibold">
                                 {{ item.status }}
                             </span>
                         </td>
@@ -268,26 +378,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-
-        <!-- QUICK SHORTCUT BUTTONS -->
-        <div class="mt-6 pt-4 border-t border-[#2e273f] flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-                <a href="{% url 'add_workout' %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-dumbbell text-[10px]"></i> 3D Exercises
-                </a>
-                <a href="{% url 'add_meal' %}" class="px-4 py-2 rounded-xl bg-[#262134] hover:bg-[#342d47] text-white text-xs font-bold transition flex items-center gap-1.5 border border-[#3d3454]">
-                    <i class="fa-solid fa-camera text-[10px] text-pink-400"></i> Scan Meal Photo
-                </a>
-                <a href="{% url 'ai_coach' %}" class="px-4 py-2 rounded-xl bg-[#262134] hover:bg-[#342d47] text-white text-xs font-bold transition flex items-center gap-1.5 border border-[#3d3454]">
-                    <i class="fa-solid fa-sparkles text-[10px] text-purple-400"></i> AI Smart Coach
-                </a>
-            </div>
-            <div>
-                <a href="{% url 'upgrade_pro' %}" class="text-xs font-bold text-purple-400 hover:text-purple-300">
-                    Upgrade to Skillset Pro ($10/month) &rarr;
-                </a>
-            </div>
         </div>
     </div>
 
