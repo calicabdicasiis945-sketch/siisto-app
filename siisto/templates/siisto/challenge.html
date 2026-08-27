@@ -1,0 +1,168 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}90-Day Fitness Challenge | Siisto{% endblock %}
+
+{% block extra_head %}
+<style>
+    .day-box {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .day-box:hover {
+        transform: translateY(-2px);
+    }
+    .day-completed {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.3));
+        border-color: #22c55e !important;
+        color: #4ade80 !important;
+    }
+    .day-today {
+        background: linear-gradient(135deg, rgba(192, 132, 252, 0.3), rgba(236, 72, 153, 0.25));
+        border-color: #c084fc !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
+        animation: pulseToday 2s infinite ease-in-out;
+    }
+    @keyframes pulseToday {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- HERO CHALLENGE BANNER -->
+    <div class="skillset-mauve-card p-6 sm:p-8 rounded-3xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl border border-[#3d3454]">
+        <div class="space-y-3 z-10 max-w-xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-xs font-bold border border-pink-500/30">
+                <i class="fa-solid fa-fire text-pink-400"></i> 90-Day Body & Mind Transformation
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                90-Day <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Fitness Challenge</span>
+            </h2>
+            <p class="text-xs sm:text-sm text-purple-200/80">
+                90 maalmood oo joogteyn ah (Consistency). Diiwaangeli tababarkaaga maalin kasta, dhis streak xooggan, oo gaar hadafkaaga jirka.
+            </p>
+
+            {% if challenge %}
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+                <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Maalinta: {{ challenge.current_day }} / 90</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-amber-400">
+                    <i class="fa-solid fa-fire"></i>
+                    <span>Streak: {{ challenge.streak }} Maalmood</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-cyan-400">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Longest: {{ challenge.longest_streak }} Maalmood</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- PROGRESS CIRCLE / STATS -->
+        <div class="z-10 text-center flex-shrink-0 bg-[#1e192c]/90 border border-[#3d3454] p-6 rounded-3xl shadow-2xl min-w-[200px]">
+            {% if challenge %}
+            <div class="text-xs text-[#9e9aa7] font-semibold mb-1 uppercase tracking-wider">Hormarka Guud</div>
+            <div class="text-5xl font-black text-white" id="progressPercentageDisplay">{{ challenge.progress_percentage }}%</div>
+            <span class="text-[11px] text-purple-300 font-bold block mt-1">{{ challenge.days_remaining }} Maalmood ayaa Hadhsan</span>
+            
+            <form method="POST" action="{% url 'challenge_90day' %}" class="mt-4" id="completeDayForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="complete_day">
+                <button type="submit" id="checkinBtn"
+                        class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Dhamaystir Maanta</span>
+                </button>
+            </form>
+            {% else %}
+            <div class="text-xs text-[#9e9aa7] font-semibold mb-2">Weli maadan bilaabin</div>
+            <form method="POST" action="{% url 'challenge_90day' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="start">
+                <button type="submit"
+                        class="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition duration-150 shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Bilaaw Challenge-ka</span>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 90-DAY INTERACTIVE MATRIX GRID -->
+    <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#2e273f]">
+            <div>
+                <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-purple-400"></i>
+                    <span>Shaxda 90-ka Maalmood (Day Matrix)</span>
+                </h3>
+                <p class="text-xs text-[#9e9aa7]">Guji ama la soco maalmaha aad tababaratay</p>
+            </div>
+
+            <div class="flex items-center gap-3 text-[11px] font-bold">
+                <span class="flex items-center gap-1.5 text-emerald-400">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-400"></span> Dhamaystiran
+                </span>
+                <span class="flex items-center gap-1.5 text-purple-300">
+                    <span class="w-3 h-3 rounded-full bg-purple-500/40 border border-purple-400"></span> Maanta
+                </span>
+                <span class="flex items-center gap-1.5 text-[#736c82]">
+                    <span class="w-3 h-3 rounded-full bg-[#201c2c] border border-[#2e273f]"></span> Hadhsan
+                </span>
+            </div>
+        </div>
+
+        <!-- 90 TILES (10x9 or responsive grid) -->
+        <div class="grid grid-cols-5 sm:grid-cols-10 md:grid-cols-15 gap-2">
+            {% for item in calendar_days %}
+            <div class="day-box p-2.5 rounded-xl text-center border text-xs font-bold transition {% if item.completed %}day-completed{% elif item.is_today %}day-today{% else %}bg-[#201c2c] border-[#2e273f] text-[#736c82]{% endif %}"
+                 title="Day {{ item.day }}{% if item.date %} - {{ item.date|date:'d M' }}{% endif %}">
+                <div class="text-[10px] opacity-75">D{{ item.day }}</div>
+                <div class="text-xs font-extrabold mt-0.5">
+                    {% if item.completed %}
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                    {% elif item.is_today %}
+                    <i class="fa-solid fa-fire text-pink-400 text-[10px]"></i>
+                    {% else %}
+                    <span class="opacity-50">&bull;</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <!-- Mock preview if no challenge active -->
+            {% for i in "123456789012345678901234567890" %}
+            <div class="day-box p-2.5 rounded-xl text-center border bg-[#201c2c] border-[#2e273f] text-[#736c82] text-xs font-bold">
+                <div class="text-[10px] opacity-75">D{{ forloop.counter }}</div>
+                <div class="text-xs font-extrabold mt-0.5">&bull;</div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+
+        {% if challenge %}
+        <!-- ACTION CONTROLS -->
+        <div class="pt-4 border-t border-[#2e273f] flex items-center justify-between">
+            <span class="text-xs text-[#9e9aa7]">
+                Started on: <strong class="text-white">{{ challenge.start_date|date:"d M Y"|default:"Today" }}</strong>
+            </span>
+
+            <form method="POST" action="{% url 'challenge_90day' %}" onsubmit="return confirm('Ma hubtaa inaad rabto inaad challenge-ka dib u dejiso?')">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reset">
+                <button type="submit" class="text-xs text-rose-400 hover:text-rose-300 font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                    <span>Dib u bilow (Reset)</span>
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

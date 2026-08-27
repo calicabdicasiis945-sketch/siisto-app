@@ -1,0 +1,331 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}Admin Control Dashboard | Siisto{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- ADMIN HEADER BANNER -->
+    <div
+        class="skillset-mauve-card p-6 sm:p-8 rounded-3xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl border border-[#3d3454]">
+        <div class="space-y-2 z-10">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-400/30">
+                <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                <span>Master Admin & System Management</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Siisto <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Admin
+                    Dashboard</span>
+            </h2>
+            <p class="text-xs sm:text-sm text-purple-200/80 max-w-2xl">
+                Maamul dhammaan isticmaaleyaasha, lacag-bixinta, Jimicsiyada 3D-ga, cuntooyinka, iyo diiwaanka guud ee
+                nidaamka.
+            </p>
+        </div>
+        <div class="z-10 flex flex-wrap items-center gap-3">
+            <a href="/admin/" target="_blank"
+                class="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-purple-500/25 flex items-center gap-2">
+                <i class="fa-solid fa-gear"></i>
+                <span>Django Admin Panel</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- STATS OVERVIEW CARDS -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+
+        <div class="skillset-card p-5 bg-[#191622] border-[#2e273f] space-y-1">
+            <div class="flex items-center justify-between text-[#9e9aa7] text-xs">
+                <span>Total Users</span>
+                <i class="fa-solid fa-users text-purple-400"></i>
+            </div>
+            <div class="text-2xl font-black text-white">{{ total_users }}</div>
+            <div class="text-[11px] text-emerald-400 font-semibold">{{ pro_users }} Pro &bull; {{ free_users }} Free
+            </div>
+        </div>
+
+        <div class="skillset-card p-5 bg-[#191622] border-[#2e273f] space-y-1">
+            <div class="flex items-center justify-between text-[#9e9aa7] text-xs">
+                <span>Total Revenue</span>
+                <i class="fa-solid fa-dollar-sign text-emerald-400"></i>
+            </div>
+            <div class="text-2xl font-black text-white">${{ total_revenue|floatformat:2 }}</div>
+            <div class="text-[11px] text-purple-300 font-semibold">{{ total_transactions }} Paid Tx</div>
+        </div>
+
+        <div class="skillset-card p-5 bg-[#191622] border-[#2e273f] space-y-1">
+            <div class="flex items-center justify-between text-[#9e9aa7] text-xs">
+                <span>Pending Payments</span>
+                <i class="fa-solid fa-clock text-amber-400"></i>
+            </div>
+            <div class="text-2xl font-black text-amber-400">{{ pending_transactions }}</div>
+            <div class="text-[11px] text-[#9e9aa7]">Needs manual verification</div>
+        </div>
+
+        <div class="skillset-card p-5 bg-[#191622] border-[#2e273f] space-y-1">
+            <div class="flex items-center justify-between text-[#9e9aa7] text-xs">
+                <span>Exercise Library</span>
+                <i class="fa-solid fa-cube text-cyan-400"></i>
+            </div>
+            <div class="text-2xl font-black text-white">{{ total_exercises }}</div>
+            <div class="text-[11px] text-cyan-300 font-semibold">{{ exercises_with_video }} with Video</div>
+        </div>
+
+    </div>
+
+    <!-- QUICK 3D EXERCISE VIDEO MANAGER -->
+    <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#2e273f]">
+            <div>
+                <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-video text-cyan-400"></i>
+                    <span>Maamulka Muuqaallada 3D Jimicsiga (Exercise Video URLs)</span>
+                </h3>
+                <p class="text-xs text-[#9e9aa7]">Ku dheji (paste), beddel, ama tirtir video URL-ka jimicsi kasta</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="text" id="exerciseSearchInput" onkeyup="filterExerciseTable()"
+                    placeholder="Raadi jimicsi..."
+                    class="bg-[#201c2c] border border-[#2e273f] rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto max-h-[400px] custom-scrollbar">
+            <table class="w-full text-left text-xs" id="exerciseTable">
+                <thead
+                    class="sticky top-0 bg-[#191622] text-[#736c82] uppercase text-[10px] tracking-wider border-b border-[#2e273f]">
+                    <tr>
+                        <th class="pb-2 pr-4">Jimicsiga</th>
+                        <th class="pb-2 pr-4">Qaybta</th>
+                        <th class="pb-2 pr-4">Video / 3D URL</th>
+                        <th class="pb-2 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#2e273f]" id="exerciseTableBody">
+                    <!-- Loaded dynamically via JavaScript or server rendered items -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TWO-COLUMN SECTION: RECENT PAYMENTS & RECENT USERS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- RECENT TRANSACTIONS (7 COLS) -->
+        <div class="lg:col-span-7 skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-purple-400"></i>
+                    <span>Lacag-bixintii Ugu Dambaysay</span>
+                </h3>
+                <a href="/admin/siisto/paymenttransaction/" target="_blank"
+                    class="text-xs font-bold text-purple-300 hover:text-white">
+                    View All in Admin &rarr;
+                </a>
+            </div>
+
+            <div class="space-y-2.5 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
+                {% for tx in recent_payments %}
+                <div
+                    class="p-3.5 rounded-2xl bg-[#201c2c] border border-[#2e273f] flex items-center justify-between gap-3 text-xs">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white">{{ tx.user.username }}</span>
+                            <span class="text-[10px] font-mono text-purple-300">#{{ tx.transaction_id|slice:":8"
+                                }}</span>
+                        </div>
+                        <span class="text-[11px] text-[#9e9aa7] block mt-0.5">
+                            {{ tx.plan_name }} &bull; ${{ tx.amount }} via {{ tx.get_payment_method_display }}
+                        </span>
+                        <span class="text-[10px] text-[#736c82]">{{ tx.created_at|date:"d M Y, h:i A" }}</span>
+                    </div>
+
+                    <div class="text-right">
+                        {% if tx.status == 'completed' %}
+                        <span
+                            class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                            Paid
+                        </span>
+                        {% elif tx.status == 'pending' %}
+                        <span
+                            class="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold">
+                            Pending
+                        </span>
+                        {% else %}
+                        <span
+                            class="inline-block px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-bold">
+                            {{ tx.status|title }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-[#736c82] text-xs">Wax lacag bixin ah ma jiraan weli.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- RECENT USERS (5 COLS) -->
+        <div class="lg:col-span-5 skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-cyan-400"></i>
+                    <span>Isticmaaleyaashii Ugu Dambeeyay</span>
+                </h3>
+                <a href="/admin/auth/user/" target="_blank" class="text-xs font-bold text-purple-300 hover:text-white">
+                    Manage &rarr;
+                </a>
+            </div>
+
+            <div class="space-y-2 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
+                {% for u in recent_users %}
+                <div
+                    class="p-3 rounded-xl bg-[#201c2c] border border-[#2e273f] flex items-center justify-between text-xs">
+                    <div>
+                        <span class="font-bold text-white block">{{ u.username }}</span>
+                        <span class="text-[10px] text-[#736c82]">{{ u.email|default:"No email" }} &bull; Joined {{
+                            u.date_joined|date:"d M Y" }}</span>
+                    </div>
+                    <div>
+                        {% if u.profile.has_active_pro %}
+                        <span
+                            class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-400/30">
+                            PRO
+                        </span>
+                        {% else %}
+                        <span class="px-2 py-0.5 rounded-full bg-gray-500/20 text-[#9e9aa7] text-[10px] font-semibold">
+                            Free
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Load exercises dynamically for quick editing
+    const exercisesData = [
+        {% for ex in recent_workouts %}
+    // placeholders
+    {% endfor %}
+    ];
+
+    // Fetch all exercises from gym page data or render directly
+    async function loadAdminExercises() {
+        try {
+            const res = await fetch("{% url 'gym' %}");
+            const html = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const cards = doc.querySelectorAll('.exercise-card');
+
+            const tbody = document.getElementById('exerciseTableBody');
+            tbody.innerHTML = '';
+
+            cards.forEach(card => {
+                const id = card.dataset.id;
+                const name = card.dataset.name;
+                const cat = card.dataset.category;
+                const sub = card.dataset.subcategory;
+                const videoUrl = card.dataset.videourl || '';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-[#201c2c] transition';
+                tr.innerHTML = `
+                    <td class="py-2.5 pr-4 font-bold text-white">${name}</td>
+                    <td class="py-2.5 pr-4 text-[#9e9aa7]">${cat} &bull; ${sub}</td>
+                    <td class="py-2.5 pr-4">
+                        <input type="url" id="adminVidInput-${id}" value="${videoUrl}" placeholder="Paste 3D Video URL..."
+                               class="w-full bg-[#14111d] border border-[#2e273f] rounded-lg px-2.5 py-1 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-1 focus:ring-purple-500">
+                    </td>
+                    <td class="py-2.5 text-right whitespace-nowrap">
+                        <button onclick="quickSaveVideo(${id})" id="quickSaveBtn-${id}"
+                                class="px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
+                            Save
+                        </button>
+                        <a href="/exercise/${id}/" target="_blank" class="ml-1.5 px-2 py-1 rounded-lg bg-[#2a243a] text-purple-300 hover:text-white text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            console.error('Error loading exercises:', e);
+        }
+    }
+
+    async function quickSaveVideo(id) {
+        const input = document.getElementById(`adminVidInput-${id}`);
+        const btn = document.getElementById(`quickSaveBtn-${id}`);
+        const newUrl = input.value.trim();
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+        try {
+            const res = await fetch(`/api/exercise/${id}/update-video/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ video_url: newUrl })
+            });
+            const data = await res.json();
+            btn.disabled = false;
+            if (data.status === 'success') {
+                btn.className = 'px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold text-xs';
+                btn.textContent = 'Saved!';
+                setTimeout(() => {
+                    btn.className = 'px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition';
+                    btn.textContent = 'Save';
+                }, 2000);
+            } else {
+                alert('Error: ' + data.message);
+                btn.textContent = 'Save';
+            }
+        } catch (e) {
+            btn.disabled = false;
+            btn.textContent = 'Save';
+            alert('Server error.');
+        }
+    }
+
+    function filterExerciseTable() {
+        const query = document.getElementById('exerciseSearchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#exerciseTableBody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadAdminExercises);
+</script>
+{% endblock %}

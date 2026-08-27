@@ -1,0 +1,309 @@
+{% extends 'siisto/base.html' %}
+
+{% block page_title %}{{ exercise.name }} — 3D Exercise Demonstration | Siisto{% endblock %}
+
+{% block extra_head %}
+<style>
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        overflow: hidden;
+        border-radius: 20px;
+        background: #0f0d17;
+        border: 1px solid #3d3454;
+    }
+    .video-container iframe,
+    .video-container video,
+    .video-container object,
+    .video-container embed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+    }
+    .laser-glow {
+        box-shadow: 0 0 25px rgba(192, 132, 252, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- TOP BREADCRUMB & HEADER -->
+    <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-xs">
+            <a href="{% url 'gym' %}" class="text-purple-300 hover:text-white flex items-center gap-1.5 font-bold transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Gym & Exercises</span>
+            </a>
+            <span class="text-[#736c82]">/</span>
+            <span class="text-[#9e9aa7]">{{ exercise.category }}</span>
+            <span class="text-[#736c82]">/</span>
+            <span class="text-white font-bold">{{ exercise.name }}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30">
+                {{ exercise.category }} &bull; {{ exercise.subcategory }}
+            </span>
+            <span class="px-3 py-1 rounded-full {% if exercise.difficulty == 'beginner' %}bg-emerald-500/20 text-emerald-300 border-emerald-500/30{% elif exercise.difficulty == 'advanced' %}bg-rose-500/20 text-rose-300 border-rose-500/30{% else %}bg-amber-500/20 text-amber-300 border-amber-500/30{% endif %} text-xs font-bold border">
+                {{ exercise.get_difficulty_display|default:exercise.difficulty|title }}
+            </span>
+        </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN LAYOUT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT 7 COLS: DEDICATED 3D / VIDEO PLAYER SECTION -->
+        <div class="lg:col-span-7 space-y-6">
+
+            <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-4 laser-glow">
+                <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                    <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-cube text-cyan-400"></i>
+                        <span>3D Video Demonstration</span>
+                    </h3>
+                    <span class="text-xs text-[#9e9aa7] font-semibold">Biomechanical Motion</span>
+                </div>
+
+                <!-- VIDEO PLAYER EMBED -->
+                {% with embed=exercise.get_video_embed_info %}
+                {% if embed.type == 'youtube' or embed.type == 'vimeo' %}
+                <div class="video-container shadow-2xl">
+                    <iframe src="{{ embed.src }}" title="{{ exercise.name }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+
+                {% elif embed.type == 'file' or embed.type == 'direct_video' %}
+                <div class="video-container shadow-2xl">
+                    <video controls autoplay loop muted playsinline class="w-full h-full object-cover">
+                        <source src="{{ embed.src }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                {% elif embed.type == 'pinterest' %}
+                <div class="p-6 rounded-2xl bg-[#201c2c] border border-[#2e273f] text-center space-y-4 shadow-xl">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl">
+                        <i class="fa-brands fa-pinterest"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="font-bold text-white text-sm">Pinterest 3D Animation Video</h4>
+                        <p class="text-xs text-[#9e9aa7]">Daawo muuqaalka 3D biomechanics-ka ee jimicsigan Pinterest-ka:</p>
+                    </div>
+                    <a href="{{ embed.src }}" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold text-xs transition duration-150 shadow-lg shadow-rose-500/25">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        <span>Daawo 3D Video on Pinterest</span>
+                    </a>
+                </div>
+
+                {% elif embed.type == 'external' %}
+                <div class="p-6 rounded-2xl bg-[#201c2c] border border-[#2e273f] text-center space-y-4 shadow-xl">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="font-bold text-white text-sm">External 3D Demonstration Link</h4>
+                        <p class="text-xs text-[#9e9aa7]">Guji xiriiriyaha hoose si aad u furto muuqaalka jimicsiga:</p>
+                    </div>
+                    <a href="{{ embed.src }}" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold text-xs transition duration-150 shadow-lg">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        <span>Fur 3D Video</span>
+                    </a>
+                </div>
+
+                {% else %}
+                <!-- Empty State -->
+                <div class="p-10 rounded-2xl bg-[#201c2c] border border-dashed border-[#3d3454] text-center space-y-3">
+                    <div class="w-12 h-12 mx-auto rounded-2xl bg-[#2a243a] text-[#736c82] flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-video-slash"></i>
+                    </div>
+                    <p class="text-xs font-semibold text-[#9e9aa7]">Muuqaal 3D ah weli looma gelin jimicsigan.</p>
+                    {% if request.user.is_staff %}
+                    <p class="text-[11px] text-purple-300 font-bold">Admin: Waxaad geli kartaa video URL hoos ku yaal.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <!-- ADMIN VIDEO MANAGEMENT PANEL -->
+                {% if request.user.is_staff %}
+                <div class="mt-4 pt-4 border-t border-[#2e273f] bg-[#241e33] p-4 rounded-2xl border border-purple-500/20 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                            Admin Video Management
+                        </span>
+                        <span class="text-[10px] text-[#9e9aa7]">Staff Only</span>
+                    </div>
+                    <p class="text-[11px] text-[#9e9aa7]">
+                        Ku dheji (paste) video URL cusub (Pinterest, YouTube, Vimeo, ama Direct MP4 link):
+                    </p>
+                    <div class="flex gap-2">
+                        <input type="url" id="adminVideoUrlInput"
+                               value="{{ exercise.video_3d_url|default:'' }}"
+                               placeholder="https://www.pinterest.com/pin/... ama https://youtube.com/..."
+                               class="flex-1 bg-[#191622] border border-[#3d3454] rounded-xl px-3.5 py-2 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <button type="button" onclick="saveExerciseVideoUrl()" id="adminSaveVideoBtn"
+                                class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition duration-150 flex items-center gap-1.5 shadow-md">
+                            <i class="fa-solid fa-floppy-disk text-xs"></i>
+                            <span>Save URL</span>
+                        </button>
+                    </div>
+                    <div id="adminVideoFeedback" class="hidden text-xs font-bold pt-1"></div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- CORRECT FORM INSTRUCTIONS -->
+            <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-4">
+                <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>Farsamada Saxda ah (Correct Form Instructions)</span>
+                </h3>
+                <div class="p-4 rounded-2xl bg-[#201c2c] border border-[#2e273f] text-xs text-purple-100/90 leading-relaxed whitespace-pre-wrap">
+                    {{ exercise.correct_form_instructions|default:"Dhabarka toosi, neefta xakamee, oo muruqa bartilmaameedka ah xoogga saar inta aad dhaqdhaqaaqa waddo." }}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT 5 COLS: DETAILS, LOGGING & RELATED EXERCISES -->
+        <div class="lg:col-span-5 space-y-6">
+
+            <!-- EXERCISE SPECS & DETAILS -->
+            <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-4">
+                <h3 class="font-bold text-white text-base">{{ exercise.name }}</h3>
+                <p class="text-xs text-[#9e9aa7] leading-relaxed">
+                    {{ exercise.description|default:"Jimicsi heer sare ah oo loogu talagalay horumarinta awoodda iyo dhisidda muruqa." }}
+                </p>
+
+                <div class="space-y-2.5 pt-2">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#201c2c] border border-[#2e273f] text-xs">
+                        <span class="text-[#9e9aa7]">Target Muscle:</span>
+                        <span class="font-bold text-purple-300">{{ exercise.target_muscle|default:exercise.category }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#201c2c] border border-[#2e273f] text-xs">
+                        <span class="text-[#9e9aa7]">Subcategory:</span>
+                        <span class="font-bold text-white">{{ exercise.subcategory|default:"General" }}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#201c2c] border border-[#2e273f] text-xs">
+                        <span class="text-[#9e9aa7]">Default Sets & Reps:</span>
+                        <span class="font-bold text-emerald-400">{{ exercise.default_sets }} Sets &times; {{ exercise.default_reps }} Reps</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-[#201c2c] border border-[#2e273f] text-xs">
+                        <span class="text-[#9e9aa7]">Est. Duration:</span>
+                        <span class="font-bold text-cyan-400">{{ exercise.default_duration }} Daqiiqo</span>
+                    </div>
+                </div>
+
+                <!-- QUICK LOG BUTTON / MODAL TRIGGER -->
+                <form method="POST" action="{% url 'add_workout' %}" class="pt-3 border-t border-[#2e273f] space-y-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="exercise_id" value="{{ exercise.id }}">
+                    <input type="hidden" name="name" value="{{ exercise.name }}">
+                    <input type="hidden" name="body_part" value="{{ exercise.category }}">
+                    <input type="hidden" name="sets" value="{{ exercise.default_sets }}">
+                    <input type="hidden" name="reps" value="{{ exercise.default_reps }}">
+                    <input type="hidden" name="duration" value="{{ exercise.default_duration }}">
+
+                    <button type="submit"
+                            class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-extrabold text-xs transition duration-150 shadow-xl shadow-purple-500/25 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Diiwaangeli Jimicsigan Hadda</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- RELATED EXERCISES -->
+            {% if related_exercises %}
+            <div class="skillset-card p-6 bg-[#191622] border-[#2e273f] space-y-3">
+                <h4 class="font-bold text-white text-xs uppercase tracking-wider text-[#9e9aa7]">
+                    Jimicsiyo Kale oo {{ exercise.category }} ah
+                </h4>
+                <div class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                    {% for rel in related_exercises %}
+                    <a href="{% url 'exercise_detail' rel.id %}"
+                       class="p-3 rounded-xl bg-[#201c2c] hover:bg-[#282337] border border-[#2e273f] flex items-center justify-between gap-3 text-xs transition">
+                        <div>
+                            <span class="font-bold text-white block">{{ rel.name }}</span>
+                            <span class="text-[10px] text-purple-300">{{ rel.subcategory }}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-[10px] text-[#736c82]"></i>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    async function saveExerciseVideoUrl() {
+        const input = document.getElementById('adminVideoUrlInput');
+        const btn = document.getElementById('adminSaveVideoBtn');
+        const feedback = document.getElementById('adminVideoFeedback');
+        const videoUrl = input.value.trim();
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving...';
+
+        try {
+            const res = await fetch("{% url 'api_update_exercise_video' exercise.id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ video_url: videoUrl })
+            });
+            const data = await res.json();
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Save URL';
+
+            if (data.status === 'success') {
+                feedback.className = 'text-xs font-bold text-emerald-400 block pt-1';
+                feedback.textContent = '✅ Video URL waa la cusbooneysiiyay! Refreshing...';
+                setTimeout(() => { window.location.reload(); }, 1000);
+            } else {
+                feedback.className = 'text-xs font-bold text-rose-400 block pt-1';
+                feedback.textContent = '❌ ' + (data.message || 'Error updating video URL.');
+            }
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Save URL';
+            feedback.className = 'text-xs font-bold text-rose-400 block pt-1';
+            feedback.textContent = '❌ Error communicating with server.';
+        }
+    }
+</script>
+{% endblock %}

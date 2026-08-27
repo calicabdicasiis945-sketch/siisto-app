@@ -262,10 +262,15 @@
                                 </button>
                                 <button type="button" 
                                         onclick="openExercise3DModal({{ ex.id }}, '{{ ex.name|escapejs }}', '{{ ex.category|escapejs }}', '{{ ex.video_3d_url|default:''|escapejs }}', '{{ ex.correct_form_instructions|default:''|escapejs }}')" 
-                                        class="px-3.5 py-2.5 rounded-xl bg-[#2a243a] hover:bg-[#342d47] text-purple-300 font-bold text-xs border border-[#3d3454] transition flex items-center justify-center"
-                                        title="3D Mannequin & Video Modal">
+                                        class="px-3 py-2.5 rounded-xl bg-[#2a243a] hover:bg-[#342d47] text-purple-300 font-bold text-xs border border-[#3d3454] transition flex items-center justify-center"
+                                        title="3D Quick Preview Modal">
                                     <i class="fa-solid fa-cube text-xs"></i>
                                 </button>
+                                <a href="{% url 'exercise_detail' ex.id %}"
+                                   class="px-3 py-2.5 rounded-xl bg-[#201c2c] hover:bg-[#282337] text-cyan-300 font-bold text-xs border border-[#3d3454] transition flex items-center justify-center"
+                                   title="Full 3D Video & Instructions Page">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                                </a>
                             </div>
                             
                             <a href="{% url 'ai_form_detection' %}?exercise={{ ex.name|urlencode }}" 

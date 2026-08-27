@@ -25,9 +25,40 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Muddada (Minutes / Daqiiqado)</label>
-                <input type="number" name="duration" value="{{ workout.duration }}" required
+                <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Qeyb Jirka (Body Part)</label>
+                <input type="text" name="body_part" value="{{ workout.body_part }}"
+                       placeholder="E.g. Chest, Back, Legs..."
                        class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Muddada (Minutes / Daqiiqado)</label>
+                <input type="number" name="duration" value="{{ workout.duration }}" required min="1"
+                       class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Sets</label>
+                    <input type="number" name="sets" value="{{ workout.sets }}" min="1"
+                           class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Reps</label>
+                    <input type="number" name="reps" value="{{ workout.reps }}" min="1"
+                           class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Weight (kg)</label>
+                    <input type="number" step="0.5" name="weight_kg" value="{{ workout.weight_kg }}" min="0"
+                           class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-[#9e9aa7] mb-1.5">Xusuus / Notes</label>
+                <textarea name="notes" rows="2" placeholder="Optional notes..."
+                          class="w-full bg-[#201c2c] border border-[#2e273f] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold">{{ workout.notes }}</textarea>
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-3">

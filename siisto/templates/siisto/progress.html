@@ -1,63 +1,171 @@
 {% extends 'siisto/base.html' %}
 
-{% block page_title %}Analytics & Hormarka (Progress Insights){% endblock %}
+{% block page_title %}Analytics & Hormarka (Progress Insights) | Siisto{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js for real interactive analytics -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
 
-    <!-- TOP PROGRESS METRICS -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        
-        <div class="skillset-mauve-card p-6 rounded-2xl flex flex-col justify-between shadow-xl border border-[#3d3454]">
-            <span class="text-xs text-purple-200 font-semibold">Weekly Consistency Goal</span>
-            <div class="my-3 flex items-baseline gap-2">
-                <span class="text-3xl font-black text-white">{{ percentage }}%</span>
-                <span class="text-xs text-purple-300 font-semibold">Target: 14 Logs</span>
-            </div>
-            <!-- Progress Bar -->
-            <div class="w-full bg-[#0f0e13] h-2.5 rounded-full overflow-hidden border border-[#3d3454]">
-                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-500 shadow-sm" style="width: {{ percentage }}%;"></div>
-            </div>
-        </div>
+    <!-- TOP PROGRESS METRICS ROW -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
 
-        <div class="skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
-            <span class="text-xs text-[#9e9aa7] font-semibold">Wadarta Cuntooyinka</span>
+        <div
+            class="skillset-mauve-card p-6 rounded-2xl flex flex-col justify-between shadow-xl border border-[#3d3454]">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-purple-200 font-semibold">Streak Tababarka</span>
+                <i class="fa-solid fa-fire text-amber-400"></i>
+            </div>
             <div class="my-2">
-                <span class="text-3xl font-black text-white">{{ total_meals }}</span>
-                <span class="text-xs text-[#736c82] block mt-0.5">Diiwaanka nafaqada iyo macros</span>
+                <span class="text-3xl font-black text-white">{{ workout_streak }}</span>
+                <span class="text-xs text-purple-300 font-semibold ml-1">Maalmood xiriir ah</span>
             </div>
-            <div class="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
-                <i class="fa-solid fa-circle-check"></i> Cuntooyinkaagu waa kuwo diiwaangashan
+            <div class="w-full bg-[#0f0e13] h-2 rounded-full overflow-hidden border border-[#3d3454]">
+                <div class="bg-gradient-to-r from-amber-400 to-rose-500 h-full rounded-full"
+                    style="width: {% widthratio workout_streak 30 100 %}%;"></div>
             </div>
         </div>
 
         <div class="skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
-            <span class="text-xs text-[#9e9aa7] font-semibold">Wadarta Jimicsiyada</span>
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-[#9e9aa7] font-semibold">Wadarta Jimicsiyada</span>
+                <i class="fa-solid fa-dumbbell text-purple-400"></i>
+            </div>
             <div class="my-2">
                 <span class="text-3xl font-black text-white">{{ total_workouts }}</span>
-                <span class="text-xs text-[#736c82] block mt-0.5">Fadhiyada gym-ka & AI Pose Tracking</span>
+                <span class="text-xs text-[#736c82] block mt-0.5">Fadhiyo la diiwaangeliyay</span>
             </div>
             <div class="text-[11px] text-purple-400 font-bold flex items-center gap-1">
-                <i class="fa-solid fa-dumbbell"></i> Tababarkaagu wuu socdaa
+                <i class="fa-solid fa-circle-check"></i> Xogta dhabta ah ee DB
+            </div>
+        </div>
+
+        <div class="skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-[#9e9aa7] font-semibold">Wadarta Cuntooyinka</span>
+                <i class="fa-solid fa-bowl-food text-emerald-400"></i>
+            </div>
+            <div class="my-2">
+                <span class="text-3xl font-black text-white">{{ total_meals }}</span>
+                <span class="text-xs text-[#736c82] block mt-0.5">Diiwaanka nafaqada & macros</span>
+            </div>
+            <div class="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Nafaqadaadu waa diiwaangashan
+            </div>
+        </div>
+
+        <div class="skillset-card p-6 bg-[#191622] flex flex-col justify-between border-[#2e273f]">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-[#9e9aa7] font-semibold">90-Day Challenge</span>
+                <i class="fa-solid fa-trophy text-pink-400"></i>
+            </div>
+            <div class="my-2">
+                {% if active_challenge %}
+                <span class="text-3xl font-black text-white">{{ active_challenge.progress_percentage }}%</span>
+                <span class="text-xs text-[#9e9aa7] block mt-0.5">Maalinta {{ active_challenge.current_day }}/90</span>
+                {% else %}
+                <span class="text-lg font-bold text-[#736c82]">Weli lama bilaabin</span>
+                <a href="{% url 'challenge_90day' %}"
+                    class="text-xs text-purple-300 font-bold hover:underline block mt-0.5">Bilaaw hadda &rarr;</a>
+                {% endif %}
+            </div>
+            <div class="text-[11px] text-pink-400 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-bolt"></i> Joogteynta hadafka
             </div>
         </div>
 
     </div>
 
-    <!-- WEIGHT LOGS & TARGET GOAL PROGRESS -->
+    <!-- REAL CHARTS GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- WEIGHT PROGRESS CHART (8 COLS) -->
+        <div class="lg:col-span-8 skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+            <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                <div>
+                    <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-purple-400"></i>
+                        <span>Hormarka Miisaanka (Weight Progression)</span>
+                    </h3>
+                    <p class="text-xs text-[#9e9aa7]">Xogta dhabta ah ee miisaankaaga waqti ka dib</p>
+                </div>
+                <a href="{% url 'profile' %}"
+                    class="text-xs font-bold text-purple-300 hover:text-white bg-[#201c2c] px-3 py-1.5 rounded-xl border border-[#2e273f] transition">
+                    + Diiwaangeli Miisaan
+                </a>
+            </div>
+
+            {% if weight_logs %}
+            <div class="h-64 relative">
+                <canvas id="weightChart"></canvas>
+            </div>
+            {% else %}
+            <!-- Empty state -->
+            <div class="py-16 text-center space-y-3">
+                <div
+                    class="w-12 h-12 mx-auto rounded-2xl bg-[#201c2c] text-[#736c82] flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-weight-scale"></i>
+                </div>
+                <p class="text-xs text-[#9e9aa7]">Weli miisaan maadan diiwaangelin. Diiwaangeli miisaankaaga ugu
+                    horreeya si aad u aragto garaafka.</p>
+                <a href="{% url 'profile' %}"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Diiwaangeli Miisaanka</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- BODY PARTS BREAKDOWN (4 COLS) -->
+        <div class="lg:col-span-4 skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
+            <div class="pb-3 border-b border-[#2e273f]">
+                <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-pie-chart text-pink-400"></i>
+                    <span>Qaybaha Jirka</span>
+                </h3>
+                <p class="text-xs text-[#9e9aa7]">Muruqyada ugu badan ee aad tababartay</p>
+            </div>
+
+            {% if body_parts %}
+            <div class="h-48 relative flex items-center justify-center">
+                <canvas id="bodyPartsChart"></canvas>
+            </div>
+            <div class="space-y-1.5 pt-2">
+                {% for bp in body_parts %}
+                <div class="flex items-center justify-between text-xs p-2 rounded-lg bg-[#201c2c]">
+                    <span class="font-bold text-white">{{ bp.body_part }}</span>
+                    <span class="text-purple-300 font-extrabold">{{ bp.count }} fadhi</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="py-12 text-center text-xs text-[#736c82]">
+                <i class="fa-solid fa-dumbbell text-2xl block mb-2 opacity-50"></i>
+                Weli wax jimicsi ah lama diiwaangelin.
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- WEIGHT LOGS HISTORY TABLE -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         <div class="lg:col-span-6 skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
             <h3 class="font-bold text-white text-base flex items-center gap-2">
-                <i class="fa-solid fa-weight-scale text-purple-400"></i>
-                Miisaankaaga & Yoolka (Weight Analysis)
+                <i class="fa-solid fa-bullseye text-cyan-400"></i>
+                Yoolka Miisaanka & Xogta Hadda
             </h3>
-            
+
             <div class="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-[#201c2c] border border-[#2e273f]">
                 <div>
                     <span class="text-[11px] text-[#9e9aa7] font-semibold block">Miisaanka Hadda</span>
                     <span class="text-2xl font-black text-white">
-                        {% if profile.miisaan_hadda %}{{ profile.miisaan_hadda }} kg{% else %}--{% endif %}
+                        {% if current_weight %}{{ current_weight }} kg{% else %}--{% endif %}
                     </span>
                 </div>
                 <div>
@@ -68,27 +176,43 @@
                 </div>
             </div>
 
+            {% if goal_progress is not None %}
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-[#9e9aa7]">Hormarka Yoolka:</span>
+                    <span class="font-bold text-emerald-400">{{ goal_progress }}%</span>
+                </div>
+                <div class="w-full bg-[#0f0e13] h-2.5 rounded-full overflow-hidden border border-[#3d3454]">
+                    <div class="bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full"
+                        style="width: {{ goal_progress }}%;"></div>
+                </div>
+            </div>
+            {% endif %}
+
             <p class="text-xs text-[#9e9aa7] leading-relaxed">
-                Haddii aad doonayso inaad miisaanka kordhiso ama dhinto, la xiriir <strong>Siisto Gemini AI Coach</strong> si aad u hesho qorshe toddobaadle ah oo Caloric Surplus / Deficit ah.
+                Haddii aad doonayso inaad miisaanka kordhiso ama dhinto, la xiriir <strong>Siisto Gemini AI
+                    Coach</strong> si aad u hesho qorshe toddobaadle ah oo Caloric Surplus / Deficit ah.
             </p>
 
-            <a href="{% url 'ai_coach' %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-extrabold hover:from-purple-600 hover:to-pink-600 transition shadow-lg shadow-purple-500/25">
+            <a href="{% url 'ai_recommendation' %}"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-extrabold hover:from-purple-600 hover:to-pink-600 transition shadow-lg shadow-purple-500/25">
                 <i class="fa-solid fa-sparkles text-white text-xs"></i>
-                <span>Weydii AI Coach Qorshahaaga</span>
+                <span>Hel Qorshe AI ah (Meal & Workout Plan)</span>
             </a>
         </div>
 
         <div class="lg:col-span-6 skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
             <div class="flex items-center justify-between pb-2 border-b border-[#2e273f]">
                 <h3 class="font-bold text-white text-base">Taariikhda Miisaanka (Weight Logs)</h3>
-                <a href="{% url 'profile' %}" class="text-xs font-bold text-purple-300 hover:text-white">+ Diiwaangeli</a>
+                <a href="{% url 'profile' %}" class="text-xs font-bold text-purple-300 hover:text-white">+
+                    Diiwaangeli</a>
             </div>
 
             <div class="space-y-2.5 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
                 {% for log in weight_logs %}
                 <div class="p-3 rounded-xl bg-[#201c2c] border border-[#2e273f] flex items-center justify-between">
                     <span class="font-bold text-purple-300 text-xs">{{ log.weight }} kg</span>
-                    <span class="text-[11px] text-[#736c82]">{{ log.date|date:"d M Y" }}</span>
+                    <span class="text-[11px] text-[#736c82]">{{ log.date|date:"d M Y, h:i A" }}</span>
                 </div>
                 {% empty %}
                 <div class="text-center py-8 text-[#736c82] text-xs">Weli miisaan maadan diiwaangelin.</div>
@@ -99,4 +223,92 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // 1. Weight Progression Line Chart
+        const weightDates = {{ weight_dates| safe
+    }};
+    const weightValues = {{ weight_values| safe }};
+
+    const weightCanvas = document.getElementById('weightChart');
+    if (weightCanvas && weightDates.length > 0) {
+        const ctx = weightCanvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+        gradient.addColorStop(0, 'rgba(192, 132, 252, 0.4)');
+        gradient.addColorStop(1, 'rgba(192, 132, 252, 0.0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: weightDates,
+                datasets: [{
+                    label: 'Miisaanka (kg)',
+                    data: weightValues,
+                    borderColor: '#c084fc',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#ec4899',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#2e273f' },
+                        ticks: { color: '#9e9aa7', font: { size: 10 } }
+                    },
+                    y: {
+                        grid: { color: '#2e273f' },
+                        ticks: { color: '#9e9aa7', font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Body Parts Doughnut Chart
+    const bodyPartsCanvas = document.getElementById('bodyPartsChart');
+    if (bodyPartsCanvas) {
+        const bodyPartsLabels = [{% for bp in body_parts %} '{{ bp.body_part|escapejs }}'{% if not forloop.last %}, {% endif %} {% endfor %}];
+    const bodyPartsData = [{% for bp in body_parts %}{ { bp.count } } {% if not forloop.last %}, {% endif %} {% endfor %}];
+
+    if (bodyPartsLabels.length > 0) {
+        new Chart(bodyPartsCanvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: bodyPartsLabels,
+                datasets: [{
+                    data: bodyPartsData,
+                    backgroundColor: [
+                        '#c084fc', '#ec4899', '#38bdf8', '#4ade80',
+                        '#fbbf24', '#f87171', '#a78bfa', '#2dd4bf'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#191622'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                cutout: '65%'
+            }
+        });
+    }
+        }
+    });
+</script>
 {% endblock %}

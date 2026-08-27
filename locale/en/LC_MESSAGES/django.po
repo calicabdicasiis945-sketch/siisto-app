@@ -1,0 +1,250 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Siisto 1.0\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "AI Coach"
+msgstr "AI Coach"
+
+msgid "AI Form Detection"
+msgstr "AI Form Detection"
+
+msgid "90-Day Challenge"
+msgstr "90-Day Challenge"
+
+msgid "AI Plan Generator"
+msgstr "AI Plan Generator"
+
+msgid "3D Exercises Library"
+msgstr "3D Exercises Library"
+
+msgid "Cuntooyinka (Meals)"
+msgstr "Meals & Nutrition"
+
+msgid "Meals"
+msgstr "Meals"
+
+msgid "3D Body Scan"
+msgstr "3D Body Scan"
+
+msgid "Analytics / Hormarka"
+msgstr "Analytics & Progress"
+
+msgid "Analytics"
+msgstr "Analytics"
+
+msgid "Diiwaanka / History"
+msgstr "History & Logs"
+
+msgid "History"
+msgstr "History"
+
+msgid "Admin Control"
+msgstr "Admin Control"
+
+msgid "Upgrade To Pro"
+msgstr "Upgrade to Pro"
+
+msgid "Settings & Profile"
+msgstr "Settings & Profile"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Log out"
+msgstr "Log Out"
+
+msgid "Login"
+msgstr "Log In"
+
+msgid "Sign Up"
+msgstr "Sign Up"
+
+msgid "Signup"
+msgstr "Sign Up"
+
+msgid "Welcome back"
+msgstr "Welcome back"
+
+msgid "Daily Calories"
+msgstr "Daily Calories"
+
+msgid "Daily Protein"
+msgstr "Daily Protein"
+
+msgid "Workouts Logged"
+msgstr "Workouts Logged"
+
+msgid "Workout Streak"
+msgstr "Workout Streak"
+
+msgid "Recent Activity"
+msgstr "Recent Activity"
+
+msgid "Track Your Progress"
+msgstr "Track Your Progress"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Weight"
+msgstr "Weight"
+
+msgid "Height"
+msgstr "Height"
+
+msgid "Target Weight"
+msgstr "Target Weight"
+
+msgid "Fitness Goal"
+msgstr "Fitness Goal"
+
+msgid "Activity Level"
+msgstr "Activity Level"
+
+msgid "Fitness Level"
+msgstr "Fitness Level"
+
+msgid "Experience Level"
+msgstr "Experience Level"
+
+msgid "Age"
+msgstr "Age"
+
+msgid "Gender"
+msgstr "Gender"
+
+msgid "Chest"
+msgstr "Chest"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Shoulders"
+msgstr "Shoulders"
+
+msgid "Arms"
+msgstr "Arms"
+
+msgid "Legs"
+msgstr "Legs"
+
+msgid "Abs / Core"
+msgstr "Abs / Core"
+
+msgid "Cardio"
+msgstr "Cardio"
+
+msgid "Squats"
+msgstr "Squats"
+
+msgid "Push-Ups"
+msgstr "Push-Ups"
+
+msgid "Bicep Curls"
+msgstr "Bicep Curls"
+
+msgid "Shoulder Press"
+msgstr "Shoulder Press"
+
+msgid "Lunges"
+msgstr "Lunges"
+
+msgid "Plank"
+msgstr "Plank"
+
+msgid "Sit-Ups"
+msgstr "Sit-Ups"
+
+msgid "Lateral Raises"
+msgstr "Lateral Raises"
+
+msgid "Deadlifts"
+msgstr "Deadlifts"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Start Camera"
+msgstr "Start Camera"
+
+msgid "Stop Camera"
+msgstr "Stop Camera"
+
+msgid "Good form!"
+msgstr "Good form!"
+
+msgid "Adjust form"
+msgstr "Adjust form"
+
+msgid "Completed Reps"
+msgstr "Completed Reps"
+
+msgid "Days Completed"
+msgstr "Days Completed"
+
+msgid "Current Streak"
+msgstr "Current Streak"
+
+msgid "Upgrade"
+msgstr "Upgrade"
+
+msgid "Pro Active"
+msgstr "Pro Active"
+
+msgid "Free Tier"
+msgstr "Free Tier"
+
+msgid "Voice Feedback"
+msgstr "Voice Feedback"
+
+msgid "Reset Reps"
+msgstr "Reset Reps"
+
+msgid "Calories"
+msgstr "Calories"
+
+msgid "Protein"
+msgstr "Protein"
+
+msgid "Carbs"
+msgstr "Carbs"
+
+msgid "Fats"
+msgstr "Fats"
+
+msgid "Nutrition"
+msgstr "Nutrition"
+
+msgid "Workout"
+msgstr "Workout"
+
+msgid "Exercises"
+msgstr "Exercises"
+
+msgid "Add Meal"
+msgstr "Add Meal"
+
+msgid "Add Workout"
+msgstr "Add Workout"
+
+msgid "Log Weight"
+msgstr "Log Weight"

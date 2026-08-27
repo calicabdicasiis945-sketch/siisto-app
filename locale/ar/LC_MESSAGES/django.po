@@ -1,0 +1,250 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Siisto 1.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "AI Coach"
+msgstr "مدرب الذكاء الاصطناعي"
+
+msgid "AI Form Detection"
+msgstr "تحليل وضعية التمرين بالذكاء الاصطناعي"
+
+msgid "90-Day Challenge"
+msgstr "تحدي الـ 90 يوماً"
+
+msgid "AI Plan Generator"
+msgstr "منشئ الخطط الذكي"
+
+msgid "3D Exercises Library"
+msgstr "مكتبة التمارين ثلاثية الأبعاد"
+
+msgid "Cuntooyinka (Meals)"
+msgstr "الوجبات والتغذية"
+
+msgid "Meals"
+msgstr "الوجبات"
+
+msgid "3D Body Scan"
+msgstr "المسح ثلاثي الأبعاد للجسم"
+
+msgid "Analytics / Hormarka"
+msgstr "التحليلات والتقدم"
+
+msgid "Analytics"
+msgstr "التحليلات"
+
+msgid "Diiwaanka / History"
+msgstr "السجل والتاريخ"
+
+msgid "History"
+msgstr "السجل"
+
+msgid "Admin Control"
+msgstr "لوحة الإدارة"
+
+msgid "Upgrade To Pro"
+msgstr "الترقية إلى برو"
+
+msgid "Settings & Profile"
+msgstr "الإعدادات والملف الشخصي"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+msgid "Log out"
+msgstr "تسجيل الخروج"
+
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+msgid "Sign Up"
+msgstr "إنشاء حساب"
+
+msgid "Signup"
+msgstr "إنشاء حساب"
+
+msgid "Welcome back"
+msgstr "مرحباً بعودتك"
+
+msgid "Daily Calories"
+msgstr "السعرات اليومية"
+
+msgid "Daily Protein"
+msgstr "البروتين اليومي"
+
+msgid "Workouts Logged"
+msgstr "التمارين المسجلة"
+
+msgid "Workout Streak"
+msgstr "سلسلة الالتزام بالتمارين"
+
+msgid "Recent Activity"
+msgstr "النشاط الأخير"
+
+msgid "Track Your Progress"
+msgstr "تتبع تقدمك الرياضي"
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Weight"
+msgstr "الوزن"
+
+msgid "Height"
+msgstr "الطول"
+
+msgid "Target Weight"
+msgstr "الوزن المستهدف"
+
+msgid "Fitness Goal"
+msgstr "الهدف الرياضي"
+
+msgid "Activity Level"
+msgstr "مستوى النشاط"
+
+msgid "Fitness Level"
+msgstr "مستوى اللياقة"
+
+msgid "Experience Level"
+msgstr "مستوى الخبرة"
+
+msgid "Age"
+msgstr "العمر"
+
+msgid "Gender"
+msgstr "الجنس"
+
+msgid "Chest"
+msgstr "الصدر"
+
+msgid "Back"
+msgstr "الظهر"
+
+msgid "Shoulders"
+msgstr "الأكتاف"
+
+msgid "Arms"
+msgstr "الذراعين"
+
+msgid "Legs"
+msgstr "الأرجل"
+
+msgid "Abs / Core"
+msgstr "البطن والوسط"
+
+msgid "Cardio"
+msgstr "كارديو"
+
+msgid "Squats"
+msgstr "سكوات (القرفصاء)"
+
+msgid "Push-Ups"
+msgstr "تمرين الضغط (Push-Ups)"
+
+msgid "Bicep Curls"
+msgstr "بايسبس كيرل (Bicep Curls)"
+
+msgid "Shoulder Press"
+msgstr "ضغط الأكتاف (Shoulder Press)"
+
+msgid "Lunges"
+msgstr "طعنات الأرجل (Lunges)"
+
+msgid "Plank"
+msgstr "بلانك (Plank)"
+
+msgid "Sit-Ups"
+msgstr "تمارين البطن (Sit-Ups)"
+
+msgid "Lateral Raises"
+msgstr "الرفرفة الجانبية (Lateral Raises)"
+
+msgid "Deadlifts"
+msgstr "ديدليفت (Deadlifts)"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "Start Camera"
+msgstr "تشغيل الكاميرا"
+
+msgid "Stop Camera"
+msgstr "إيقاف الكاميرا"
+
+msgid "Good form!"
+msgstr "وضعية ممتازة ومثالية!"
+
+msgid "Adjust form"
+msgstr "يرجى تعديل الوضعية"
+
+msgid "Completed Reps"
+msgstr "التكرارات المكتملة"
+
+msgid "Days Completed"
+msgstr "الأيام المنجزة"
+
+msgid "Current Streak"
+msgstr "السلسلة الحالية"
+
+msgid "Upgrade"
+msgstr "ترقية"
+
+msgid "Pro Active"
+msgstr "عضوية برو نشطة"
+
+msgid "Free Tier"
+msgstr "المستوى المجاني"
+
+msgid "Voice Feedback"
+msgstr "التوجيه الصوتي"
+
+msgid "Reset Reps"
+msgstr "إعادة ضبط العداد"
+
+msgid "Calories"
+msgstr "السعرات الحرارية"
+
+msgid "Protein"
+msgstr "البروتين"
+
+msgid "Carbs"
+msgstr "الكربوهيدرات"
+
+msgid "Fats"
+msgstr "الدهون"
+
+msgid "Nutrition"
+msgstr "التغذية"
+
+msgid "Workout"
+msgstr "التمرين"
+
+msgid "Exercises"
+msgstr "التمارين"
+
+msgid "Add Meal"
+msgstr "إضافة وجبة"
+
+msgid "Add Workout"
+msgstr "إضافة تمرين"
+
+msgid "Log Weight"
+msgstr "تسجيل الوزن"

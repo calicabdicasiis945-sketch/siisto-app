@@ -1,0 +1,250 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Siisto 1.0\n"
+"Language: so\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "Dashboard-ka"
+
+msgid "AI Coach"
+msgstr "AI Coach"
+
+msgid "AI Form Detection"
+msgstr "Falanqaynta Qaabka AI"
+
+msgid "90-Day Challenge"
+msgstr "Tartanka 90-ka Maalmood"
+
+msgid "AI Plan Generator"
+msgstr "Sameeyaha Qorshaha AI"
+
+msgid "3D Exercises Library"
+msgstr "Maktabadda Jimicsiyada 3D"
+
+msgid "Cuntooyinka (Meals)"
+msgstr "Cuntooyinka"
+
+msgid "Meals"
+msgstr "Cuntooyinka"
+
+msgid "3D Body Scan"
+msgstr "Sawirka Jirka 3D"
+
+msgid "Analytics / Hormarka"
+msgstr "Falanqaynta & Hormarka"
+
+msgid "Analytics"
+msgstr "Falanqaynta"
+
+msgid "Diiwaanka / History"
+msgstr "Taariikhda & Diiwaanka"
+
+msgid "History"
+msgstr "Taariikhda"
+
+msgid "Admin Control"
+msgstr "Maamulka Xafiiska"
+
+msgid "Upgrade To Pro"
+msgstr "U Gudub Pro"
+
+msgid "Settings & Profile"
+msgstr "Dejinta & Profile-ka"
+
+msgid "Settings"
+msgstr "Dejinta"
+
+msgid "Profile"
+msgstr "Profile-ka"
+
+msgid "Log out"
+msgstr "Ka Bax"
+
+msgid "Login"
+msgstr "Gal"
+
+msgid "Sign Up"
+msgstr "Is-diiwaangeli"
+
+msgid "Signup"
+msgstr "Is-diiwaangeli"
+
+msgid "Welcome back"
+msgstr "Ku soo dhowow mar kale"
+
+msgid "Daily Calories"
+msgstr "Tamar-cuntada Maanta"
+
+msgid "Daily Protein"
+msgstr "Borotiinka Maanta"
+
+msgid "Workouts Logged"
+msgstr "Jimicsiyada La Qabtay"
+
+msgid "Workout Streak"
+msgstr "Joogteynta Jimicsiga"
+
+msgid "Recent Activity"
+msgstr "Dhaqdhaqaaqyadii Ugu Dambeeyay"
+
+msgid "Track Your Progress"
+msgstr "La Soco Hormarkaaga"
+
+msgid "Save"
+msgstr "Keydi"
+
+msgid "Cancel"
+msgstr "Ka Noqo"
+
+msgid "Edit"
+msgstr "Wax Ka Beddel"
+
+msgid "Delete"
+msgstr "Tirtir"
+
+msgid "Weight"
+msgstr "Miisaanka"
+
+msgid "Height"
+msgstr "Dhererka"
+
+msgid "Target Weight"
+msgstr "Yoolka Miisaanka"
+
+msgid "Fitness Goal"
+msgstr "Hadafka Jimicsiga"
+
+msgid "Activity Level"
+msgstr "Heerka Dhaqdhaqaaqa"
+
+msgid "Fitness Level"
+msgstr "Heerka Tababarka"
+
+msgid "Experience Level"
+msgstr "Heerka Khibradda"
+
+msgid "Age"
+msgstr "Da'da"
+
+msgid "Gender"
+msgstr "Jinsiga"
+
+msgid "Chest"
+msgstr "Xabadka"
+
+msgid "Back"
+msgstr "Dhabarka"
+
+msgid "Shoulders"
+msgstr "Garabka"
+
+msgid "Arms"
+msgstr "Gacmaha"
+
+msgid "Legs"
+msgstr "Lugaha"
+
+msgid "Abs / Core"
+msgstr "Caloosha & Bartamaha"
+
+msgid "Cardio"
+msgstr "Wadnaha & Orodka"
+
+msgid "Squats"
+msgstr "Istaag & Fariiso (Squats)"
+
+msgid "Push-Ups"
+msgstr "Riixid (Push-Ups)"
+
+msgid "Bicep Curls"
+msgstr "Curashada Gacanta (Bicep Curls)"
+
+msgid "Shoulder Press"
+msgstr "Riixidda Garabka (Shoulder Press)"
+
+msgid "Lunges"
+msgstr "Talaabada Lugaha (Lunges)"
+
+msgid "Plank"
+msgstr "Toosinta Jirka (Plank)"
+
+msgid "Sit-Ups"
+msgstr "Kac & Fariiso (Sit-Ups)"
+
+msgid "Lateral Raises"
+msgstr "Taagidda Garabka (Lateral Raises)"
+
+msgid "Deadlifts"
+msgstr "Kicinta Miisaanka (Deadlifts)"
+
+msgid "Language"
+msgstr "Luqadda"
+
+msgid "Start Camera"
+msgstr "Daar Kamarada"
+
+msgid "Stop Camera"
+msgstr "Jooji Kamarada"
+
+msgid "Good form!"
+msgstr "Farsamo sax ah!"
+
+msgid "Adjust form"
+msgstr "Saxo farsamada"
+
+msgid "Completed Reps"
+msgstr "Tirada La Sameeyay"
+
+msgid "Days Completed"
+msgstr "Maalmaha La Dhamaystiray"
+
+msgid "Current Streak"
+msgstr "Joogteynta Hadda"
+
+msgid "Upgrade"
+msgstr "U Gudub Pro"
+
+msgid "Pro Active"
+msgstr "Xubinnimada Pro Way Shaqaynaysaa"
+
+msgid "Free Tier"
+msgstr "Heerka Bilaashka ah"
+
+msgid "Voice Feedback"
+msgstr "Codka Caawiyaha"
+
+msgid "Reset Reps"
+msgstr "Dib u billow Tirada"
+
+msgid "Calories"
+msgstr "Kalooriyada"
+
+msgid "Protein"
+msgstr "Borotiinka"
+
+msgid "Carbs"
+msgstr "Karbohaydraytka"
+
+msgid "Fats"
+msgstr "Dufanka"
+
+msgid "Nutrition"
+msgstr "Nafaqada"
+
+msgid "Workout"
+msgstr "Jimicsiga"
+
+msgid "Exercises"
+msgstr "Jimicsiyada"
+
+msgid "Add Meal"
+msgstr "Ku Dar Cunto"
+
+msgid "Add Workout"
+msgstr "Ku Dar Jimicsi"
+
+msgid "Log Weight"
+msgstr "Diiwaangeli Miisaan"
