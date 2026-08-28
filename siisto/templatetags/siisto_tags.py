@@ -5,8 +5,8 @@ register = template.Library()
 
 UI_TRANSLATIONS = {
     # Navigation & General
-    "Dashboard": {"so": "Dashboard-ka", "en": "Dashboard", "ar": "لوحة التحكم"},
-    "AI Coach": {"so": "AI Coach", "en": "AI Coach", "ar": "مدرب الذكاء الاصطناعي"},
+    "Dashboard": {"so": "Kala-bixidda Guud (Dashboard)", "en": "Dashboard", "ar": "لوحة التحكم (Dashboard)"},
+    "AI Coach": {"so": "Macallinka AI (AI Coach)", "en": "AI Coach", "ar": "مدرب الذكاء الاصطناعي"},
     "AI Form Detection": {"so": "Falanqaynta Qaabka AI", "en": "AI Form Detection", "ar": "تحليل الوضعية بالذكاء الاصطناعي"},
     "90-Day Challenge": {"so": "Tartanka 90-ka Maalmood", "en": "90-Day Challenge", "ar": "تحدي الـ 90 يوماً"},
     "AI Plan Generator": {"so": "Sameeyaha Qorshaha AI", "en": "AI Plan Generator", "ar": "منشئ الخطط الذكي"},

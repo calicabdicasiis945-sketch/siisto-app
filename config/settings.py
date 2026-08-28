@@ -18,19 +18,35 @@ SECRET_KEY = os.environ.get(
 )
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
 
-_raw_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,testserver')
-ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(',') if h.strip()]
+_raw_hosts = os.environ.get('ALLOWED_HOSTS', '')
+if _raw_hosts:
+    ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = [
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        'testserver',
+        '.onrender.com',
+        '.up.railway.app',
+        '.fly.dev',
+    ]
+    if DEBUG:
+        ALLOWED_HOSTS.append('*')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
-    'https://*.railway.app',
+    'https://*.up.railway.app',
     'https://*.fly.dev',
+    'https://siisto-project-production.up.railway.app',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
 _extra_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 if _extra_origins:
-    CSRF_TRUSTED_ORIGINS += [o.strip() for o in _extra_origins.split(',') if o.strip()]
+    for o in _extra_origins.replace(';', ' ').replace(',', ' ').split():
+        if o.strip() and o.strip() not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(o.strip())
 
 # Production security headers (configured based on DEBUG or environment overrides)
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', str(not DEBUG)).lower() in ('true', '1')
@@ -221,17 +237,5 @@ LOGGING = {
     },
 }
 
-# settings.py
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://siisto-project-production.up.railway.app',
-    'https://*.up.railway.app',
-]
-
-import os
-
-# Aqri CSRF trusted origins oo lagu xiri karo Railway Variables
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    'CSRF_TRUSTED_ORIGINS', 
-    'https://siisto-project-production.up.railway.app https://*.up.railway.app'
-).split(' ')
+# Whitenoise configuration: don't crash if an asset reference is missing
+WHITENOISE_MANIFEST_STRICT = False

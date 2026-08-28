@@ -1,31 +1,37 @@
 from django.conf import settings
 from django.utils import translation
 
+LANGUAGE_SESSION_KEY = getattr(translation, 'LANGUAGE_SESSION_KEY', '_language')
+
+
 def siisto_i18n(request):
     """
     Context processor providing active language, RTL status, and language choices.
     """
-    lang = translation.get_language() or settings.LANGUAGE_CODE or 'so'
-    
-    # If user is authenticated and has a preferred language, sync if needed
-    if hasattr(request, 'user') and request.user.is_authenticated:
+    lang = None
+    if hasattr(request, 'session') and LANGUAGE_SESSION_KEY in request.session:
+        lang = request.session[LANGUAGE_SESSION_KEY]
+    elif hasattr(request, 'COOKIES') and getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language') in request.COOKIES:
+        lang = request.COOKIES[getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')]
+    elif hasattr(request, 'user') and request.user.is_authenticated:
         try:
-            user_lang = request.user.profile.preferred_language
-            if user_lang and user_lang != lang:
-                # If session has no override yet, respect profile
-                if translation.LANGUAGE_SESSION_KEY not in request.session:
-                    lang = user_lang
-                    translation.activate(lang)
-                    request.session[translation.LANGUAGE_SESSION_KEY] = lang
+            lang = request.user.profile.preferred_language
         except Exception:
             pass
 
-    is_rtl = lang.startswith('ar')
-    
+    if not lang:
+        lang = translation.get_language() or getattr(settings, 'LANGUAGE_CODE', 'so') or 'so'
+
+    lang = str(lang)[:2].lower()
+    if lang not in ['so', 'en', 'ar']:
+        lang = 'so'
+
+    is_rtl = (lang == 'ar')
+
     languages = [
-        {'code': 'so', 'name': 'Soomaali', 'flag': '🇸🇴', 'is_active': lang.startswith('so')},
-        {'code': 'en', 'name': 'English', 'flag': '🇬🇧', 'is_active': lang.startswith('en')},
-        {'code': 'ar', 'name': 'العربية', 'flag': '🇸🇦', 'is_active': lang.startswith('ar')},
+        {'code': 'so', 'name': 'Soomaali', 'flag': '🇸🇴', 'is_active': (lang == 'so')},
+        {'code': 'en', 'name': 'English', 'flag': '🇬🇧', 'is_active': (lang == 'en')},
+        {'code': 'ar', 'name': 'العربية', 'flag': '🇸🇦', 'is_active': (lang == 'ar')},
     ]
 
     return {

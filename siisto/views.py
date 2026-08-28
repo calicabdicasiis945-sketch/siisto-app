@@ -28,9 +28,11 @@ from django.db.models import Sum, Count, Avg
 from django.db.models.functions import TruncMonth, TruncDate
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
+
+LANGUAGE_SESSION_KEY = getattr(translation, 'LANGUAGE_SESSION_KEY', '_language')
 
 from .models import (
     Meal, Workout, ChatMessage, ExerciseLibrary,
@@ -256,7 +258,7 @@ def set_language_preference(request):
         lang = 'so'
 
     translation.activate(lang)
-    request.session[translation.LANGUAGE_SESSION_KEY] = lang
+    request.session[LANGUAGE_SESSION_KEY] = lang
 
     if request.user.is_authenticated:
         profile = get_or_create_profile(request.user)
@@ -1474,9 +1476,8 @@ def profile_view(request):
             pref_lang = request.POST.get('preferred_language') or request.POST.get('language')
             if pref_lang and pref_lang in ['so', 'en', 'ar']:
                 profile.preferred_language = pref_lang
-                from django.utils import translation
                 translation.activate(pref_lang)
-                request.session[translation.LANGUAGE_SESSION_KEY] = pref_lang
+                request.session[LANGUAGE_SESSION_KEY] = pref_lang
 
             birth_date = request.POST.get('birth_date', '')
             if birth_date:

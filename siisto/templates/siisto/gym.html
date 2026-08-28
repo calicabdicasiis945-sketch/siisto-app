@@ -154,14 +154,19 @@
 
             <!-- 2. EXERCISE CARDS GRID -->
             <div class="skillset-card p-6 bg-[#191622] space-y-4 border-[#2e273f]">
-                <div class="flex items-center justify-between pb-3 border-b border-[#2e273f]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2e273f]">
                     <h3 class="font-extrabold text-white text-sm flex items-center gap-2">
                         <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">2</span>
                         Jimicsiyada La Heli Karo
                     </h3>
-                    <span id="currentCategoryLabel" class="text-xs font-bold text-purple-300 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
+                    <span id="currentCategoryLabel" class="text-xs font-bold text-purple-300 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 w-fit">
                         Chest Exercises
                     </span>
+                </div>
+
+                <!-- Dynamic Subcategory Pills -->
+                <div id="subcategoryPillsContainer" class="flex flex-wrap items-center gap-2 pt-1 pb-2">
+                    <!-- Rendered dynamically by JavaScript -->
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="exerciseCardsContainer">
@@ -495,16 +500,83 @@
     let activeExerciseId = null;
     let modalFormState = 'correct';
 
+    let currentCategory = 'Chest';
+    let currentSubcategory = 'All';
+
+    function renderSubcategoryPills(category) {
+        const container = document.getElementById('subcategoryPillsContainer');
+        if (!container) return;
+
+        const subcats = new Set();
+        document.querySelectorAll(`.exercise-card[data-category="${category}"]`).forEach(card => {
+            const sub = card.getAttribute('data-subcategory');
+            if (sub && sub !== 'General' && sub !== category) subcats.add(sub);
+        });
+
+        if (subcats.size <= 1) {
+            container.innerHTML = '';
+            container.classList.add('hidden');
+            return;
+        }
+
+        container.classList.remove('hidden');
+        let html = `
+            <button type="button" onclick="filterBySubcategory('All', this)"
+                    class="subcat-pill active px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold text-[11px] shadow-sm transition">
+                All ${category}
+            </button>
+        `;
+
+        subcats.forEach(sub => {
+            const safeSub = sub.replace(/'/g, "\\'");
+            html += `
+                <button type="button" onclick="filterBySubcategory('${safeSub}', this)"
+                        class="subcat-pill px-3 py-1.5 rounded-xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] hover:text-white font-bold text-[11px] border border-[#2e273f] transition">
+                    ${sub}
+                </button>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function filterBySubcategory(subcategory, btnElement) {
+        currentSubcategory = subcategory;
+        document.querySelectorAll('.subcat-pill').forEach(btn => {
+            btn.className = 'subcat-pill px-3 py-1.5 rounded-xl bg-[#201c2c] hover:bg-[#282337] text-[#9e9aa7] hover:text-white font-bold text-[11px] border border-[#2e273f] transition';
+        });
+        if (btnElement) {
+            btnElement.className = 'subcat-pill active px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold text-[11px] shadow-sm transition';
+        }
+
+        document.querySelectorAll('.exercise-card').forEach(card => {
+            const matchCat = card.getAttribute('data-category') === currentCategory;
+            const matchSub = (subcategory === 'All') || (card.getAttribute('data-subcategory') === subcategory);
+            if (matchCat && matchSub) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    }
+
     function showMuscleCategory(category, btnElement) {
+        currentCategory = category;
+        currentSubcategory = 'All';
+
         document.querySelectorAll('.muscle-tab-btn').forEach(btn => {
             btn.classList.remove('active', 'text-white', 'shadow-md');
             btn.classList.add('bg-[#201c2c]', 'text-[#9e9aa7]', 'border', 'border-[#2e273f]');
         });
-        btnElement.classList.add('active', 'text-white', 'shadow-md');
-        btnElement.classList.remove('bg-[#201c2c]', 'text-[#9e9aa7]', 'border', 'border-[#2e273f]');
+        if (btnElement) {
+            btnElement.classList.add('active', 'text-white', 'shadow-md');
+            btnElement.classList.remove('bg-[#201c2c]', 'text-[#9e9aa7]', 'border', 'border-[#2e273f]');
+        }
 
         const label = document.getElementById('currentCategoryLabel');
         if (label) label.textContent = category + ' Exercises';
+
+        renderSubcategoryPills(category);
 
         document.querySelectorAll('.exercise-card').forEach(card => {
             if (card.getAttribute('data-category') === category) {
