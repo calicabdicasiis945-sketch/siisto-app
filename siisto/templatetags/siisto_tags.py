@@ -243,6 +243,13 @@ UI_TRANSLATIONS = {
     "AI is thinking": {"so": "Siisto AI ayaa fekeraysa...", "en": "Siisto AI is thinking...", "ar": "Siisto AI يفكّر..."},
     "ai_thinking": {"so": "Siisto AI ayaa fekeraysa...", "en": "Siisto AI is thinking...", "ar": "Siisto AI يفكّر..."},
     "chat_placeholder": {"so": "Halkan ku qor su'aashaada (Tusaale: Sideen muruq u dhisaa?)...", "en": "Ask your fitness question here (e.g. How do I build muscle?)...", "ar": "اكتب سؤالك هنا (مثال: كيف أبني العضلات؟)..."},
+
+    # Chatbot limit / meta
+    "ai_remaining": {"so": "fariin oo bilaash ah maanta", "en": "free messages today", "ar": "رسائل مجانية اليوم"},
+    "limit_reached_title": {"so": "Xadka Maanta Ayaad Gaadhtay!", "en": "Daily Limit Reached!", "ar": "وصلت إلى الحد اليومي!"},
+    "limit_reached_body": {"so": "Qorshe bilaashku wuxuu kuu oggol yahay", "en": "Free plan allows", "ar": "الخطة المجانية تسمح بـ"},
+    "messages": {"so": "fariin", "en": "messages", "ar": "رسالة"},
+    "clear_chat": {"so": "Nadiifi Shaashadda", "en": "Clear Chat", "ar": "مسح المحادثة"},
 }
 
 @register.filter(name='ui_trans')

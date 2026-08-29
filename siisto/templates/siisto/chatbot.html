@@ -1,393 +1,600 @@
 {% extends 'siisto/base.html' %}
 {% load siisto_tags %}
 
-{% block page_title %}AI Smart Fitness Coach | Siisto{% endblock %}
+{% block page_title %}{% if profile.has_active_pro %}Siisto AI Elite Coach (VIP){% else %}Siisto AI Fitness Coach{% endif %} | Siisto{% endblock %}
 
 {% block extra_head %}
-<!-- Markdown Parser for AI formatting -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
-    .chat-bubble-user {
-        background: linear-gradient(135deg, #c084fc 0%, #d988b9 50%, #ec4899 100%);
-        color: #FFFFFF;
-        border-radius: 18px 18px 4px 18px;
-        box-shadow: 0 4px 16px rgba(192, 132, 252, 0.3);
-    }
-    .chat-bubble-ai {
-        background-color: #201c2c;
-        color: #FFFFFF;
-        border-radius: 18px 18px 18px 4px;
-        border: 1px solid #2e273f;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    }
-    .chat-bubble-ai p {
-        margin-bottom: 0.5rem;
-    }
-    .chat-bubble-ai p:last-child {
-        margin-bottom: 0;
-    }
-    .chat-bubble-ai ul, .chat-bubble-ai ol {
-        margin-left: 1.25rem;
-        margin-bottom: 0.5rem;
-        list-style-type: disc;
-    }
-    .chat-bubble-ai h1, .chat-bubble-ai h2, .chat-bubble-ai h3, .chat-bubble-ai h4 {
-        font-weight: 800;
-        color: #d8b4fe;
-        margin-top: 0.5rem;
-        margin-bottom: 0.25rem;
-    }
-    .chat-bubble-ai table {
-        width: 100%;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-        border-collapse: collapse;
-    }
-    .chat-bubble-ai th, .chat-bubble-ai td {
-        border: 1px solid #3d3454;
-        padding: 6px 10px;
-        font-size: 11px;
-    }
-    .chat-bubble-ai th {
-        background-color: #2a243a;
-        color: #d8b4fe;
-    }
-    .typing-dot {
-        animation: typingAnimation 1.4s infinite ease-in-out both;
-    }
-    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-    @keyframes typingAnimation {
-        0%, 80%, 100% { transform: scale(0); }
-        40% { transform: scale(1); }
-    }
+/* ──────────── CHAT CONTAINER ──────────── */
+.chat-wrap {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 148px);
+    min-height: 520px;
+    background: #0e0c1a;
+    border: 1px solid #25203a;
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+/* ──────────── HEADER ──────────── */
+.chat-header {
+    background: linear-gradient(135deg, #15121f 0%, #1c1830 100%);
+    border-bottom: 1px solid #25203a;
+    padding: 16px 20px;
+    flex-shrink: 0;
+}
+.ai-avatar-pro  { background: linear-gradient(135deg, #f59e0b, #a855f7, #ec4899); }
+.ai-avatar-free { background: linear-gradient(135deg, #a855f7, #ec4899); }
+
+/* ──────────── CHIP SUGGESTIONS ──────────── */
+.chip-bar {
+    background: #0a0815;
+    border-bottom: 1px solid #1c1830;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+}
+.chip-bar::-webkit-scrollbar { display: none; }
+.chip-btn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: #1c1830;
+    border: 1px solid #2e273f;
+    color: #c084fc;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.chip-btn:hover {
+    background: #2a243a;
+    color: #e879f9;
+    border-color: #7c3aed;
+}
+
+/* ──────────── MESSAGES ──────────── */
+.messages-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: #2e273f transparent;
+}
+.messages-area::-webkit-scrollbar { width: 4px; }
+.messages-area::-webkit-scrollbar-track { background: transparent; }
+.messages-area::-webkit-scrollbar-thumb { background: #2e273f; border-radius: 4px; }
+
+/* ──────────── BUBBLES ──────────── */
+.bubble-user {
+    background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    padding: 12px 16px;
+    max-width: 72%;
+    font-size: 13px;
+    line-height: 1.55;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+    word-break: break-word;
+}
+.bubble-ai {
+    background: #1a1628;
+    color: #e2e8f0;
+    border-radius: 18px 18px 18px 4px;
+    border: 1px solid #2e273f;
+    padding: 14px 16px;
+    max-width: 82%;
+    font-size: 13px;
+    line-height: 1.65;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    word-break: break-word;
+}
+.bubble-ai h1,.bubble-ai h2,.bubble-ai h3,.bubble-ai h4 {
+    font-weight: 800; color: #c084fc;
+    margin: 10px 0 4px; font-size: 13px;
+}
+.bubble-ai p { margin-bottom: 8px; }
+.bubble-ai p:last-child { margin-bottom: 0; }
+.bubble-ai ul,.bubble-ai ol { margin: 6px 0 8px 18px; }
+.bubble-ai li { margin-bottom: 4px; }
+.bubble-ai strong { color: #d8b4fe; }
+.bubble-ai table { width:100%; border-collapse:collapse; margin: 8px 0; font-size: 11px; }
+.bubble-ai th,.bubble-ai td { border: 1px solid #3d3454; padding: 6px 10px; }
+.bubble-ai th { background: #25203a; color: #d8b4fe; }
+.bubble-ai code { background: #0f0c1a; padding: 1px 5px; border-radius: 4px; color: #a78bfa; font-size: 11px; }
+.bubble-ai pre { background: #0f0c1a; padding: 10px; border-radius: 8px; overflow-x: auto; margin: 8px 0; }
+.bubble-ai blockquote { border-left: 3px solid #7c3aed; padding-left: 10px; color: #9e9aa7; margin: 8px 0; }
+
+/* ──────────── LIMIT BANNER ──────────── */
+.limit-banner {
+    background: linear-gradient(135deg, rgba(120,53,15,0.5) 0%, rgba(124,45,18,0.4) 100%);
+    border: 1px solid rgba(217,119,6,0.4);
+    border-radius: 16px;
+    padding: 14px 16px;
+    flex-shrink: 0;
+    margin: 0 16px 4px;
+}
+
+/* ──────────── TYPING INDICATOR ──────────── */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+}
+.typing-dots { display: flex; align-items: center; gap: 5px; padding: 10px 16px; background: #1a1628; border: 1px solid #2e273f; border-radius: 20px; }
+.dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+.dot:nth-child(1) { background: #a855f7; animation-delay: -0.32s; }
+.dot:nth-child(2) { background: #ec4899; animation-delay: -0.16s; }
+.dot:nth-child(3) { background: #a855f7; }
+@keyframes bounce {
+    0%,80%,100% { transform: scale(0); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* ──────────── INPUT AREA ──────────── */
+.input-area {
+    background: #0a0815;
+    border-top: 1px solid #1c1830;
+    padding: 12px 16px;
+    flex-shrink: 0;
+}
+.input-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: #1a1628;
+    border: 1px solid #2e273f;
+    border-radius: 20px;
+    padding: 10px 10px 10px 16px;
+    transition: border-color 0.2s;
+}
+.input-box:focus-within { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+#userInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e2e8f0;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    max-height: 120px;
+    min-height: 22px;
+    font-family: inherit;
+}
+#userInput::placeholder { color: #4a4460; }
+.send-btn {
+    width: 40px; height: 40px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7c3aed, #c026d3);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.send-btn:hover:not(:disabled) { transform: scale(1.08); box-shadow: 0 0 16px rgba(124,58,237,0.5); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.char-count { font-size: 10px; color: #4a4460; white-space: nowrap; padding-bottom: 2px; }
+
+/* ──────────── TIMESTAMP + META ──────────── */
+.msg-time { font-size: 10px; color: #4a4460; margin-top: 6px; display: block; }
+.msg-row { display: flex; align-items: flex-end; gap: 10px; }
+.msg-row.user { justify-content: flex-end; }
+.msg-row.ai   { justify-content: flex-start; }
+.avatar-sm {
+    width: 30px; height: 30px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+}
+.avatar-user { background: #2a243a; color: #c084fc; border: 1px solid #3d3454; }
+
+/* ──────────── WELCOME CARD ──────────── */
+.welcome-card {
+    background: linear-gradient(135deg, #1a1030 0%, #1c1030 100%);
+    border: 1px solid #3d3454;
+    border-radius: 18px;
+    padding: 18px;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="skillset-card p-6 bg-[#191622] flex flex-col h-[calc(100vh-140px)] min-h-[550px] border-[#2e273f]">
-    
-    <!-- CHAT HEADER -->
-    <div class="flex items-center justify-between pb-4 border-b border-[#2e273f] flex-shrink-0">
-        <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl {% if profile.has_active_pro %}bg-gradient-to-tr from-amber-500 via-purple-600 to-pink-500{% else %}bg-gradient-to-tr from-purple-500 to-pink-500{% endif %} text-white flex items-center justify-center shadow-md">
-                {% if profile.has_active_pro %}
-                <i class="fa-solid fa-brain text-white text-base"></i>
-                {% else %}
-                <i class="fa-solid fa-sparkles text-white text-base"></i>
-                {% endif %}
-            </div>
-            <div>
-                <h3 class="font-extrabold text-white text-sm flex items-center gap-2">
-                    {% if profile.has_active_pro %}
-                    <span>Siisto AI Elite Master Coach</span>
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 text-[10px] font-black border border-amber-400/30">
-                        <i class="fa-solid fa-crown text-amber-400"></i> VIP ULTRA PRO
-                    </span>
-                    {% else %}
-                    <span>Siisto Free AI Fitness Assistant</span>
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold border border-purple-400/20">
-                        FREE TIER
-                    </span>
-                    {% endif %}
-                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                </h3>
-                <p class="text-[11px] text-[#9e9aa7]">
-                    {% if profile.has_active_pro %}
-                    🧠 Caqli sare oo xisaabiya Macros, Calories, iyo Jadwal gaar ah • Aan xad lahayn
-                    {% else %}
-                    Caawiye bilaash ah oo Af-Soomaali sax ah ku hadla
-                    • <span class="text-amber-400 font-bold">{{ remaining_messages|default:daily_limit }} / {{ daily_limit }} fariin maanta</span>
-                    {% endif %}
-                </p>
-            </div>
-        </div>
 
-        <div class="flex items-center gap-2">
-            {% if not profile.has_active_pro %}
-            <a href="{% url 'upgrade_pro' %}" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-black transition shadow-md shadow-amber-500/20">
-                <i class="fa-solid fa-crown"></i> Unlock Ultra AI ($9.99)
-            </a>
-            {% endif %}
-            <button onclick="clearChatScreen()" class="w-8 h-8 rounded-full bg-[#201c2c] hover:bg-[#282337] flex items-center justify-center text-[#9e9aa7] hover:text-white transition text-xs" title="Nadiifi Shaashadda">
-                <i class="fa-solid fa-trash-can"></i>
-            </button>
+{# ─── DATA for JavaScript (avoid inline Django tags inside JS strings) ─── #}
+<script>
+    const CHATBOT_URL  = "{% url 'chatbot' %}";
+    const UPGRADE_URL  = "{% url 'upgrade_pro' %}";
+    const CSRF_TOKEN   = "{{ csrf_token }}";
+    const IS_PRO       = {{ profile.has_active_pro|yesno:"true,false" }};
+    const USER_INITIAL = "{{ request.user.username|make_list|first|upper }}";
+    const DAILY_LIMIT  = {{ daily_limit }};
+    const REMAINING    = {{ remaining_messages|default:"null" }};
+
+    // Translated JS strings
+    const T = {
+        confirmClear:   "{% if CURRENT_LANGUAGE == 'ar' %}هل أنت متأكد من مسح الشاشة؟{% elif CURRENT_LANGUAGE == 'en' %}Are you sure you want to clear the chat?{% else %}Ma hubtaa inaad rabto inaad shaashadda nadiifiso?{% endif %}",
+        cleared:        "{% if CURRENT_LANGUAGE == 'ar' %}تم مسح الشاشة! ✨{% elif CURRENT_LANGUAGE == 'en' %}Chat cleared! ✨{% else %}Shaashadda waa la nadiifiyay! ✨{% endif %}",
+        clearedBody:    "{% if CURRENT_LANGUAGE == 'ar' %}اسألني سؤالاً جديداً.{% elif CURRENT_LANGUAGE == 'en' %}Ask me a new question and let\u2019s go!{% else %}I weydii su'aal kasta oo cusub.{% endif %}",
+        errorMsg:       "{% if CURRENT_LANGUAGE == 'ar' %}حدث خطأ. حاول مرة أخرى.{% elif CURRENT_LANGUAGE == 'en' %}An error occurred. Please try again.{% else %}Khalad ayaa dhacay. Fadlan ku celi.{% endif %}",
+        limitTitle:     "{% if CURRENT_LANGUAGE == 'ar' %}⚠️ وصلت إلى الحد اليومي!{% elif CURRENT_LANGUAGE == 'en' %}⚠️ Daily limit reached!{% else %}⚠️ Xadka Maanta Ayaad Gaadhtay!{% endif %}",
+        upgradeCTA:     "{% if CURRENT_LANGUAGE == 'ar' %}ترقية برو — $9.99/شهر{% elif CURRENT_LANGUAGE == 'en' %}Upgrade Pro — $9.99/mo{% else %}Upgrade Pro — $9.99/bil{% endif %}",
+        remainingNote:  "{% if CURRENT_LANGUAGE == 'ar' %}رسالة مجانية متبقية اليوم{% elif CURRENT_LANGUAGE == 'en' %}free messages left today{% else %}fariin oo bilaash ah baad u hadhsan tahay maanta{% endif %}",
+        limitedCTA:     "{% if CURRENT_LANGUAGE == 'ar' %}ترقية برو{% elif CURRENT_LANGUAGE == 'en' %}Upgrade Pro{% else %}Upgrade Pro{% endif %}",
+        limitedReached: "{% if CURRENT_LANGUAGE == 'ar' %}لقد استهلكت جميع رسائلك المجانية.{% elif CURRENT_LANGUAGE == 'en' %}You\u2019ve used all your free messages.{% else %}Xadka bilaashka ah ayaad gaadhay.{% endif %}",
+        upgradeContinue:"{% if CURRENT_LANGUAGE == 'ar' %}ترقية للاستمرار...{% elif CURRENT_LANGUAGE == 'en' %}Upgrade to continue...{% else %}Upgrade Pro si aad u sii waddo...{% endif %}",
+        thinking:       "{{ 'ai_thinking'|ui_trans:CURRENT_LANGUAGE }}",
+    };
+</script>
+
+<div class="chat-wrap">
+
+    {# ── HEADER ── #}
+    <div class="chat-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div class="avatar-sm {% if profile.has_active_pro %}ai-avatar-pro{% else %}ai-avatar-free{% endif %}" style="width:44px;height:44px;border-radius:14px">
+                    <i class="fa-solid {% if profile.has_active_pro %}fa-brain{% else %}fa-sparkles{% endif %} text-white"></i>
+                </div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                        <span style="font-weight:800;color:#fff;font-size:14px">
+                            {% if profile.has_active_pro %}Siisto AI Elite Master Coach{% else %}Siisto AI Fitness Coach{% endif %}
+                        </span>
+                        {% if profile.has_active_pro %}
+                        <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(239,68,68,0.2));color:#fbbf24;font-weight:900;border:1px solid rgba(245,158,11,0.3)">
+                            <i class="fa-solid fa-crown" style="font-size:9px"></i> VIP PRO
+                        </span>
+                        {% else %}
+                        <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(124,58,237,0.15);color:#c084fc;font-weight:700;border:1px solid rgba(124,58,237,0.25)">
+                            FREE
+                        </span>
+                        {% endif %}
+                        <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;box-shadow:0 0 6px #10b981"></span>
+                    </div>
+                    <p style="font-size:11px;color:#9e9aa7;margin-top:2px">
+                        {% if profile.has_active_pro %}
+                        🧠 {{ "ai_welcome_pro"|ui_trans:CURRENT_LANGUAGE }} • Unlimited
+                        {% else %}
+                        ⚡ {{ remaining_messages|default:daily_limit }} / {{ daily_limit }} {{ "ai_remaining"|ui_trans:CURRENT_LANGUAGE }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px">
+                {% if not profile.has_active_pro %}
+                <a href="{% url 'upgrade_pro' %}" style="display:none" class="sm-show" style="padding:8px 14px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap">
+                    <i class="fa-solid fa-crown"></i> Pro $9.99
+                </a>
+                {% endif %}
+                <button id="clearBtn" onclick="clearChat()" title="{{ 'clear_chat'|ui_trans:CURRENT_LANGUAGE }}" style="width:36px;height:36px;border-radius:10px;background:#1a1628;border:1px solid #2e273f;color:#9e9aa7;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center">
+                    <i class="fa-solid fa-trash-can" style="font-size:12px"></i>
+                </button>
+            </div>
         </div>
     </div>
 
+    {# ── LIMIT REACHED BANNER ── #}
     {% if is_limit_reached %}
-    <!-- LIMIT REACHED BANNER -->
-    <div class="p-4 rounded-2xl bg-gradient-to-r from-amber-950/60 to-orange-950/50 border border-amber-600/40 flex items-center justify-between gap-4 flex-shrink-0">
-        <div class="flex items-start gap-3">
-            <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
-            </div>
+    <div class="limit-banner" style="margin:12px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+            <i class="fa-solid fa-lock" style="color:#fbbf24;font-size:16px"></i>
             <div>
-                <p class="text-xs font-extrabold text-amber-300">Maanta xadkaaga bilaashka ah ayaad gaadhtay!</p>
-                <p class="text-[11px] text-amber-200/70">Free Plan = {{ daily_limit }} fariin/day. Upgrade Pro si aad u hesho Ultra Smart AI aan xad lahayn.</p>
+                <p style="font-size:12px;font-weight:800;color:#fbbf24">{{ "limit_reached_title"|ui_trans:CURRENT_LANGUAGE }}</p>
+                <p style="font-size:11px;color:rgba(253,230,138,0.7)">{{ "limit_reached_body"|ui_trans:CURRENT_LANGUAGE }} ({{ daily_limit }} {{ "messages"|ui_trans:CURRENT_LANGUAGE }}/day)</p>
             </div>
         </div>
-        <a href="{% url 'upgrade_pro' %}" class="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs transition shadow-lg">
-            Upgrade Pro $9.99
+        <a href="{% url 'upgrade_pro' %}" style="flex-shrink:0;padding:8px 14px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap">
+            <i class="fa-solid fa-crown"></i> Upgrade
         </a>
     </div>
     {% endif %}
 
-    <!-- CHIP SUGGESTIONS -->
-    <div class="py-3 flex items-center gap-2 overflow-x-auto custom-scrollbar flex-shrink-0 text-xs">
-        <span class="text-[11px] font-bold text-[#736c82] whitespace-nowrap">Tusaale:</span>
-        <button onclick="sendQuickPrompt('Sideen miisaanka u kordhiyaa 56kg -> 75kg si caafimaad leh?')" 
-                class="px-3 py-1.5 rounded-full bg-[#201c2c] hover:bg-[#2a243a] text-purple-300 text-xs font-semibold whitespace-nowrap transition border border-[#2e273f]">
-            💪 56kg -> 75kg Weight Gain Plan
-        </button>
-        <button onclick="sendQuickPrompt('I sii qorshe cunto oo protein badan leh oo Soomaali ah.')" 
-                class="px-3 py-1.5 rounded-full bg-[#201c2c] hover:bg-[#2a243a] text-purple-300 text-xs font-semibold whitespace-nowrap transition border border-[#2e273f]">
-            🥗 Qorshe Cunto (Protein Meal Plan)
-        </button>
-        <button onclick="sendQuickPrompt('Waa maxay barnaamijka jimicsiga ugu fiican 4 maalmood toddobaadkii (Upper/Lower)?')" 
-                class="px-3 py-1.5 rounded-full bg-[#201c2c] hover:bg-[#2a243a] text-purple-300 text-xs font-semibold whitespace-nowrap transition border border-[#2e273f]">
-            🏋️ 4-Day Hypertrophy Workout Split
-        </button>
-        <button onclick="sendQuickPrompt('Sidee baruurta caloosha la isaga ridaa?')" 
-                class="px-3 py-1.5 rounded-full bg-[#201c2c] hover:bg-[#2a243a] text-purple-300 text-xs font-semibold whitespace-nowrap transition border border-[#2e273f]">
-            🔥 Baruurta Caloosha (Fat Loss)
-        </button>
+    {# ── CHIP SUGGESTIONS ── #}
+    <div class="chip-bar">
+        <span style="font-size:11px;font-weight:700;color:#4a4460;flex-shrink:0">{% if CURRENT_LANGUAGE == 'ar' %}أمثلة:{% elif CURRENT_LANGUAGE == 'en' %}Try:{% else %}Tusaale:{% endif %}</span>
+        {% if CURRENT_LANGUAGE == 'en' %}
+            <button class="chip-btn" onclick="sendQuickPrompt('How do I build muscle fast?')">💪 Build Muscle</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('Give me a high-protein meal plan.')">🥗 Protein Meal Plan</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('What is the best 4-day workout split?')">🏋️ 4-Day Split</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('How to lose belly fat quickly?')">🔥 Belly Fat Loss</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('Calculate my TDEE and macros.')">📊 TDEE & Macros</button>
+        {% elif CURRENT_LANGUAGE == 'ar' %}
+            <button class="chip-btn" onclick="sendQuickPrompt('كيف أبني العضلات بسرعة؟')">💪 بناء العضلات</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('أعطني خطة وجبات غنية بالبروتين.')">🥗 خطة البروتين</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('ما هو أفضل برنامج تدريب 4 أيام؟')">🏋️ برنامج 4 أيام</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('كيف أحرق دهون البطن؟')">🔥 حرق الدهون</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('احسب لي TDEE والماكروز.')">📊 TDEE والماكروز</button>
+        {% else %}
+            <button class="chip-btn" onclick="sendQuickPrompt('Sideen miisaanka u kordhiyaa 56kg -> 75kg si caafimaad leh?')">💪 56kg → 75kg Plan</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('I sii qorshe cunto oo protein badan leh oo Soomaali ah.')">🥗 Qorshe Cunto</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('Waa maxay barnaamijka jimicsiga ugu fiican 4 maalmood toddobaadkii?')">🏋️ 4-Day Split</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('Sidee baruurta caloosha la isaga ridaa?')">🔥 Baruurta Caloosha</button>
+            <button class="chip-btn" onclick="sendQuickPrompt('Xisaabi TDEE iyo Macros-kayga.')">📊 TDEE & Macros</button>
+        {% endif %}
     </div>
 
-    <!-- CHAT MESSAGES LOG -->
-    <div id="chatMessages" class="flex-1 overflow-y-auto custom-scrollbar space-y-4 py-4 pr-1">
-        
-        <!-- INITIAL WELCOME AI MESSAGE -->
-        <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-xl {% if profile.has_active_pro %}bg-gradient-to-tr from-amber-500 to-orange-500{% else %}bg-gradient-to-tr from-purple-500 to-pink-500{% endif %} text-white flex items-center justify-center text-xs flex-shrink-0 shadow">
-                <i class="fa-solid fa-sparkles text-white"></i>
+    {# ── MESSAGES AREA ── #}
+    <div id="chatMessages" class="messages-area">
+
+        {# Welcome message #}
+        <div class="msg-row ai">
+            <div class="avatar-sm {% if profile.has_active_pro %}ai-avatar-pro{% else %}ai-avatar-free{% endif %}">
+                <i class="fa-solid fa-sparkles text-white" style="font-size:11px"></i>
             </div>
-            <div class="chat-bubble-ai p-4 text-xs max-w-2xl leading-relaxed shadow-sm">
-                <p class="font-bold text-sm text-purple-300 mb-1">
+            <div class="bubble-ai welcome-card" style="background:linear-gradient(135deg,#15102a,#1a1030)">
+                <p style="font-weight:800;color:#c084fc;font-size:13px;margin-bottom:8px">
                     {% if profile.has_active_pro %}
-                    {{ "ai_welcome_pro"|ui_trans:CURRENT_LANGUAGE }}
+                        {{ "ai_welcome_pro"|ui_trans:CURRENT_LANGUAGE }}
                     {% else %}
-                    {{ "ai_welcome_free"|ui_trans:CURRENT_LANGUAGE }}
+                        {{ "ai_welcome_free"|ui_trans:CURRENT_LANGUAGE }}
                     {% endif %}
                 </p>
-                <p>{{ "ai_welcome_body"|ui_trans:CURRENT_LANGUAGE }}</p>
-                <ul class="my-2 space-y-1 text-[#9e9aa7]">
+                <p style="color:#b0a8c0;margin-bottom:8px">{{ "ai_welcome_body"|ui_trans:CURRENT_LANGUAGE }}</p>
+                <ul style="margin:0 0 8px 18px;color:#9e9aa7">
                     <li>{{ "ai_topic_1"|ui_trans:CURRENT_LANGUAGE }}</li>
                     <li>{{ "ai_topic_2"|ui_trans:CURRENT_LANGUAGE }}</li>
                     <li>{{ "ai_topic_3"|ui_trans:CURRENT_LANGUAGE }}</li>
                 </ul>
-                <p class="text-purple-400 text-[11px] mt-2">{{ "ai_cta"|ui_trans:CURRENT_LANGUAGE }}</p>
+                <p style="color:#7c3aed;font-size:11px;font-weight:600">{{ "ai_cta"|ui_trans:CURRENT_LANGUAGE }}</p>
             </div>
         </div>
 
-        <!-- PERSISTED CHAT HISTORY -->
+        {# Persisted chat history #}
         {% for chat in chat_history %}
-        <!-- User Bubble -->
-        <div class="flex items-start justify-end gap-3">
-            <div class="chat-bubble-user p-4 text-xs max-w-xl shadow-sm">
-                <p class="whitespace-pre-wrap">{{ chat.message }}</p>
-                <span class="text-[10px] text-white/80 block text-right mt-1">{{ chat.date|date:"h:i A" }}</span>
+        <div class="msg-row user">
+            <div class="bubble-user">
+                <p style="white-space:pre-wrap">{{ chat.message }}</p>
+                <span class="msg-time" style="text-align:right;color:rgba(255,255,255,0.5)">{{ chat.date|date:"h:i A" }}</span>
             </div>
-            <div class="w-8 h-8 rounded-xl bg-[#262134] text-purple-300 flex items-center justify-center text-xs font-bold flex-shrink-0 border border-[#3d3454]">
-                {{ request.user.username|make_list|first|upper }}
-            </div>
+            <div class="avatar-sm avatar-user">{{ request.user.username|make_list|first|upper }}</div>
         </div>
-
-        <!-- AI Bubble -->
-        <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-xl {% if profile.has_active_pro %}bg-gradient-to-tr from-amber-500 to-orange-500{% else %}bg-gradient-to-tr from-purple-500 to-pink-500{% endif %} text-white flex items-center justify-center text-xs flex-shrink-0 shadow">
-                <i class="fa-solid fa-sparkles text-white"></i>
+        <div class="msg-row ai">
+            <div class="avatar-sm {% if profile.has_active_pro %}ai-avatar-pro{% else %}ai-avatar-free{% endif %}">
+                <i class="fa-solid fa-sparkles text-white" style="font-size:11px"></i>
             </div>
-            <div class="chat-bubble-ai p-4 text-xs max-w-2xl leading-relaxed shadow-sm ai-rendered-content">
-                <div class="raw-markdown-content hidden">{{ chat.response }}</div>
-                <div class="parsed-content"></div>
-                <span class="text-[10px] text-[#736c82] block text-left mt-2">{{ chat.date|date:"h:i A" }}</span>
+            <div class="bubble-ai ai-rendered-content">
+                <div class="raw-md hidden">{{ chat.response }}</div>
+                <div class="parsed-html"></div>
+                <span class="msg-time">{{ chat.date|date:"h:i A" }}</span>
             </div>
         </div>
         {% endfor %}
 
     </div>
 
-    <!-- TYPING INDICATOR -->
-    <div id="typingIndicator" class="hidden py-2 px-3 flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs flex-shrink-0 shadow">
-            <i class="fa-solid fa-sparkles text-white"></i>
+    {# ── TYPING INDICATOR ── #}
+    <div id="typingRow" class="msg-row ai hidden" style="padding: 0 16px 8px">
+        <div class="avatar-sm {% if profile.has_active_pro %}ai-avatar-pro{% else %}ai-avatar-free{% endif %}">
+            <i class="fa-solid fa-sparkles text-white" style="font-size:11px"></i>
         </div>
-        <div class="chat-bubble-ai px-4 py-2.5 rounded-full flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-purple-400 typing-dot"></span>
-            <span class="w-2 h-2 rounded-full bg-pink-400 typing-dot"></span>
-            <span class="w-2 h-2 rounded-full bg-purple-400 typing-dot"></span>
-            <span class="text-[11px] text-[#9e9aa7] font-semibold ml-2">{{ "ai_thinking"|ui_trans:CURRENT_LANGUAGE }}</span>
+        <div class="typing-dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span id="thinkingText" style="font-size:11px;color:#9e9aa7;font-weight:600;margin-left:8px">...</span>
         </div>
     </div>
 
-    <!-- INPUT FORM -->
-    <form id="chatForm" method="POST" action="{% url 'chatbot' %}" class="pt-3 border-t border-[#2e273f] flex-shrink-0 flex items-center gap-2">
-        {% csrf_token %}
-        <input type="hidden" name="ajax" value="true">
-        <div class="relative flex-1">
-            <input type="text" id="userInput" name="user_message" placeholder="{{ 'chat_placeholder'|ui_trans:CURRENT_LANGUAGE }}" 
-                   autocomplete="off" required
-                   class="w-full bg-[#201c2c] border border-[#2e273f] rounded-2xl pl-4 pr-12 py-3.5 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-2 focus:ring-purple-500 transition shadow-inner font-medium">
-        </div>
-        <button type="submit" id="sendBtn" 
-                class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white flex items-center justify-center transition duration-150 shadow-md shadow-purple-500/25 flex-shrink-0">
-            <i class="fa-solid fa-paper-plane text-xs"></i>
-        </button>
-    </form>
+    {# ── INPUT AREA ── #}
+    <div class="input-area">
+        <form id="chatForm" method="POST" action="{% url 'chatbot' %}">
+            {% csrf_token %}
+            <input type="hidden" name="ajax" value="true">
+            <div class="input-box">
+                <textarea id="userInput" name="user_message"
+                    placeholder="{{ 'chat_placeholder'|ui_trans:CURRENT_LANGUAGE }}"
+                    rows="1" autocomplete="off" maxlength="1000"
+                    {% if is_limit_reached %}disabled{% endif %}></textarea>
+                <span class="char-count" id="charCount">0/1000</span>
+                <button type="submit" id="sendBtn" class="send-btn" {% if is_limit_reached %}disabled{% endif %}>
+                    <i class="fa-solid fa-paper-plane" style="font-size:13px"></i>
+                </button>
+            </div>
+        </form>
+    </div>
 
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll('.ai-rendered-content').forEach(function (el) {
-            const raw = el.querySelector('.raw-markdown-content');
-            const target = el.querySelector('.parsed-content');
-            if (raw && target && window.marked) {
-                target.innerHTML = marked.parse(raw.textContent);
-            }
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ── Render existing markdown history ──
+    document.querySelectorAll('.ai-rendered-content').forEach(el => {
+        const raw    = el.querySelector('.raw-md');
+        const target = el.querySelector('.parsed-html');
+        if (raw && target && window.marked) {
+            target.innerHTML = marked.parse(raw.textContent || '');
+        }
+    });
+
+    // Set thinking text
+    const thinkingEl = document.getElementById('thinkingText');
+    if (thinkingEl) thinkingEl.textContent = T.thinking;
+
+    scrollToBottom();
+    setupAutoResize();
+});
+
+function scrollToBottom() {
+    const el = document.getElementById('chatMessages');
+    if (el) el.scrollTop = el.scrollHeight;
+}
+
+function setupAutoResize() {
+    const ta = document.getElementById('userInput');
+    const cc = document.getElementById('charCount');
+    if (!ta) return;
+    ta.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        if (cc) cc.textContent = this.value.length + '/1000';
+    });
+    ta.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('chatForm').dispatchEvent(new Event('submit', {cancelable: true}));
+        }
+    });
+}
+
+function sendQuickPrompt(text) {
+    const ta = document.getElementById('userInput');
+    if (!ta || ta.disabled) return;
+    ta.value = text;
+    ta.dispatchEvent(new Event('input'));
+    document.getElementById('chatForm').dispatchEvent(new Event('submit', {cancelable: true}));
+}
+
+function clearChat() {
+    if (!confirm(T.confirmClear)) return;
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = buildAiBubble(`<strong style="color:#c084fc">${T.cleared}</strong><br>${T.clearedBody}`);
+}
+
+function makeAvatarHtml() {
+    const cls = IS_PRO ? 'ai-avatar-pro' : 'ai-avatar-free';
+    return `<div class="avatar-sm ${cls}"><i class="fa-solid fa-sparkles text-white" style="font-size:11px"></i></div>`;
+}
+
+function buildAiBubble(htmlContent, time) {
+    const ts = time || new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    return `<div class="msg-row ai">
+        ${makeAvatarHtml()}
+        <div class="bubble-ai">
+            <div class="parsed-html">${htmlContent}</div>
+            <span class="msg-time">${ts}</span>
+        </div>
+    </div>`;
+}
+
+function buildUserBubble(text, time) {
+    const ts = time || new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const safeText = escapeHtml(text).replace(/\n/g, '<br>');
+    return `<div class="msg-row user">
+        <div class="bubble-user">
+            <p>${safeText}</p>
+            <span class="msg-time" style="text-align:right;color:rgba(255,255,255,0.5)">${ts}</span>
+        </div>
+        <div class="avatar-sm avatar-user">${USER_INITIAL}</div>
+    </div>`;
+}
+
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+}
+
+// ── AJAX submit ──
+const chatForm = document.getElementById('chatForm');
+chatForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const ta  = document.getElementById('userInput');
+    const msg = ta.value.trim();
+    if (!msg) return;
+
+    const sendBtn    = document.getElementById('sendBtn');
+    const typingRow  = document.getElementById('typingRow');
+    const container  = document.getElementById('chatMessages');
+
+    // Append user bubble
+    container.insertAdjacentHTML('beforeend', buildUserBubble(msg));
+    ta.value = '';
+    ta.style.height = 'auto';
+    document.getElementById('charCount').textContent = '0/1000';
+    scrollToBottom();
+
+    // Show typing
+    typingRow.classList.remove('hidden');
+    sendBtn.disabled = true;
+    scrollToBottom();
+
+    try {
+        const fd = new FormData(chatForm);
+        fd.set('user_message', msg);
+        fd.set('ajax', 'true');
+        fd.set('csrfmiddlewaretoken', CSRF_TOKEN);
+
+        const res  = await fetch(CHATBOT_URL, {
+            method:  'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body:    fd
         });
-        scrollToBottom();
-    });
+        const data = await res.json();
 
-    function scrollToBottom() {
-        const container = document.getElementById('chatMessages');
-        if (container) {
-            container.scrollTop = container.scrollHeight;
+        typingRow.classList.add('hidden');
+        sendBtn.disabled = false;
+
+        if (data.status === 'limit_reached') {
+            const limitHtml = `<div class="msg-row ai">
+                <div class="avatar-sm" style="background:linear-gradient(135deg,#f59e0b,#ef4444);width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center">
+                    <i class="fa-solid fa-lock text-white" style="font-size:11px"></i>
+                </div>
+                <div class="bubble-ai" style="background:rgba(120,53,15,0.3);border-color:rgba(217,119,6,0.4)">
+                    <p style="font-weight:800;color:#fbbf24;margin-bottom:6px">${T.limitTitle}</p>
+                    <p style="color:rgba(253,230,138,0.8);font-size:12px;margin-bottom:10px">${data.message}</p>
+                    <a href="${UPGRADE_URL}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:12px;font-weight:800;text-decoration:none">
+                        <i class="fa-solid fa-crown"></i> ${T.upgradeCTA}
+                    </a>
+                </div>
+            </div>`;
+            container.insertAdjacentHTML('beforeend', limitHtml);
+            ta.disabled = true;
+            sendBtn.disabled = true;
+            ta.placeholder = T.upgradeContinue;
+            scrollToBottom();
+            return;
         }
-    }
 
-    function clearChatScreen() {
-        const container = document.getElementById('chatMessages');
-        if (confirm("Ma hubtaa inaad rabto inaad shaashadda nadiifiso?")) {
-            container.innerHTML = `
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs flex-shrink-0 shadow">
-                        <i class="fa-solid fa-sparkles text-white"></i>
-                    </div>
-                    <div class="chat-bubble-ai p-4 text-xs max-w-2xl leading-relaxed shadow-sm">
-                        <p class="font-bold text-sm text-purple-300 mb-1">Shaashadda waa la nadiifiyay! ✨</p>
-                        <p>I weydii su'aal kasta oo cusub si aan kuu caawiyo.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    function sendQuickPrompt(text) {
-        const input = document.getElementById('userInput');
-        input.value = text;
-        document.getElementById('chatForm').dispatchEvent(new Event('submit'));
-    }
-
-    const chatForm = document.getElementById('chatForm');
-    const userInput = document.getElementById('userInput');
-    const chatMessages = document.getElementById('chatMessages');
-    const typingIndicator = document.getElementById('typingIndicator');
-    const sendBtn = document.getElementById('sendBtn');
-
-    chatForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const msg = userInput.value.trim();
-        if (!msg) return;
-
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const userHtml = `
-            <div class="flex items-start justify-end gap-3">
-                <div class="chat-bubble-user p-4 text-xs max-w-xl shadow-sm">
-                    <p class="whitespace-pre-wrap">${escapeHtml(msg)}</p>
-                    <span class="text-[10px] text-white/80 block text-right mt-1">${now}</span>
-                </div>
-                <div class="w-8 h-8 rounded-xl bg-[#262134] text-purple-300 flex items-center justify-center text-xs font-bold flex-shrink-0 border border-[#3d3454]">
-                    {{ request.user.username|make_list|first|upper }}
-                </div>
-            </div>
-        `;
-        chatMessages.insertAdjacentHTML('beforeend', userHtml);
-        userInput.value = '';
-        scrollToBottom();
-
-        typingIndicator.classList.remove('hidden');
-        sendBtn.disabled = true;
-
-        const formData = new FormData(chatForm);
-        formData.set('user_message', msg);
-        formData.set('ajax', 'true');
-
-        try {
-            const res = await fetch("{% url 'chatbot' %}", {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                body: formData
-            });
-            const data = await res.json();
-            
-            typingIndicator.classList.add('hidden');
-            sendBtn.disabled = false;
-
-            if (data.status === 'limit_reached') {
-                const limitHtml = `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-xs flex-shrink-0 shadow">
-                            <i class="fa-solid fa-crown"></i>
-                        </div>
-                        <div class="chat-bubble-ai p-4 text-xs max-w-2xl leading-relaxed shadow-sm border border-amber-500/30 bg-amber-950/20">
-                            <p class="font-bold text-amber-300 mb-2">⚠️ Xadka Maanta Ayaad Gaadhtay!</p>
-                            <p class="text-[#9e9aa7] mb-3">${data.message}</p>
-                            <a href="/upgrade-pro/" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs transition shadow-md">
-                                <i class="fa-solid fa-crown"></i> Upgrade Pro — $9.99/mo
-                            </a>
-                        </div>
-                    </div>
-                `;
-                chatMessages.insertAdjacentHTML('beforeend', limitHtml);
-                scrollToBottom();
-                userInput.disabled = true;
-                sendBtn.disabled = true;
-                userInput.placeholder = 'Upgrade Pro si aad u sii waddo...';
-                return;
-            }
-
-            if (data.status === 'success') {
-                const parsedMarkdown = window.marked ? marked.parse(data.response) : data.response;
-                let remainingNote = '';
-                if (data.remaining_messages !== null && data.remaining_messages !== undefined) {
-                    remainingNote = `<span class="text-[10px] text-amber-400/70 block mt-1">⚡ ${data.remaining_messages} fariin oo bilaash ah baad u hadhsan tahay maanta</span>`;
-                    if (data.remaining_messages === 0) {
-                        remainingNote = `<span class="text-[10px] text-rose-400 block mt-1">🔒 Xadka bilaashka ah ayaad gaadhay. <a href="/upgrade-pro/" class="underline font-bold">Upgrade Pro</a></span>`;
-                    }
+        if (data.status === 'success') {
+            const parsed = window.marked ? marked.parse(data.response || '') : escapeHtml(data.response || '');
+            let extra = '';
+            if (data.remaining_messages !== null && data.remaining_messages !== undefined) {
+                if (data.remaining_messages === 0) {
+                    extra = `<span class="msg-time" style="color:#f87171">🔒 ${T.limitedReached} <a href="${UPGRADE_URL}" style="color:#fbbf24;font-weight:800;text-decoration:underline">${T.limitedCTA}</a></span>`;
+                } else {
+                    extra = `<span class="msg-time" style="color:rgba(251,191,36,0.7)">⚡ ${data.remaining_messages} ${T.remainingNote}</span>`;
                 }
-                const isProBadge = data.is_pro ? 'bg-gradient-to-tr from-amber-500 to-orange-500' : 'bg-gradient-to-tr from-purple-500 to-pink-500';
-                const aiHtml = `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl ${isProBadge} text-white flex items-center justify-center text-xs flex-shrink-0 shadow">
-                            <i class="fa-solid fa-sparkles text-white"></i>
-                        </div>
-                        <div class="chat-bubble-ai p-4 text-xs max-w-2xl leading-relaxed shadow-sm">
-                            <div class="parsed-content">${parsedMarkdown}</div>
-                            <span class="text-[10px] text-[#736c82] block text-left mt-2">${data.date || now}</span>
-                            ${remainingNote}
-                        </div>
-                    </div>
-                `;
-                chatMessages.insertAdjacentHTML('beforeend', aiHtml);
-                scrollToBottom();
-            } else {
-                alert('Khalad ayaa dhacay. Fadlan ku celi.');
             }
-        } catch (err) {
-            typingIndicator.classList.add('hidden');
-            sendBtn.disabled = false;
-            console.error(err);
+            const aiHtml = `<div class="msg-row ai">
+                ${makeAvatarHtml()}
+                <div class="bubble-ai">
+                    <div class="parsed-html">${parsed}</div>
+                    <span class="msg-time">${data.date || ''}</span>
+                    ${extra}
+                </div>
+            </div>`;
+            container.insertAdjacentHTML('beforeend', aiHtml);
+            scrollToBottom();
+        } else {
+            alert(T.errorMsg);
         }
-    });
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    } catch (err) {
+        typingRow.classList.add('hidden');
+        sendBtn.disabled = false;
+        console.error('Chat error:', err);
+        alert(T.errorMsg);
     }
+});
 </script>
 {% endblock %}
