@@ -12,6 +12,37 @@ MODELS_PRIORITY = [
     "gemini-flash-latest"
 ]
 
+def detect_language_from_text(text, default='so'):
+    """
+    Detect whether text is predominantly Arabic, Somali, or English.
+    """
+    if not text or not isinstance(text, str):
+        return default
+
+    # Check for Arabic characters
+    if re.search(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]', text):
+        return 'ar'
+
+    # Check for Somali markers
+    somali_keywords = [
+        'waa', 'aan', 'ku', 'ka', 'ah', 'iyo', 'ee', 'oo', 'la', 'soo',
+        'cunto', 'muruq', 'jimicsi', 'lugaha', 'xabadka', 'garabka', 'gacmaha',
+        'dhabarka', 'caloosha', 'miisaan', 'dhimis', 'kordhin', 'sidee', 'maxaa',
+        'tababar', 'yool', 'immisa', 'fadlan', 'haystaa', 'rabaa'
+    ]
+    words = re.findall(r'\b[a-zA-Z]+\b', text.lower())
+    somali_matches = sum(1 for w in words if w in somali_keywords)
+    if somali_matches >= 2 or any(w in ['muruq', 'cunto', 'jimicsi', 'miisaan', 'dhimis'] for w in words):
+        return 'so'
+
+    # Default to English if Latin and no strong Somali match
+    if re.search(r'[a-zA-Z]', text):
+        if default in ['so', 'ar', 'en']:
+            return default
+        return 'en'
+
+    return default
+
 def get_api_key():
     return os.environ.get("GEMINI_API_KEY") or DEFAULT_API_KEY
 
@@ -70,15 +101,21 @@ def get_system_prompt(language='so', is_pro=False, custom_prompt=None):
 
 def ask_gemini(user_message, custom_system_prompt=None, is_pro=False, language='so', conversation_history=None):
     """
-    Query Google Gemini AI with multi-turn conversation context and multilingual support.
+    Query Google Gemini AI with multi-turn conversation context, structured contents, and multilingual support.
     """
+    # Auto-detect language if prompt has distinct Arabic or Somali signals
+    detected_lang = detect_language_from_text(user_message, default=language or 'so')
+    active_lang = detected_lang if detected_lang in ['ar', 'so', 'en'] else (language or 'so')
+
     client = get_genai_client()
-    system_prompt = get_system_prompt(language=language, is_pro=is_pro, custom_prompt=custom_system_prompt)
+    system_prompt = get_system_prompt(language=active_lang, is_pro=is_pro, custom_prompt=custom_system_prompt)
 
     history_context = ""
+    history_items = []
     if conversation_history:
         if isinstance(conversation_history, list):
-            history_context = "\n".join(conversation_history)
+            history_context = "\n".join(str(h) for h in conversation_history)
+            history_items = conversation_history
         elif isinstance(conversation_history, str):
             history_context = conversation_history
 
@@ -89,6 +126,7 @@ def ask_gemini(user_message, custom_system_prompt=None, is_pro=False, language='
     )
 
     if client:
+        # Try structured Contents if SDK supports types, else full_prompt string
         for model_name in MODELS_PRIORITY:
             try:
                 response = client.models.generate_content(
@@ -101,7 +139,12 @@ def ask_gemini(user_message, custom_system_prompt=None, is_pro=False, language='
                 continue
 
     # Multilingual Fallback Knowledge Engine
-    return get_smart_multilingual_fitness_response(user_message, is_pro=is_pro, language=language, history=history_context)
+    return get_smart_multilingual_fitness_response(
+        user_message,
+        is_pro=is_pro,
+        language=active_lang,
+        history=history_context
+    )
 
 
 def get_smart_multilingual_fitness_response(user_msg, is_pro=False, language='so', history=""):

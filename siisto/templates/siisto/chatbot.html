@@ -1,4 +1,5 @@
 {% extends 'siisto/base.html' %}
+{% load siisto_tags %}
 
 {% block page_title %}AI Smart Fitness Coach | Siisto{% endblock %}
 
@@ -164,18 +165,18 @@
             <div class="chat-bubble-ai p-4 text-xs max-w-2xl leading-relaxed shadow-sm">
                 <p class="font-bold text-sm text-purple-300 mb-1">
                     {% if profile.has_active_pro %}
-                    Ku soo dhowow Siisto AI Elite Master Coach (VIP)! 👑
+                    {{ "ai_welcome_pro"|ui_trans:CURRENT_LANGUAGE }}
                     {% else %}
-                    Ku soo dhowow Siisto AI Assistant! 👋
+                    {{ "ai_welcome_free"|ui_trans:CURRENT_LANGUAGE }}
                     {% endif %}
                 </p>
-                <p>Waxaan ahay tababarahaaga gaarka ah. Waxaad i weydiin kartaa su'aal kasta oo ku saabsan:</p>
+                <p>{{ "ai_welcome_body"|ui_trans:CURRENT_LANGUAGE }}</p>
                 <ul class="my-2 space-y-1 text-[#9e9aa7]">
-                    <li>Miisaan kordhin (Weight Gain) & Dhimis (Fat Loss).</li>
-                    <li>Cuntooyinka borotiinka leh & xisaabinta Calories-ka.</li>
-                    <li>Jadwalka jimicsiga Gym-ka & qaabka saxda ah ee loo qaado miisaanka.</li>
+                    <li>{{ "ai_topic_1"|ui_trans:CURRENT_LANGUAGE }}</li>
+                    <li>{{ "ai_topic_2"|ui_trans:CURRENT_LANGUAGE }}</li>
+                    <li>{{ "ai_topic_3"|ui_trans:CURRENT_LANGUAGE }}</li>
                 </ul>
-                <p class="text-purple-400 text-[11px] mt-2">I weydii su'aashaada hadda si aynu u bilowno!</p>
+                <p class="text-purple-400 text-[11px] mt-2">{{ "ai_cta"|ui_trans:CURRENT_LANGUAGE }}</p>
             </div>
         </div>
 
@@ -216,7 +217,7 @@
             <span class="w-2 h-2 rounded-full bg-purple-400 typing-dot"></span>
             <span class="w-2 h-2 rounded-full bg-pink-400 typing-dot"></span>
             <span class="w-2 h-2 rounded-full bg-purple-400 typing-dot"></span>
-            <span class="text-[11px] text-[#9e9aa7] font-semibold ml-2">Siisto AI ayaa fekeraysa...</span>
+            <span class="text-[11px] text-[#9e9aa7] font-semibold ml-2">{{ "ai_thinking"|ui_trans:CURRENT_LANGUAGE }}</span>
         </div>
     </div>
 
@@ -225,7 +226,7 @@
         {% csrf_token %}
         <input type="hidden" name="ajax" value="true">
         <div class="relative flex-1">
-            <input type="text" id="userInput" name="user_message" placeholder="Halkan ku qor su'aashaada (Tusaale: Sideen muruq u dhisaa?)..." 
+            <input type="text" id="userInput" name="user_message" placeholder="{{ 'chat_placeholder'|ui_trans:CURRENT_LANGUAGE }}" 
                    autocomplete="off" required
                    class="w-full bg-[#201c2c] border border-[#2e273f] rounded-2xl pl-4 pr-12 py-3.5 text-xs text-white placeholder-[#736c82] focus:outline-none focus:ring-2 focus:ring-purple-500 transition shadow-inner font-medium">
         </div>

@@ -331,7 +331,7 @@
             <!-- LANGUAGE SELECTOR WIDGET -->
             <div class="mb-5 p-2 rounded-2xl bg-[#060810] border border-[#162035] flex items-center justify-between">
                 <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 px-1.5">
-                    <i class="fa-solid fa-globe text-blue-400"></i> {% trans "Language" %}
+                    <i class="fa-solid fa-globe text-blue-400"></i> {{ "Language"|ui_trans:CURRENT_LANGUAGE }}
                 </span>
                 <div class="flex items-center gap-1">
                     {% for l in AVAILABLE_LANGUAGES %}
@@ -351,7 +351,7 @@
             </div>
 
             <!-- NAVIGATION LINKS -->
-            <div class="sidebar-section-label mb-2">{% trans "Main Menu" %}</div>
+            <div class="sidebar-section-label mb-2">{{ "Main Menu"|ui_trans:CURRENT_LANGUAGE }}</div>
             <nav class="space-y-1">
                 <a href="{% url 'index' %}" class="nav-link-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                     <i class="fa-solid fa-house-chimney w-5 mr-3 text-sm"></i>
@@ -441,7 +441,7 @@
 
             <!-- FOOTER ACCOUNT LINKS -->
             <div class="space-y-1" style="padding-top:12px;border-top:1px solid rgba(30,144,255,0.12)">
-                <div class="sidebar-section-label">{% trans "Account" %}</div>
+                <div class="sidebar-section-label">{{ "Account"|ui_trans:CURRENT_LANGUAGE }}</div>
                 <a href="{% url 'profile' %}" class="nav-link-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" style="font-size:12px;padding:7px 12px">
                     <i class="fa-solid fa-gear w-5 mr-2"></i>
                     <span>{{ "Settings & Profile"|ui_trans:CURRENT_LANGUAGE }}</span>
@@ -524,7 +524,7 @@
         </main>
 
         <!-- BOTTOM FOOTER BAR -->
-        <div class="flex items-center justify-between pt-3 pb-1">
+        <div class="hidden sm:flex items-center justify-between pt-3 pb-1">
             <div class="flex items-center gap-2.5">
                 <a href="{% url 'index' %}" class="floating-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 font-bold transition text-xs" style="color:#1E90FF">
                     <i class="fa-solid fa-bolt text-[10px]"></i>
@@ -541,6 +541,30 @@
         </div>
 
     </div>
+
+    <!-- ── FLOATING MOBILE APP BOTTOM NAVIGATION BAR (MATCHING MOCKUP DOCK) ── -->
+    <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#070a14]/95 backdrop-blur-lg border-t border-blue-500/20 px-4 py-2 flex items-center justify-around shadow-2xl">
+        <a href="{% url 'index' %}" class="flex flex-col items-center gap-1 text-blue-400">
+            <i class="fa-solid fa-house text-base"></i>
+            <span class="text-[9px] font-black uppercase tracking-wider">{{ "Home"|ui_trans:CURRENT_LANGUAGE }}</span>
+        </a>
+        <a href="{% url 'add_workout' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
+            <i class="fa-solid fa-dumbbell text-base"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Workouts"|ui_trans:CURRENT_LANGUAGE }}</span>
+        </a>
+        <a href="{% url 'progress' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
+            <i class="fa-solid fa-chart-line text-base"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Progress"|ui_trans:CURRENT_LANGUAGE }}</span>
+        </a>
+        <a href="{% url 'add_meal' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
+            <i class="fa-solid fa-utensils text-base"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Nutrition"|ui_trans:CURRENT_LANGUAGE }}</span>
+        </a>
+        <a href="{% url 'profile' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
+            <i class="fa-solid fa-user text-base"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Profile"|ui_trans:CURRENT_LANGUAGE }}</span>
+        </a>
+    </nav>
 
     {% block extra_scripts %}{% endblock %}
 </body>

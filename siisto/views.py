@@ -16,6 +16,7 @@ import datetime
 import hmac
 import hashlib
 import base64
+import re
 
 import requests
 from django.conf import settings
@@ -341,8 +342,32 @@ def chatbot(request):
         today_meals = Meal.objects.filter(user=request.user, date__date=today).order_by('-date')[:5]
         meal_context = ""
         if today_meals.exists():
-            meal_list = ", ".join([f"{m.name} ({m.calories}kcal)" for m in today_meals])
-            meal_context = f"Today's meals: {meal_list}."
+            meal_list = ", ".join([f"{m.name} ({m.calories}kcal, {m.protein}g protein)" for m in today_meals])
+            total_cal = sum(m.calories for m in today_meals)
+            total_prot = sum(m.protein for m in today_meals)
+            meal_context = f"Today's logged meals: {meal_list} (Total: {total_cal} kcal, {total_prot:.1f}g protein)."
+
+        # RAG: Search matching exercises in ExerciseLibrary based on user message keywords
+        from django.db.models import Q
+        user_words = [w for w in re.findall(r'\b[a-zA-Z]{3,}\b', user_message.lower()) if w not in ['the', 'and', 'for', 'how', 'what', 'can', 'you', 'give', 'waan', 'waxaad', 'iyo']]
+        rag_exercises = []
+        if user_words:
+            query_filter = Q()
+            for w in user_words[:4]:
+                query_filter |= Q(name__icontains=w) | Q(category__icontains=w) | Q(subcategory__icontains=w) | Q(target_muscle__icontains=w)
+            matched_exs = ExerciseLibrary.objects.filter(query_filter)[:6]
+            if matched_exs.exists():
+                rag_exercises = [f"{e.name} ({e.category} / {e.subcategory} - {e.target_muscle})" for e in matched_exs]
+
+        rag_exercise_context = ""
+        if rag_exercises:
+            rag_exercise_context = "Relevant database exercises: " + ", ".join(rag_exercises) + "."
+
+        # Routine 90-Day Challenge Status
+        active_challenge = Routine90.objects.filter(user=request.user, is_active=True).first()
+        challenge_context = ""
+        if active_challenge:
+            challenge_context = f"90-Day Challenge: Day {active_challenge.current_day}/90 (Streak: {active_challenge.streak} days, Progress: {active_challenge.progress_percentage}%)."
 
         current_weight = profile.miisaan_hadda
         active_lang = profile.language or translation.get_language() or 'so'
@@ -362,14 +387,18 @@ def chatbot(request):
             f"- Activity Level: {profile.heerka_dhaqdhaqaaqa or 'Unknown'}\n"
             f"- Fitness Level: {profile.fitness_level or 'Unknown'}\n"
             f"- Pro Member: {'Yes' if profile.has_active_pro else 'No (Free)'}\n\n"
-            f"RECENT CONTEXT:\n{workout_context}\n{meal_context}\n\n"
+            f"APP DATABASE CONTEXT (RAG):\n"
+            f"{workout_context}\n"
+            f"{meal_context}\n"
+            f"{challenge_context}\n"
+            f"{rag_exercise_context}\n\n"
             f"CONVERSATION HISTORY:\n{history_text}\n\n"
             "INSTRUCTIONS:\n"
-            "- Use the user profile and conversation history to give personalised, contextual answers.\n"
-            "- If the user mentioned '60kg' earlier, remember that's their weight.\n"
+            "- Use the user profile, RAG database context, and conversation history to give accurate, personalized answers.\n"
+            "- Recommend real exercises from the app database when relevant.\n"
             "- If user asks about sets/reps after discussing an exercise, connect directly to that exercise.\n"
-            "- Format responses with bullet points, tables, and markdown where helpful.\n"
-            "- Give detailed, expert-level advice.\n"
+            "- Format responses with bullet points, tables, and clean markdown.\n"
+            "- Give detailed, expert-level advice with empathy and encouragement.\n"
         )
 
         ai_response = ask_gemini(
@@ -1821,3 +1850,40 @@ def admin_dashboard(request):
         'active_challenges': active_challenges,
         'total_notifications': total_notifications,
     })
+
+
+# ═══════════════════════════════════════════════════
+#  LANGUAGE SWITCHER
+# ═══════════════════════════════════════════════════
+
+def set_language_preference(request, lang_code=None):
+    """
+    Switches active language for the entire system across session, cookie, and user Profile.
+    """
+    if not lang_code:
+        lang_code = request.GET.get('lang') or request.POST.get('language') or 'so'
+
+    lang_code = str(lang_code)[:2].lower()
+    if lang_code not in ['so', 'en', 'ar']:
+        lang_code = 'so'
+
+    from django.utils import translation
+    translation.activate(lang_code)
+
+    if hasattr(request, 'session'):
+        request.session['_language'] = lang_code
+        request.session[getattr(translation, 'LANGUAGE_SESSION_KEY', '_language')] = lang_code
+
+    if request.user.is_authenticated:
+        try:
+            profile, _ = Profile.objects.get_or_create(user=request.user)
+            profile.preferred_language = lang_code
+            profile.save(update_fields=['preferred_language'])
+        except Exception as e:
+            logger.warning(f"Could not persist language preference to profile: {e}")
+
+    next_url = request.GET.get('next') or request.META.get('HTTP_REFERER') or '/'
+    response = redirect(next_url)
+    cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
+    response.set_cookie(cookie_name, lang_code, max_age=365 * 24 * 60 * 60, samesite='Lax')
+    return response

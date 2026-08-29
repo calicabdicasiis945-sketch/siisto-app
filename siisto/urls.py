@@ -61,6 +61,7 @@ urlpatterns = [
 
     # ─── Language Switching ─────────────────────────────
     path('set-language/', views.set_language_preference, name='set_language_preference'),
+    path('set-language/<str:lang_code>/', views.set_language_preference, name='set_language_preference_code'),
 
     # ─── Admin Dashboard ────────────────────────────────
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),

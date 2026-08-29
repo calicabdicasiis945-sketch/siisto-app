@@ -13,7 +13,7 @@ UI_TRANSLATIONS = {
     "3D Exercises Library": {"so": "Maktabadda Jimicsiyada 3D", "en": "3D Exercises Library", "ar": "مكتبة التمارين ثلاثية الأبعاد"},
     "Cuntooyinka (Meals)": {"so": "Cuntooyinka", "en": "Meals & Nutrition", "ar": "الوجبات والتغذية"},
     "Meals": {"so": "Cuntooyinka", "en": "Meals", "ar": "الوجبات"},
-    "3D Body Scan": {"so": "Sawirka Jirka 3D", "en": "3D Body Scan", "ar": "المسح ثلاثي الأبعاد للجسم"},
+    "3D Body Scan": {"so": "Sawirka Jirka 3D & Qiimeynta", "en": "3D Body Scan & Assessment", "ar": "المسح ثلاثي الأبعاد للجسم والتقييم"},
     "Analytics / Hormarka": {"so": "Falanqaynta & Hormarka", "en": "Analytics & Progress", "ar": "التحليلات والتقدم"},
     "Analytics": {"so": "Falanqaynta", "en": "Analytics", "ar": "التحليلات"},
     "Diiwaanka / History": {"so": "Taariikhda & Diiwaanka", "en": "History & Logs", "ar": "السجل والتاريخ"},
@@ -47,7 +47,119 @@ UI_TRANSLATIONS = {
     "Experience Level": {"so": "Heerka Khibradda", "en": "Experience Level", "ar": "مستوى الخبرة"},
     "Age": {"so": "Da'da", "en": "Age", "ar": "العمر"},
     "Gender": {"so": "Jinsiga", "en": "Gender", "ar": "الجنس"},
+
+    # 3D Body Scan & Assessment Questions
+    "3D Body Scan Title": {
+        "so": "Sawirka Jirka 3D & Qiimeynta Biometrics",
+        "en": "3D Body Scan & Biometric Assessment",
+        "ar": "المسح ثلاثي الأبعاد للجسم والتقييم الحيوي"
+    },
+    "3D Body Scan Subtitle": {
+        "so": "360° Qiimee Jirkaaga, Xisaabi BMI, BMR, TDEE, iyo Kalooriyadaada",
+        "en": "360° Biometric Body Assessment, BMI, BMR, TDEE & Target Calories",
+        "ar": "تقييم ثلاثي الأبعاد 360°، حساب مؤشر الكتلة BMI، BMR، السعرات والماكروز"
+    },
+    "Start 3D Scan": {
+        "so": "Bilaaw 3D Body Scan",
+        "en": "Start 3D Body Scan",
+        "ar": "بدء المسح ثلاثي الأبعاد"
+    },
+    "Step 1: Gender": {
+        "so": "Talaabada 1: Dooro Jinsiga",
+        "en": "Step 1: Select Gender",
+        "ar": "الخطوة 1: اختر الجنس"
+    },
+    "Male": {
+        "so": "Lab (Male)",
+        "en": "Male",
+        "ar": "ذكر (Male)"
+    },
+    "Female": {
+        "so": "Dhedig (Female)",
+        "en": "Female",
+        "ar": "أنثى (Female)"
+    },
+    "Step 2: Biometrics": {
+        "so": "Talaabada 2: Da'da, Dhererka & Miisaanka",
+        "en": "Step 2: Age, Height & Current Weight",
+        "ar": "الخطوة 2: العمر، الطول والوزن الحالي"
+    },
+    "Step 3: Goal": {
+        "so": "Talaabada 3: Waa Maxay Hadafkaagu?",
+        "en": "Step 3: What is Your Primary Fitness Goal?",
+        "ar": "الخطوة 3: ما هو هدفك الرياضي الأساسي؟"
+    },
+    "Lose Weight": {
+        "so": "Miisaan Dhimis (Fat Loss)",
+        "en": "Lose Weight / Fat Loss",
+        "ar": "حرق الدهون وإنقاص الوزن"
+    },
+    "Build Muscle": {
+        "so": "Muruq Dhis (Muscle Gain)",
+        "en": "Build Muscle / Hypertrophy",
+        "ar": "بناء العضلات والتضخيم"
+    },
+    "Maintain Fitness": {
+        "so": "Joogteyn & Awood (Maintain)",
+        "en": "Maintain & Fitness",
+        "ar": "المحافظة على اللياقة والصحة"
+    },
+    "Step 4: Activity": {
+        "so": "Talaabada 4: Heerka Dhaqdhaqaaqaaga Maalinlaha ah",
+        "en": "Step 4: Daily Physical Activity Level",
+        "ar": "الخطوة 4: مستوى نشاطك البدني اليومي"
+    },
+    "Sedentary": {
+        "so": "Fadhiga Badan (Office / Little Exercise)",
+        "en": "Sedentary (Little to no exercise)",
+        "ar": "خامل (قليل الحركة / عمل مكتبي)"
+    },
+    "Moderate": {
+        "so": "Dhexdhexaad (3-4 maalmood tababar)",
+        "en": "Moderate (3-4 workouts/week)",
+        "ar": "متوسط (3-4 أيام تمرين أسبوعياً)"
+    },
+    "Active": {
+        "so": "Firfircoon (5-6 maalmood tababar adag)",
+        "en": "Active (5-6 intense workouts/week)",
+        "ar": "نشط جداً (5-6 أيام تمرين قوي)"
+    },
+    "Step 5: Target Weight": {
+        "so": "Talaabada 5: Yoolka Miisaanka Aad Rabto (Target Weight)",
+        "en": "Step 5: Your Target Goal Weight",
+        "ar": "الخطوة 5: الوزن المستهدف تحقيقه"
+    },
+    "Calculate & Scan": {
+        "so": "Xisaabi & Soo Saari Natiijada 3D",
+        "en": "Calculate & Generate 3D Scan",
+        "ar": "احسب واستخرج تقرير المسح ثلاثي الأبعاد"
+    },
+    "Save Assessment": {
+        "so": "Keydi Xogta Profile-ka",
+        "en": "Save to Profile",
+        "ar": "حفظ البيانات في الملف الشخصي"
+    },
+    "Scan Complete": {
+        "so": "Qiimeynta 3D Waa La Dhamaystiray!",
+        "en": "3D Assessment Complete!",
+        "ar": "تم اكتمال المسح والتقييم ثلاثي الأبعاد بنجاح!"
+    },
     
+    # Biometric Metrics
+    "Body Mass Index": {"so": "Tusmada Miisaanka (BMI)", "en": "Body Mass Index (BMI)", "ar": "مؤشر كتلة الجسم (BMI)"},
+    "Basal Metabolic Rate": {"so": "Tamar-gubidda Asaasiga ah (BMR)", "en": "Basal Metabolic Rate (BMR)", "ar": "معدل الأيض الأساسي (BMR)"},
+    "Total Daily Energy": {"so": "Wadarta Tamarta Maalintii (TDEE)", "en": "Total Daily Energy (TDEE)", "ar": "إجمالي استهلاك الطاقة اليومي (TDEE)"},
+    "Target Daily Calories": {"so": "Kalooriyada Yoolka Maanta", "en": "Target Daily Calories", "ar": "السعرات اليومية المستهدفة"},
+    "Daily Protein Target": {"so": "Yoolka Borotiinka Maalintii", "en": "Daily Protein Target", "ar": "احتياج البروتين اليومي"},
+    "Daily Water Target": {"so": "Biyaha La Cabbo Maalintii", "en": "Daily Water Target", "ar": "كمية الماء اليومية الموصى بها"},
+    "Estimated Time": {"so": "Waqtiga La Qiyaasay", "en": "Estimated Timeframe", "ar": "المدة الزمنية التقديرية"},
+
+    # 360 Rotation Controls
+    "360 Rotation": {"so": "Wareegga 360°", "en": "360° Rotation", "ar": "دوران 360 درجة"},
+    "Front View": {"so": "Qaybta Hore", "en": "Front View", "ar": "الجهة الأمامية"},
+    "Side View": {"so": "Dhinaca", "en": "Side View", "ar": "الجهة الجانبية"},
+    "Back View": {"so": "Dhabarka", "en": "Back View", "ar": "الجهة الخلفية"},
+
     # Categories
     "Chest": {"so": "Xabadka", "en": "Chest", "ar": "الصدر"},
     "Back": {"so": "Dhabarka", "en": "Back", "ar": "الظهر"},
@@ -94,6 +206,43 @@ UI_TRANSLATIONS = {
     "Log Weight": {"so": "Diiwaangeli Miisaan", "en": "Log Weight", "ar": "تسجيل الوزن"},
     "Main Menu": {"so": "Liiska Guud", "en": "Main Menu", "ar": "القائمة الرئيسية"},
     "Account": {"so": "Koontada", "en": "Account", "ar": "الحساب"},
+
+    # Mobile Nav Bar
+    "Home": {"so": "Guriga", "en": "Home", "ar": "الرئيسية"},
+    "Workouts": {"so": "Jimicsiyada", "en": "Workouts", "ar": "التمارين"},
+    "Progress": {"so": "Hormarka", "en": "Progress", "ar": "التقدم"},
+
+    # Extra UI labels
+    "Loading": {"so": "Waa la Rarayo...", "en": "Loading...", "ar": "جارٍ التحميل..."},
+    "View All": {"so": "Arag Dhammaan", "en": "View All", "ar": "عرض الكل"},
+    "No data yet": {"so": "Xog ma jirto wali", "en": "No data yet", "ar": "لا توجد بيانات بعد"},
+    "Today": {"so": "Maanta", "en": "Today", "ar": "اليوم"},
+    "Week": {"so": "Usbuuca", "en": "Week", "ar": "الأسبوع"},
+    "Month": {"so": "Bishaa", "en": "Month", "ar": "الشهر"},
+    "Submit": {"so": "Dir", "en": "Submit", "ar": "إرسال"},
+    "Next": {"so": "Xiga", "en": "Next", "ar": "التالي"},
+    "Back": {"so": "Dib", "en": "Back", "ar": "رجوع"},
+    "Finish": {"so": "Dhammee", "en": "Finish", "ar": "إنهاء"},
+    "Complete": {"so": "Dhammeystir", "en": "Complete", "ar": "اكتمل"},
+    "Start": {"so": "Bilaaw", "en": "Start", "ar": "ابدأ"},
+    "View Details": {"so": "Arag Faahfaahinta", "en": "View Details", "ar": "عرض التفاصيل"},
+    "Add Exercise": {"so": "Ku Dar Jimicsi", "en": "Add Exercise", "ar": "إضافة تمرين"},
+    "Search": {"so": "Raadi", "en": "Search", "ar": "بحث"},
+    "Filter": {"so": "Shaandee", "en": "Filter", "ar": "تصفية"},
+    "Send": {"so": "Dir", "en": "Send", "ar": "إرسال"},
+    "Type a message": {"so": "Qor fariin...", "en": "Type a message...", "ar": "اكتب رسالة..."},
+
+    # AI Coach Chatbot
+    "ai_welcome_pro": {"so": "Ku soo dhowow Siisto AI Elite Master Coach (VIP)! 👑", "en": "Welcome to Siisto AI Elite Master Coach (VIP)! 👑", "ar": "مرحباً بك في مدرب Siisto AI النخبة (VIP)! 👑"},
+    "ai_welcome_free": {"so": "Ku soo dhowow Siisto AI Assistant! 👋", "en": "Welcome to Siisto AI Assistant! 👋", "ar": "مرحباً بك في Siisto AI Assistant! 👋"},
+    "ai_welcome_body": {"so": "Waxaan ahay tababarahaaga gaarka ah. Waxaad i weydiin kartaa su'aal kasta oo ku saabsan:", "en": "I am your personal coach. You can ask me anything about:", "ar": "أنا مدربك الشخصي. يمكنك أن تسألني عن:"},
+    "ai_topic_1": {"so": "Miisaan kordhin (Weight Gain) & Dhimis (Fat Loss).", "en": "Weight Gain & Fat Loss strategies.", "ar": "استراتيجيات زيادة الوزن وحرق الدهون."},
+    "ai_topic_2": {"so": "Cuntooyinka borotiinka leh & xisaabinta Calories-ka.", "en": "High-protein meals & Calorie calculations.", "ar": "الوجبات الغنية بالبروتين وحساب السعرات."},
+    "ai_topic_3": {"so": "Jadwalka jimicsiga Gym-ka & qaabka saxda ah.", "en": "Gym workout schedules & proper form.", "ar": "جداول تمارين الجيم والأوضاع الصحيحة."},
+    "ai_cta": {"so": "I weydii su'aashaada hadda si aynu u bilowno!", "en": "Ask me your question now and let's begin!", "ar": "اسألني الآن ولنبدأ معاً!"},
+    "AI is thinking": {"so": "Siisto AI ayaa fekeraysa...", "en": "Siisto AI is thinking...", "ar": "Siisto AI يفكّر..."},
+    "ai_thinking": {"so": "Siisto AI ayaa fekeraysa...", "en": "Siisto AI is thinking...", "ar": "Siisto AI يفكّر..."},
+    "chat_placeholder": {"so": "Halkan ku qor su'aashaada (Tusaale: Sideen muruq u dhisaa?)...", "en": "Ask your fitness question here (e.g. How do I build muscle?)...", "ar": "اكتب سؤالك هنا (مثال: كيف أبني العضلات؟)..."},
 }
 
 @register.filter(name='ui_trans')
