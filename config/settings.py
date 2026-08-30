@@ -48,6 +48,14 @@ if _extra_origins:
         if o.strip() and o.strip() not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(o.strip())
 
+_railway_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '').strip()
+if _railway_domain:
+    if _railway_domain not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_railway_domain)
+    _csrf_domain = f"https://{_railway_domain}"
+    if _csrf_domain not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_csrf_domain)
+
 # Production security headers (configured based on DEBUG or environment overrides)
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', str(not DEBUG)).lower() in ('true', '1')
 CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', str(not DEBUG)).lower() in ('true', '1')
@@ -112,18 +120,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # ─────────────────────────────────────────
 #  DATABASE
 # ─────────────────────────────────────────
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = (
+    os.environ.get('DATABASE_URL')
+    or os.environ.get('DATABASE_PRIVATE_URL')
+    or os.environ.get('POSTGRES_URL')
+    or os.environ.get('DATABASE_PUBLIC_URL')
+)
+
 if DATABASE_URL:
     try:
         import dj_database_url
+        db_ssl_require = os.environ.get('DB_SSL_REQUIRE', 'False').lower() in ('true', '1')
         DATABASES = {
             'default': dj_database_url.config(
                 default=DATABASE_URL,
                 conn_max_age=600,
-                ssl_require=not DEBUG,
+                ssl_require=db_ssl_require,
             )
         }
-    except ImportError:
+    except Exception:
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',

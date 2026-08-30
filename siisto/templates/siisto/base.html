@@ -530,7 +530,7 @@
                     <i class="fa-solid fa-bolt text-[10px]"></i>
                     <span>Siisto 2026</span>
                 </a>
-                <span class="text-[11px]" style="color:rgba(148,163,184,0.45)">Somali 🇸🇴 &bull; English 🇬🇧 &bull; Arabic 🇸🇦 &bull; Powered by Gemini AI</span>
+                <span class="text-[11px]" style="color:rgba(148,163,184,0.45)">{% if CURRENT_LANGUAGE == 'ar' %}الصومالية 🇸🇴 &bull; الإنجليزية 🇬🇧 &bull; العربية 🇸🇦 &bull; مدعوم بـ Gemini AI{% elif CURRENT_LANGUAGE == 'en' %}Somali 🇸🇴 &bull; English 🇬🇧 &bull; Arabic 🇸🇦 &bull; Powered by Gemini AI{% else %}Soomaali 🇸🇴 &bull; English 🇬🇧 &bull; Carabi 🇸🇦 &bull; Waxaa Curyaamiyay Gemini AI{% endif %}</span>
             </div>
             <div>
                 <a href="{% url 'upgrade_pro' %}"

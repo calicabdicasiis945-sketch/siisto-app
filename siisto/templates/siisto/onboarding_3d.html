@@ -225,39 +225,6 @@
         </div>
     </header>
 
-    <!-- FLOATING 3D BODY 360° SCAN & ROTATION CONTROLS (BOTTOM-LEFT) -->
-    <div class="fixed bottom-6 left-6 z-50 glass-panel p-3 sm:p-4 rounded-2xl flex flex-col gap-2.5 max-w-xs shadow-2xl border border-purple-500/40 pointer-events-auto">
-        <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="text-[11px] font-bold text-cyan-300 font-mono tracking-wider">3D SCAN: 360° ROTATION</span>
-            </div>
-            <span id="scanAngleText" class="text-[10px] text-purple-300 font-mono">0°</span>
-        </div>
-
-        <!-- Rotation & Angle Buttons -->
-        <div class="grid grid-cols-4 gap-1.5 text-xs">
-            <button id="autoRotateToggleBtn" onclick="toggleAutoRotate()" title="Dami/Shid Wareegga 360°" class="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold flex flex-col items-center justify-center gap-1 shadow-lg shadow-purple-500/30 hover:scale-105 transition">
-                <i id="autoRotateIcon" class="fa-solid fa-arrows-rotate animate-spin"></i>
-                <span class="text-[9px]">360°</span>
-            </button>
-            <button onclick="setAvatarAngle(0)" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 text-center font-medium transition text-[10px]">
-                <i class="fa-solid fa-user block text-xs mb-0.5 text-purple-300"></i> Horta
-            </button>
-            <button onclick="setAvatarAngle(Math.PI / 2)" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 text-center font-medium transition text-[10px]">
-                <i class="fa-solid fa-street-view block text-xs mb-0.5 text-cyan-300"></i> Dhinaca
-            </button>
-            <button onclick="setAvatarAngle(Math.PI)" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 text-center font-medium transition text-[10px]">
-                <i class="fa-solid fa-shield-halved block text-xs mb-0.5 text-pink-300"></i> Dhabar
-            </button>
-        </div>
-
-        <!-- Drag Tip -->
-        <div class="text-[10px] text-gray-400 flex items-center gap-1.5 pt-1">
-            <i class="fa-solid fa-hand-pointer text-purple-400"></i>
-            <span>Jiid jiirka ama farta si aad 360° ugu wareejiso jirka</span>
-        </div>
-    </div>
 
     <!-- Right Side Step Progress Bar HUD -->
     <div class="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col items-center gap-3 p-3 rounded-2xl glass-panel">

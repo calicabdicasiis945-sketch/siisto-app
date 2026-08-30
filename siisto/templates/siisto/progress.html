@@ -229,9 +229,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // 1. Weight Progression Line Chart
-        const weightDates = {{ weight_dates| safe
-    }};
-    const weightValues = {{ weight_values| safe }};
+        const weightDates = {{ weight_dates|safe }};
+    const weightValues = {{ weight_values|safe }};
 
     const weightCanvas = document.getElementById('weightChart');
     if (weightCanvas && weightDates.length > 0) {
@@ -281,7 +280,7 @@
     const bodyPartsCanvas = document.getElementById('bodyPartsChart');
     if (bodyPartsCanvas) {
         const bodyPartsLabels = [{% for bp in body_parts %} '{{ bp.body_part|escapejs }}'{% if not forloop.last %}, {% endif %} {% endfor %}];
-    const bodyPartsData = [{% for bp in body_parts %}{ { bp.count } } {% if not forloop.last %}, {% endif %} {% endfor %}];
+    const bodyPartsData = [{% for bp in body_parts %}{{ bp.count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
 
     if (bodyPartsLabels.length > 0) {
         new Chart(bodyPartsCanvas.getContext('2d'), {
