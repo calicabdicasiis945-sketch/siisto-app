@@ -5,11 +5,13 @@ import re
 DEFAULT_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 MODELS_PRIORITY = [
+    "gemini-2.0-flash-lite",
+    "gemini-flash-latest",
+    "gemini-1.5-flash-latest",
     "gemini-2.0-flash",
     "gemini-1.5-flash",
     "gemini-1.5-pro",
     "gemini-2.5-flash",
-    "gemini-flash-latest"
 ]
 
 def detect_language_from_text(text, default='so'):

@@ -193,9 +193,8 @@ LOCALE_PATHS = [
 # ─────────────────────────────────────────
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'siisto', 'static'),
-]
+_siisto_static = os.path.join(BASE_DIR, 'siisto', 'static')
+STATICFILES_DIRS = [_siisto_static] if os.path.isdir(_siisto_static) else []
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",

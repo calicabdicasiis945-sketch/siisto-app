@@ -738,7 +738,18 @@ EXERCISES_DATA = [
 class Command(BaseCommand):
     help = "Populate ExerciseLibrary with complete ~80 exercises organized by category and subcategory using update_or_create"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--skip-if-exists',
+            action='store_true',
+            dest='skip_if_exists',
+            help='Skip seeding if exercises already exist in the database',
+        )
+
     def handle(self, *args, **options):
+        if options.get('skip_if_exists') and ExerciseLibrary.objects.exists():
+            self.stdout.write(self.style.SUCCESS(f'Exercises already exist ({ExerciseLibrary.objects.count()} records). Skipping seed.'))
+            return
         updated_or_created = 0
         for item in EXERCISES_DATA:
             obj, created = ExerciseLibrary.objects.update_or_create(
