@@ -7,17 +7,19 @@ ENV PORT=8000
 
 WORKDIR /app
 
-# Install system dependencies for build, libpq, and Pillow
+# Install system dependencies for build, PostgreSQL, and Pillow
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    python3-dev \
     libpq-dev \
     libjpeg-dev \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python requirements
+# Copy requirements and install via python -m pip
 COPY requirements.txt /app/
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --upgrade pip && \
+    python -m pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
 COPY . /app/
