@@ -312,7 +312,7 @@
 <body class="min-h-screen flex flex-col md:flex-row p-3 md:p-5 gap-5">
 
     <!-- SIDEBAR (NAVIGATION) -->
-    <aside class="w-full md:w-64 lg:w-72 flex-shrink-0 flex flex-col justify-between skillset-card p-5">
+    <aside class="hidden md:flex w-full md:w-64 lg:w-72 flex-shrink-0 flex-col justify-between skillset-card p-5">
         <div>
             <!-- BRAND LOGO -->
             <div class="flex items-center justify-between mb-6 px-1">
@@ -519,12 +519,12 @@
         {% endif %}
 
         <!-- INNER DYNAMIC CONTENT -->
-        <main class="flex-1 min-w-0">
+        <main class="flex-1 min-w-0 pb-24 md:pb-0">
             {% block content %}{% endblock %}
         </main>
 
         <!-- BOTTOM FOOTER BAR -->
-        <div class="hidden sm:flex items-center justify-between pt-3 pb-1">
+        <div class="hidden md:flex items-center justify-between pt-3 pb-1">
             <div class="flex items-center gap-2.5">
                 <a href="{% url 'index' %}" class="floating-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 font-bold transition text-xs" style="color:#1E90FF">
                     <i class="fa-solid fa-bolt text-[10px]"></i>
@@ -543,7 +543,7 @@
     </div>
 
     <!-- ── FLOATING MOBILE APP BOTTOM NAVIGATION BAR (MATCHING MOCKUP DOCK) ── -->
-    <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#070a14]/95 backdrop-blur-lg border-t border-blue-500/20 px-4 py-2 flex items-center justify-around shadow-2xl">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#070a14]/95 backdrop-blur-lg border-t border-blue-500/20 px-4 py-2 flex items-center justify-around shadow-2xl" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 8px));">
         <a href="{% url 'index' %}" class="flex flex-col items-center gap-1 text-blue-400">
             <i class="fa-solid fa-house text-base"></i>
             <span class="text-[9px] font-black uppercase tracking-wider">{{ "Home"|ui_trans:CURRENT_LANGUAGE }}</span>
