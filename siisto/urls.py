@@ -7,8 +7,8 @@ urlpatterns = [
     path('', views.index, name='index'),
 
     # ─── Auth ───────────────────────────────────────────
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logout.html'), name='logout'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     path('signup/', views.register, name='signup'),
 
     # ─── Nutrition / Meals ──────────────────────────────

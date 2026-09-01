@@ -34,12 +34,12 @@
         <div class="bg-[#0e131f] border border-[#1d283e] rounded-3xl p-8 shadow-2xl space-y-6">
             <div>
                 <h2 class="text-lg font-bold text-white">Soo Gal Koontadaada</h2>
-                <p class="text-xs text-[#94a3b8]">Geli magacaaga iyo furaha sirta ah si aad u gasho.</p>
+                <p class="text-xs text-[#94a3b8]">Geli magacaaga ama email-kaaga iyo furaha sirta ah.</p>
             </div>
 
             {% if form.errors %}
                 <div class="bg-rose-950/40 border border-rose-800 text-rose-300 p-3 rounded-2xl text-xs font-semibold">
-                    Magaca ama furaha sirta ah waa qaldan yahay. Fadlan dib u hubi.
+                    Magaca/Email-ka ama furaha sirta ah waa qaldan yahay. Fadlan dib u hubi.
                 </div>
             {% endif %}
 
@@ -55,10 +55,10 @@
                 {% csrf_token %}
                 
                 <div>
-                    <label class="block text-xs font-bold text-blue-200 mb-1.5">Magaca (Username)</label>
+                    <label class="block text-xs font-bold text-blue-200 mb-1.5">Magaca ama Email (Username / Email)</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748b] text-xs"></i>
-                        <input type="text" name="username" placeholder="Geli magacaaga" required
+                        <input type="text" name="username" placeholder="Geli magacaaga ama email-kaaga" required
                                class="w-full bg-[#141b2d] border border-[#1d283e] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-[#64748b] focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold">
                     </div>
                 </div>

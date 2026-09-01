@@ -220,7 +220,7 @@
             </button>
             <a href="{% url 'index' %}" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold transition flex items-center gap-2">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span class="hidden sm:inline">Ka bax (Dashboard)</span>
+                <span id="exit-hud-text" class="hidden sm:inline">Ka bax (Dashboard)</span>
             </a>
         </div>
     </header>
@@ -228,9 +228,10 @@
 
     <!-- Right Side Step Progress Bar HUD -->
     <div class="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col items-center gap-3 p-3 rounded-2xl glass-panel">
-        <span class="text-[10px] font-mono text-purple-300 font-bold uppercase tracking-widest" id="stepCounterText">01/07</span>
+        <span class="text-[10px] font-mono text-purple-300 font-bold uppercase tracking-widest" id="stepCounterText">01/08</span>
         <div class="flex flex-col gap-2 my-1" id="hudDotsContainer">
-            <div class="hud-dot active" onclick="scrollToSection('step-hero')"></div>
+            <div class="hud-dot active" onclick="scrollToSection('step-language')"></div>
+            <div class="hud-dot" onclick="scrollToSection('step-hero')"></div>
             <div class="hud-dot" onclick="scrollToSection('step-goal')"></div>
             <div class="hud-dot" onclick="scrollToSection('step-weight')"></div>
             <div class="hud-dot" onclick="scrollToSection('step-height')"></div>
@@ -246,31 +247,112 @@
     <!-- MAIN SCROLLABLE 3D CONTENT CONTAINER -->
     <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
 
-        <!-- ================= STEP 0: HERO INTRO ================= -->
+        <!-- ================= STEP 0: LANGUAGE SELECTION ================= -->
+        <section id="step-language" class="step-section">
+            <div class="w-full max-w-2xl mx-auto text-center space-y-10">
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span id="lang-step-badge">Dooro Luqaddaada • Choose Your Language • اختر لغتك</span>
+                </div>
+
+                <!-- Title -->
+                <div>
+                    <h2 id="lang-step-title" class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-glow">Luqad</span>
+                    </h2>
+                    <p id="lang-step-sub" class="text-gray-300 text-base sm:text-lg mt-4 leading-relaxed">
+                        Dooro luqadda aad rabto si systemku kuugu hadlo.
+                    </p>
+                </div>
+
+                <!-- Language Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+                    <!-- Somali -->
+                    <button onclick="selectLanguage('so')" id="lang-btn-so"
+                        class="lang-card glass-card-interactive rounded-3xl p-8 flex flex-col items-center gap-4 group border-2 border-transparent transition-all duration-300 hover:border-purple-500"
+                        style="min-height:200px">
+                        <div class="text-6xl group-hover:scale-110 transition-transform duration-300">🇸🇴</div>
+                        <div class="text-center">
+                            <div class="text-xl font-extrabold text-white">Soomaali</div>
+                            <div class="text-sm text-purple-300 mt-1 font-medium">لغة الصومالية</div>
+                            <div class="text-xs text-gray-400 mt-1">Somali Language</div>
+                        </div>
+                        <div id="lang-check-so" class="hidden w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/40">
+                            <i class="fa-solid fa-check text-white text-sm"></i>
+                        </div>
+                    </button>
+
+                    <!-- English -->
+                    <button onclick="selectLanguage('en')" id="lang-btn-en"
+                        class="lang-card glass-card-interactive rounded-3xl p-8 flex flex-col items-center gap-4 group border-2 border-transparent transition-all duration-300 hover:border-cyan-500"
+                        style="min-height:200px">
+                        <div class="text-6xl group-hover:scale-110 transition-transform duration-300">🇬🇧</div>
+                        <div class="text-center">
+                            <div class="text-xl font-extrabold text-white">English</div>
+                            <div class="text-sm text-cyan-300 mt-1 font-medium">الإنجليزية</div>
+                            <div class="text-xs text-gray-400 mt-1">Ingiriisi</div>
+                        </div>
+                        <div id="lang-check-en" class="hidden w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/40">
+                            <i class="fa-solid fa-check text-white text-sm"></i>
+                        </div>
+                    </button>
+
+                    <!-- Arabic -->
+                    <button onclick="selectLanguage('ar')" id="lang-btn-ar"
+                        class="lang-card glass-card-interactive rounded-3xl p-8 flex flex-col items-center gap-4 group border-2 border-transparent transition-all duration-300 hover:border-amber-500"
+                        style="min-height:200px">
+                        <div class="text-6xl group-hover:scale-110 transition-transform duration-300">🇸🇦</div>
+                        <div class="text-center">
+                            <div class="text-xl font-extrabold text-white">العربية</div>
+                            <div class="text-sm text-amber-300 mt-1 font-medium">Arabic</div>
+                            <div class="text-xs text-gray-400 mt-1">Carabi</div>
+                        </div>
+                        <div id="lang-check-ar" class="hidden w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/40">
+                            <i class="fa-solid fa-check text-white text-sm"></i>
+                        </div>
+                    </button>
+
+                </div>
+
+                <!-- Continue Button -->
+                <div class="pt-4">
+                    <button id="lang-continue-btn" onclick="confirmLanguage()"
+                        class="hidden px-12 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-lg shadow-xl shadow-purple-600/30 flex items-center gap-3 mx-auto transition-all hover:scale-105 group">
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        <span id="lang-continue-text">Sii Wad</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= STEP 1: HERO INTRO ================= -->
         <section id="step-hero" class="step-section">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
                 <div class="lg:col-span-7 space-y-6">
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
                         <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                        3D Hologram 360° Bio-Metric Engine Ready
+                        <span id="hero-badge-text">3D Hologram 360° Bio-Metric Engine Ready</span>
                     </div>
-                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+                    <h1 id="hero-title-text" class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
                         Bilow Safarkaaga <br>
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-glow">
                             3D Jir-Dhis & AI Scan
                         </span>
                     </h1>
-                    <p class="text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
+                    <p id="hero-desc-text" class="text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
                         Waxaan kuu samaynaynaa qiyaas 3D ah oo dynamic ah oo qofka wareejisa 360°, xisaabisa miisaankaaga, dhererkaaga, hadafkaaga, iyo qorshahaaga nafaqo iyo tababar.
                     </p>
                     <div class="flex flex-wrap items-center gap-4 pt-4">
                         <button onclick="scrollToSection('step-goal')" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-base shadow-xl shadow-purple-600/30 flex items-center gap-3 transition-all hover:scale-105 group">
-                            <span>Bilow Qiyaasta 3D-ga</span>
+                            <span id="hero-start-btn-text">Bilow Qiyaasta 3D-ga</span>
                             <i class="fa-solid fa-arrow-down group-hover:translate-y-1 transition-transform"></i>
                         </button>
                         <div class="flex items-center gap-3 text-xs text-gray-400">
                             <i class="fa-solid fa-mouse text-purple-400 text-lg animate-bounce"></i>
-                            <span>Hoos u rog (Scroll Down) si aad u bilowdo</span>
+                            <span id="hero-scroll-hint-text">Hoos u rog (Scroll Down) si aad u bilowdo</span>
                         </div>
                     </div>
                 </div>
@@ -279,8 +361,8 @@
                         <div class="inline-block p-3 rounded-2xl bg-purple-500/10 text-purple-300 text-2xl">
                             <i class="fa-solid fa-vr-cardboard"></i>
                         </div>
-                        <h4 class="font-bold text-white text-base">3D Interactive 360° Canvas</h4>
-                        <p class="text-xs text-gray-400">Qaabka jirkaaga 3D-ga ah wuxuu u wareegayaa 360° isagoo toos ula jaanqaadaya dhererka iyo miisaankaaga.</p>
+                        <h4 id="hero-card-title" class="font-bold text-white text-base">3D Interactive 360° Canvas</h4>
+                        <p id="hero-card-desc" class="text-xs text-gray-400">Qaabka jirkaaga 3D-ga ah wuxuu u wareegayaa 360° isagoo toos ula jaanqaadaya dhererka iyo miisaankaaga.</p>
                     </div>
                 </div>
             </div>
@@ -292,12 +374,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
                 <div class="lg:col-span-8 space-y-6">
                     <div class="flex items-center gap-2 text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">
-                        <i class="fa-solid fa-bullseye"></i> Talaabada 01: Hadafkaaga Weyn
+                        <i class="fa-solid fa-bullseye"></i> <span id="goal-step-text">Talaabada 01: Hadafkaaga Weyn</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                    <h2 id="goal-title-text" class="text-3xl sm:text-5xl font-extrabold tracking-tight">
                         Waa Maxay <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Hadafkaaga Ugu Weyn?</span>
                     </h2>
-                    <p class="text-gray-300 text-sm sm:text-base">
+                    <p id="goal-sub-text" class="text-gray-300 text-sm sm:text-base">
                         Dooro natiijada aad rabto inaad ka gaarto safarkaaga tababarka si qorshuhu kuugu habboonaado:
                     </p>
 
@@ -362,7 +444,7 @@
 
                     <div class="pt-4 flex items-center gap-4">
                         <button onclick="scrollToSection('step-weight')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
-                            <span>Sii wad: Miisaankaaga</span>
+                            <span id="goal-next-btn-text">Sii wad: Miisaankaaga</span>
                             <i class="fa-solid fa-arrow-down"></i>
                         </button>
                     </div>
@@ -376,12 +458,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
                 <div class="lg:col-span-7 space-y-6">
                     <div class="flex items-center gap-2 text-xs font-mono text-pink-400 font-bold uppercase tracking-wider">
-                        <i class="fa-solid fa-weight-scale"></i> Talaabada 02: Miisaankaaga Hadda
+                        <i class="fa-solid fa-weight-scale"></i> <span id="weight-step-text">Talaabada 02: Miisaankaaga Hadda</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                    <h2 id="weight-title-text" class="text-3xl sm:text-5xl font-extrabold tracking-tight">
                         Miisaankaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-400">Weight Waa Imisa?</span>
                     </h2>
-                    <p class="text-gray-300 text-sm sm:text-base">
+                    <p id="weight-sub-text" class="text-gray-300 text-sm sm:text-base">
                         Gali ama jiid miisaankaaga hadda (kg). Avatar-ka 3D-ga ah ayaa si toos ah u weynaanaya ama u caataanaya:
                     </p>
 
@@ -433,7 +515,7 @@
 
                     <div class="pt-2 flex items-center gap-4">
                         <button onclick="scrollToSection('step-height')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
-                            <span>Sii wad: Dhererkaaga (Height)</span>
+                            <span id="weight-next-btn-text">Sii wad: Dhererkaaga (Height)</span>
                             <i class="fa-solid fa-arrow-down"></i>
                         </button>
                         <button onclick="scrollToSection('step-goal')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
@@ -450,12 +532,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
                 <div class="lg:col-span-7 space-y-6">
                     <div class="flex items-center gap-2 text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider">
-                        <i class="fa-solid fa-ruler-vertical"></i> Talaabada 03: Dhererkaaga
+                        <i class="fa-solid fa-ruler-vertical"></i> <span id="height-step-text">Talaabada 03: Dhererkaaga</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                    <h2 id="height-title-text" class="text-3xl sm:text-5xl font-extrabold tracking-tight">
                         Dhererkaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Height Waa Intee?</span>
                     </h2>
-                    <p class="text-gray-300 text-sm sm:text-base">
+                    <p id="height-sub-text" class="text-gray-300 text-sm sm:text-base">
                         Dooro dhererkaaga (cm). 3D Hologram-ka ayaa si toos ah u dhereranaya:
                     </p>
 
@@ -508,7 +590,7 @@
 
                     <div class="pt-2 flex items-center gap-4">
                         <button onclick="scrollToSection('step-age-gender')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
-                            <span>Sii wad: Da'da & Jinsiga</span>
+                            <span id="height-next-btn-text">Sii wad: Da'da & Jinsiga</span>
                             <i class="fa-solid fa-arrow-down"></i>
                         </button>
                         <button onclick="scrollToSection('step-weight')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
@@ -525,12 +607,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
                 <div class="lg:col-span-8 space-y-6">
                     <div class="flex items-center gap-2 text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">
-                        <i class="fa-solid fa-venus-mars"></i> Talaabada 04: Da'da & Jinsiga
+                        <i class="fa-solid fa-venus-mars"></i> <span id="age-step-text">Talaabada 04: Da'da & Jinsiga</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                    <h2 id="age-title-text" class="text-3xl sm:text-5xl font-extrabold tracking-tight">
                         Dooro <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Jinsigaaga & Da'daada</span>
                     </h2>
-                    <p class="text-gray-300 text-sm sm:text-base">
+                    <p id="age-sub-text" class="text-gray-300 text-sm sm:text-base">
                         Xogtaani waxay naga caawinaysaa inaan xisaabino dheefshiidkaaga aasaasiga ah (BMR) iyo baahidaada kalooriyada:
                     </p>
 
@@ -571,7 +653,7 @@
 
                     <div class="pt-2 flex items-center gap-4">
                         <button onclick="scrollToSection('step-activity')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25 flex items-center gap-2 hover:scale-105 transition">
-                            <span>Sii wad: Firfircoonida & Yoolka</span>
+                            <span id="age-next-btn-text">Sii wad: Firfircoonida & Yoolka</span>
                             <i class="fa-solid fa-arrow-down"></i>
                         </button>
                         <button onclick="scrollToSection('step-height')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
@@ -588,12 +670,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
                 <div class="lg:col-span-8 space-y-6">
                     <div class="flex items-center gap-2 text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">
-                        <i class="fa-solid fa-gauge-high"></i> Talaabada 05: Firfircoonida & Yoolka
+                        <i class="fa-solid fa-gauge-high"></i> <span id="activity-step-text">Talaabada 05: Firfircoonida & Yoolka</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                    <h2 id="activity-title-text" class="text-3xl sm:text-5xl font-extrabold tracking-tight">
                         Heerkaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400">Dhaqdhaqaaqa & Miisaanka Yoolka</span>
                     </h2>
-                    <p class="text-gray-300 text-sm sm:text-base">
+                    <p id="activity-sub-text" class="text-gray-300 text-sm sm:text-base">
                         Sidee ayuu u egyahay dhaqdhaqaaqaaga maalinlaha ah iyo miisaanka aad higsaneyso?
                     </p>
 
@@ -654,7 +736,7 @@
                     <div class="pt-2 flex items-center gap-4">
                         <button onclick="calculateAndShowResults()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-lime-500 text-white font-extrabold text-base shadow-xl shadow-purple-500/30 flex items-center gap-3 hover:scale-105 transition">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>Xisaabi Natiijada 3D Scan</span>
+                            <span id="activity-next-btn-text">Xisaabi Natiijada 3D Scan</span>
                         </button>
                         <button onclick="scrollToSection('step-age-gender')" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">
                             Dib u noqo
@@ -670,12 +752,12 @@
             <div class="w-full space-y-8">
                 <div class="text-center max-w-2xl mx-auto space-y-3">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-lime-500/20 text-lime-300 border border-lime-500/40 text-xs font-mono">
-                        <i class="fa-solid fa-circle-check"></i> 3D AI Biometrics Generated
+                        <i class="fa-solid fa-circle-check"></i> <span id="results-step-text">3D AI Biometrics Generated</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                    <h2 id="results-title-text" class="text-3xl sm:text-5xl font-extrabold tracking-tight">
                         Natiijadaada <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-lime-400">3D AI Body Scan</span>
                     </h2>
-                    <p class="text-gray-300 text-xs sm:text-sm">
+                    <p id="results-sub-text" class="text-gray-300 text-xs sm:text-sm">
                         Qiyaasta caafimaadkaaga, heerka kalooriyada maalinlaha ah, iyo qorshaha lagu gaarayo yoolkaaga:
                     </p>
                 </div>
@@ -802,7 +884,7 @@
                     <div class="flex flex-wrap justify-center items-center gap-4 pt-2">
                         <button id="btnSaveOnboarding" onclick="submitOnboardingData()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold text-base shadow-2xl shadow-purple-600/50 flex items-center gap-3 transition-all hover:scale-105">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>Keydi Xogta & Gal Dashboard-ka</span>
+                            <span id="results-save-btn-text">Keydi Xogta & Gal Dashboard-ka</span>
                         </button>
                         <a href="{% url 'ai_coach' %}" class="px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-sm transition flex items-center gap-2">
                             <i class="fa-solid fa-robot text-purple-400"></i>
@@ -850,7 +932,251 @@
             activity_level: initialData.activity_level || 'moderate',
             target_weight: parseFloat(initialData.target_weight) || 65,
             email: initialData.email || '',
+            language: '{{ CURRENT_LANGUAGE|default:"so" }}',
         };
+
+        // ─── COMPLETE MULTILINGUAL SYSTEM FOR 3D ONBOARDING ────────────
+        const langLabels = {
+            so: { title: 'Dooro Luqaddaada', sub: 'Dooro luqadda aad rabto si systemku kuugu hadlo.', btn: 'Sii Wad ›', border: 'border-purple-500', glow: '0 0 30px rgba(168,85,247,0.5)' },
+            en: { title: 'Choose Your Language', sub: 'Select the language you want the system to use.', btn: 'Continue ›', border: 'border-cyan-500', glow: '0 0 30px rgba(6,182,212,0.5)' },
+            ar: { title: 'اختر لغتك المفضلة', sub: 'اختر اللغة التي تريد أن يتحدث بها النظام معك.', btn: 'متابعة ›', border: 'border-amber-500', glow: '0 0 30px rgba(245,158,11,0.5)' },
+        };
+
+        const i18n3D = {
+            so: {
+                badge: "Dooro Luqaddaada • Choose Your Language • اختر لغتك",
+                exitBtn: "Ka bax (Dashboard)",
+                heroBadge: "3D Hologram 360° Bio-Metric Engine Ready",
+                heroTitle: 'Bilow Safarkaaga <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-glow">3D Jir-Dhis & AI Scan</span>',
+                heroDesc: "Waxaan kuu samaynaynaa qiyaas 3D ah oo dynamic ah oo qofka wareejisa 360°, xisaabisa miisaankaaga, dhererkaaga, hadafkaaga, iyo qorshahaaga nafaqo iyo tababar.",
+                heroStartBtn: "Bilow Qiyaasta 3D-ga",
+                heroScrollHint: "Hoos u rog (Scroll Down) si aad u bilowdo",
+                heroCardTitle: "3D Interactive 360° Canvas",
+                heroCardDesc: "Qaabka jirkaaga 3D-ga ah wuxuu u wareegayaa 360° isagoo toos ula jaanqaadaya dhererka iyo miisaankaaga.",
+                goalStep: "Talaabada 01: Hadafkaaga Weyn",
+                goalTitle: 'Waa Maxay <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Hadafkaaga Ugu Weyn?</span>',
+                goalSub: "Dooro natiijada aad rabto inaad ka gaarto safarkaaga tababarka si qorshuhu kuugu habboonaado:",
+                goalNextBtn: "Sii wad: Miisaankaaga",
+                weightStep: "Talaabada 02: Miisaankaaga Hadda",
+                weightTitle: 'Miisaankaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-400">Weight Waa Imisa?</span>',
+                weightSub: "Gali ama jiid miisaankaaga hadda (kg). Avatar-ka 3D-ga ah ayaa si toos ah u weynaanaya ama u caataanaya:",
+                weightNextBtn: "Sii wad: Dhererkaaga (Height)",
+                heightStep: "Talaabada 03: Dhererkaaga",
+                heightTitle: 'Dhererkaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Height Waa Intee?</span>',
+                heightSub: "Dooro dhererkaaga (cm). 3D Hologram-ka ayaa si toos ah u dhereranaya:",
+                heightNextBtn: "Sii wad: Da'da & Jinsiga",
+                ageGenderStep: "Talaabada 04: Da'da & Jinsiga",
+                ageGenderTitle: 'Dooro <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Jinsigaaga & Da\'daada</span>',
+                ageGenderSub: "Xogtaani waxay naga caawinaysaa inaan xisaabino dheefshiidkaaga aasaasiga ah (BMR) iyo baahidaada kalooriyada:",
+                ageGenderNextBtn: "Sii wad: Firfircoonida & Yoolka",
+                activityStep: "Talaabada 05: Firfircoonida & Yoolka",
+                activityTitle: 'Heerkaaga <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400">Dhaqdhaqaaqa & Miisaanka Yoolka</span>',
+                activitySub: "Sidee ayuu u egyahay dhaqdhaqaaqaaga maalinlaha ah iyo miisaanka aad higsaneyso?",
+                activityNextBtn: "Xisaabi Natiijada 3D Scan",
+                resultsStep: "3D AI Biometrics Generated",
+                resultsTitle: 'Natiijadaada <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-lime-400">3D AI Body Scan</span>',
+                resultsSub: "Qiyaasta caafimaadkaaga, heerka kalooriyada maalinlaha ah, iyo qorshaha lagu gaarayo yoolkaaga:",
+                resultsSaveBtn: "Keydi Xogta & Gal Dashboard-ka",
+            },
+            en: {
+                badge: "Choose Your Language • Dooro Luqaddaada • اختر لغتك",
+                exitBtn: "Exit (Dashboard)",
+                heroBadge: "3D Hologram 360° Bio-Metric Engine Ready",
+                heroTitle: 'Start Your Journey <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-glow">3D Fitness & AI Scan</span>',
+                heroDesc: "We create a dynamic 360° 3D biometric assessment tailored to your weight, height, fitness goals, nutrition, and workout plan.",
+                heroStartBtn: "Start 3D Assessment",
+                heroScrollHint: "Scroll down to begin",
+                heroCardTitle: "3D Interactive 360° Canvas",
+                heroCardDesc: "Your 3D body hologram dynamically reacts in real-time to your height and weight measurements.",
+                goalStep: "Step 01: Primary Fitness Goal",
+                goalTitle: 'What is Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Primary Goal?</span>',
+                goalSub: "Choose the target outcome for your fitness journey so AI can customize your program:",
+                goalNextBtn: "Next: Your Weight",
+                weightStep: "Step 02: Current Weight",
+                weightTitle: 'What is Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-400">Current Weight?</span>',
+                weightSub: "Enter or drag your weight in kg. The 3D avatar dynamically adapts to your body composition:",
+                weightNextBtn: "Next: Your Height",
+                heightStep: "Step 03: Your Height",
+                heightTitle: 'What is Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Height?</span>',
+                heightSub: "Drag the slider to set your height in cm. The 3D hologram scales in real-time:",
+                heightNextBtn: "Next: Age & Gender",
+                ageGenderStep: "Step 04: Age & Gender",
+                ageGenderTitle: 'Select Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Age & Biological Gender</span>',
+                ageGenderSub: "Age and biological gender directly determine your Basal Metabolic Rate (BMR) and caloric needs:",
+                ageGenderNextBtn: "Next: Activity Level",
+                activityStep: "Step 05: Daily Activity Level",
+                activityTitle: 'Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400">Activity Level & Target Weight</span>',
+                activitySub: "How active are you day-to-day and what is your target dream weight?",
+                activityNextBtn: "Calculate 3D Scan Results",
+                resultsStep: "3D AI Biometrics Generated",
+                resultsTitle: 'Your Personalized <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-lime-400">3D AI Body Scan</span>',
+                resultsSub: "Here is your full health assessment, target daily calories, and customized fitness roadmap:",
+                resultsSaveBtn: "Save Profile & Enter Dashboard",
+            },
+            ar: {
+                badge: "اختر لغتك • Choose Your Language • Dooro Luqaddaada",
+                exitBtn: "خروج (لوحة التحكم)",
+                heroBadge: "محرك القياسات الحيوية ثلاثي الأبعاد 360° جاهز",
+                heroTitle: 'ابدأ رحلتك الرياضية <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-glow">اللياقة البدنية والفحص ثلاثي الأبعاد</span>',
+                heroDesc: "نقوم بإنشاء تقييم ثلاثي الأبعاد تفاعلي يدور 360 درجة، مخصص لوزنك وطولك وهدفك وخطتك الغذائية والتدريبية.",
+                heroStartBtn: "ابدأ الفحص ثلاثي الأبعاد",
+                heroScrollHint: "مرر لأسفل للبدء",
+                heroCardTitle: "لوحة تفاعلية ثلاثية الأبعاد 360°",
+                heroCardDesc: "يتفاعل النموذج ثلاثي الأبعاد في الوقت الفعلي مع قياسات طولك ووزنك.",
+                goalStep: "الخطوة 01: هدفك الرياضي الرئيسي",
+                goalTitle: 'ما هو <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">هدفك الرئيسي؟</span>',
+                goalSub: "اختر النتيجة المستهدفة حتى يتمكن الذكاء الاصطناعي من تخصيص خطتك:",
+                goalNextBtn: "التالي: وزنك الحالي",
+                weightStep: "الخطوة 02: وزنك الحالي",
+                weightTitle: 'كم هو <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-400">وزنك الحالي؟</span>',
+                weightSub: "أدخل وزنك بالكيلوجرام. يتكيف المجسم ثلاثي الأبعاد تلقائيًا مع وزنك:",
+                weightNextBtn: "التالي: طولك",
+                heightStep: "الخطوة 03: طولك",
+                heightTitle: 'كم هو <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">طولك بالسنتيمتر؟</span>',
+                heightSub: "اسحب المؤشر لتحديد طولك بالسنتيمتر. يتغير المجسم ثلاثي الأبعاد فورًا:",
+                heightNextBtn: "التالي: العمر والجنس",
+                ageGenderStep: "الخطوة 04: العمر والجنس",
+                ageGenderTitle: 'حدد <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">عمرك وجنسك</span>',
+                ageGenderSub: "يحدد العمر والجنس معدل الأيض الأساسي لحرق السعرات الحرارية (BMR):",
+                ageGenderNextBtn: "التالي: مستوى النشاط",
+                activityStep: "الخطوة 05: مستوى النشاط والهدف",
+                activityTitle: 'ما هو <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400">مستوى نشاطك ووزنك المستهدف؟</span>',
+                activitySub: "تحدد حركتك اليومية وتكرار التمارين إجمالي استهلاكك اليومي للطاقة:",
+                activityNextBtn: "احسب نتائج الفحص ثلاثي الأبعاد",
+                resultsStep: "تم إنشاء القياسات الحيوية ثلاثية الأبعاد",
+                resultsTitle: 'نتائجك المخصصة <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-lime-400">من الفحص الذكي 3D</span>',
+                resultsSub: "إليك تقييمك الصحي الكامل والسعرات المستهدفة وخطة التغذية والتمارين:",
+                resultsSaveBtn: "حفظ البيانات والانتقال إلى لوحة التحكم",
+            }
+        };
+
+        function applyLanguageToOnboarding(lang) {
+            const d = i18n3D[lang] || i18n3D.so;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'ar' ? 'rtl' : 'ltr');
+            
+            // Set cookie immediately in browser
+            document.cookie = "django_language=" + lang + "; path=/; max-age=31536000; SameSite=Lax";
+
+            const updateText = (id, text, isHTML) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (isHTML) el.innerHTML = text;
+                    else el.textContent = text;
+                }
+            };
+
+            updateText('lang-step-badge', d.badge);
+            updateText('exit-hud-text', d.exitBtn);
+            updateText('hero-badge-text', d.heroBadge);
+            updateText('hero-title-text', d.heroTitle, true);
+            updateText('hero-desc-text', d.heroDesc);
+            updateText('hero-start-btn-text', d.heroStartBtn);
+            updateText('hero-scroll-hint-text', d.heroScrollHint);
+            updateText('hero-card-title', d.heroCardTitle);
+            updateText('hero-card-desc', d.heroCardDesc);
+            updateText('goal-step-text', d.goalStep);
+            updateText('goal-title-text', d.goalTitle, true);
+            updateText('goal-sub-text', d.goalSub);
+            updateText('goal-next-btn-text', d.goalNextBtn);
+            updateText('weight-step-text', d.weightStep);
+            updateText('weight-title-text', d.weightTitle, true);
+            updateText('weight-sub-text', d.weightSub);
+            updateText('weight-next-btn-text', d.weightNextBtn);
+            updateText('height-step-text', d.heightStep);
+            updateText('height-title-text', d.heightTitle, true);
+            updateText('height-sub-text', d.heightSub);
+            updateText('height-next-btn-text', d.heightNextBtn);
+            updateText('age-step-text', d.ageGenderStep);
+            updateText('age-title-text', d.ageGenderTitle, true);
+            updateText('age-sub-text', d.ageGenderSub);
+            updateText('age-next-btn-text', d.ageGenderNextBtn);
+            updateText('activity-step-text', d.activityStep);
+            updateText('activity-title-text', d.activityTitle, true);
+            updateText('activity-sub-text', d.activitySub);
+            updateText('activity-next-btn-text', d.activityNextBtn);
+            updateText('results-step-text', d.resultsStep);
+            updateText('results-title-text', d.resultsTitle, true);
+            updateText('results-sub-text', d.resultsSub);
+            updateText('results-save-btn-text', d.resultsSaveBtn);
+        }
+
+        function selectLanguage(lang) {
+            userState.language = lang;
+            // Reset all cards
+            ['so','en','ar'].forEach(code => {
+                const btn = document.getElementById('lang-btn-' + code);
+                const check = document.getElementById('lang-check-' + code);
+                if (btn) {
+                    btn.classList.remove('border-purple-500','border-cyan-500','border-amber-500','selected');
+                    btn.style.boxShadow = '';
+                }
+                if (check) check.classList.add('hidden');
+            });
+            // Highlight selected
+            const selBtn = document.getElementById('lang-btn-' + lang);
+            const selCheck = document.getElementById('lang-check-' + lang);
+            if (selBtn) {
+                selBtn.classList.add('selected', langLabels[lang].border);
+                selBtn.style.boxShadow = langLabels[lang].glow;
+            }
+            if (selCheck) selCheck.classList.remove('hidden');
+
+            // Update title/subtitle
+            const lbl = langLabels[lang] || langLabels.so;
+            const titleEl = document.getElementById('lang-step-title');
+            if (titleEl) titleEl.innerHTML = '<span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-glow">' + lbl.title + '</span>';
+            const subEl = document.getElementById('lang-step-sub');
+            if (subEl) subEl.textContent = lbl.sub;
+
+            // Show continue button
+            const continueBtn = document.getElementById('lang-continue-btn');
+            if (continueBtn) {
+                continueBtn.classList.remove('hidden');
+                continueBtn.style.display = 'flex';
+                const txt = document.getElementById('lang-continue-text');
+                if (txt) txt.textContent = lbl.btn;
+            }
+
+            // Dynamically translate all onboarding UI elements
+            applyLanguageToOnboarding(lang);
+
+            // Persist to backend
+            try {
+                const csrfToken = getCookie('csrftoken');
+                const formData = new FormData();
+                formData.append('language', lang);
+                formData.append('next', '/onboarding/');
+                formData.append('csrfmiddlewaretoken', csrfToken);
+                fetch('/set-language/', { method: 'POST', body: formData });
+            } catch(e) { console.warn('Language set failed (non-critical):', e); }
+
+            playTone(523.25, 'sine', 0.12);
+        }
+
+        async function confirmLanguage() {
+            const lang = userState.language || 'so';
+            try {
+                const csrfToken = getCookie('csrftoken');
+                const formData = new FormData();
+                formData.append('language', lang);
+                formData.append('next', '/onboarding/');
+                formData.append('csrfmiddlewaretoken', csrfToken);
+                await fetch('/set-language/', { method: 'POST', body: formData });
+            } catch(e) { console.warn('Language set failed (non-critical):', e); }
+            playTone(659.25, 'sine', 0.18);
+            scrollToSection('step-hero');
+        }
+
+        // Pre-select current language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const curLang = userState.language;
+            if (curLang && ['so','en','ar'].includes(curLang)) {
+                selectLanguage(curLang);
+            }
+        });
+        // ─── END LANGUAGE SELECTION ────────────────────────────────────────────
+
 
         // Helper to append domain
         function appendEmailDomain(domain) {

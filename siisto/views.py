@@ -248,30 +248,6 @@ def index(request):
     return render(request, 'siisto/index.html', context)
 
 
-def set_language_preference(request):
-    """
-    Switches language for session, cookie, and updates Profile for logged-in user.
-    Redirects back to previous page or index.
-    """
-    from django.utils import translation
-    lang = request.POST.get('language') or request.GET.get('language') or 'so'
-    if lang not in ['so', 'en', 'ar']:
-        lang = 'so'
-
-    translation.activate(lang)
-    request.session[LANGUAGE_SESSION_KEY] = lang
-
-    if request.user.is_authenticated:
-        profile = get_or_create_profile(request.user)
-        profile.preferred_language = lang
-        profile.save(update_fields=['preferred_language'])
-
-    next_url = request.POST.get('next') or request.GET.get('next') or request.META.get('HTTP_REFERER') or '/'
-
-    response = redirect(next_url)
-    response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang, max_age=365*24*60*60)
-    return response
-
 
 # ═══════════════════════════════════════════════════
 #  CHATBOT — AI COACH (context-aware, multilingual)
@@ -1565,16 +1541,84 @@ def profile_view(request):
 #  REGISTRATION & AUTH
 # ═══════════════════════════════════════════════════
 
+def login_view(request):
+    """
+    Handles user login using either username OR email address (case-insensitive).
+    """
+    if request.user.is_authenticated:
+        return redirect('index')
+
+    if request.method == 'POST':
+        login_input = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+
+        if not login_input or not password:
+            messages.error(request, "Fadlan geli magacaaga ama email-kaaga iyo furaha sirta ah.")
+            return render(request, 'registration/login.html')
+
+        user = authenticate(request, username=login_input, password=password)
+        if user is not None:
+            login(request, user, backend='siisto.backends.EmailOrUsernameModelBackend')
+
+            # Sync user's saved language preference into session
+            try:
+                profile = get_or_create_profile(user)
+                lang = profile.preferred_language or 'so'
+                request.session[LANGUAGE_SESSION_KEY] = lang
+                request.session['_language'] = lang
+                from django.utils import translation
+                translation.activate(lang)
+            except Exception:
+                pass
+
+            messages.success(request, f"Ku soo dhowow Siisto, {user.first_name or user.username}!")
+            next_url = request.POST.get('next') or request.GET.get('next') or 'index'
+            response = redirect(next_url)
+            try:
+                cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
+                if hasattr(user, 'profile') and user.profile.preferred_language:
+                    response.set_cookie(cookie_name, user.profile.preferred_language, max_age=365*24*60*60)
+            except Exception:
+                pass
+            return response
+        else:
+            messages.error(request, "Magaca/Email-ka ama furaha sirta ah waa qaldan yahay. Fadlan dib u hubi.")
+
+    return render(request, 'registration/login.html')
+
+
+def logout_view(request):
+    """
+    Logs out the user cleanly and redirects to login.
+    """
+    from django.contrib.auth import logout
+    logout(request)
+    messages.info(request, "Waad ka baxday nidaamka.")
+    return redirect('login')
+
+
 def register(request):
+    """
+    Registers a new user, automatically logging them in with their preferred language.
+    """
     if request.user.is_authenticated:
         return redirect('index')
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
-        email = request.POST.get('email', '').strip()
+        email = request.POST.get('email', '').strip().lower()
         first_name = request.POST.get('first_name', '').strip()
         password = request.POST.get('password', '')
         password_confirm = request.POST.get('password_confirm', '')
+
+        # Read preferred language from session or cookie
+        preferred_lang = (
+            request.session.get(LANGUAGE_SESSION_KEY)
+            or request.COOKIES.get(getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language'))
+            or 'so'
+        )
+        if preferred_lang not in ['so', 'en', 'ar']:
+            preferred_lang = 'so'
 
         if not username or not password:
             messages.error(request, "Fadlan buuxi dhammaan meelaha banaan.")
@@ -1582,15 +1626,25 @@ def register(request):
             messages.error(request, "Furaha sirta ah isma laha (Passwords do not match).")
         elif len(password) < 6:
             messages.error(request, "Furaha sirta ah waa inuu ka dheer yahay 6 xaraf.")
-        elif User.objects.filter(username=username).exists():
+        elif User.objects.filter(username__iexact=username).exists():
             messages.error(request, "Magacan horay ayaa loo qaatay. Fadlan mid kale dooro.")
+        elif email and User.objects.filter(email__iexact=email).exists():
+            messages.error(request, "Email-kan horay ayaa loo isticmaalay. Fadlan soo gal ama email kale isticmaal.")
         else:
             user = User.objects.create_user(
                 username=username, email=email, password=password,
                 first_name=first_name,
             )
-            profile = Profile.objects.create(user=user)
-            login(request, user)
+            profile, _ = Profile.objects.get_or_create(user=user)
+            profile.preferred_language = preferred_lang
+            profile.save()
+
+            login(request, user, backend='siisto.backends.EmailOrUsernameModelBackend')
+            request.session[LANGUAGE_SESSION_KEY] = preferred_lang
+            request.session['_language'] = preferred_lang
+            from django.utils import translation
+            translation.activate(preferred_lang)
+
             create_notification(
                 user, 'system',
                 f'Welcome to Siisto, {user.first_name or user.username}! 🎉',
@@ -1598,7 +1652,10 @@ def register(request):
                 action_url='/onboarding/',
             )
             messages.success(request, f"Ku soo dhowow Siisto Fitness, {user.username}!")
-            return redirect('onboarding_3d')
+            response = redirect('onboarding_3d')
+            cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
+            response.set_cookie(cookie_name, preferred_lang, max_age=365*24*60*60)
+            return response
 
     return render(request, 'registration/signup.html')
 
@@ -1636,6 +1693,7 @@ def onboarding_3d(request):
     return render(request, 'siisto/onboarding_3d.html', {
         'profile': profile,
         'initial_data': json.dumps(initial_data),
+        'CURRENT_LANGUAGE': (profile.preferred_language if profile else None) or 'so',
     })
 
 
@@ -1707,6 +1765,13 @@ def api_save_onboarding(request):
         diff = abs(weight - target_weight)
         estimated_weeks = max(int(diff / 0.5), 1) if diff > 0.5 else 4
 
+        pref_lang = str(data.get('language', '')).strip().lower()
+        if pref_lang in ['so', 'en', 'ar']:
+            from django.utils import translation as trans_util
+            trans_util.activate(pref_lang)
+            request.session[LANGUAGE_SESSION_KEY] = pref_lang
+            request.session['_language'] = pref_lang
+
         if request.user.is_authenticated:
             if email and not request.user.email:
                 request.user.email = email
@@ -1720,11 +1785,13 @@ def api_save_onboarding(request):
             profile.heerka_dhaqdhaqaaqa = activity_level
             profile.miisaanka_yoolka = target_weight
             profile.onboarding_completed = True
+            if pref_lang in ['so', 'en', 'ar']:
+                profile.preferred_language = pref_lang
             profile.save()
 
             WeightLog.objects.create(user=request.user, weight=weight)
 
-        return JsonResponse({
+        res = JsonResponse({
             'status': 'success',
             'saved_to_db': request.user.is_authenticated,
             'metrics': {
@@ -1746,6 +1813,10 @@ def api_save_onboarding(request):
             },
             'redirect_url': '/progress/' if request.user.is_authenticated else '/signup/'
         })
+        if pref_lang in ['so', 'en', 'ar']:
+            cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
+            res.set_cookie(cookie_name, pref_lang, max_age=365*24*60*60)
+        return res
     except Exception as e:
         logger.error(f"Onboarding save error: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
@@ -1859,9 +1930,22 @@ def admin_dashboard(request):
 def set_language_preference(request, lang_code=None):
     """
     Switches active language for the entire system across session, cookie, and user Profile.
+    Supports JSON/fetch payloads, form submissions, and GET query parameters.
     """
     if not lang_code:
-        lang_code = request.GET.get('lang') or request.POST.get('language') or 'so'
+        if request.content_type == 'application/json' and request.body:
+            try:
+                body = json.loads(request.body.decode('utf-8'))
+                lang_code = body.get('language') or body.get('lang')
+            except Exception:
+                pass
+        if not lang_code:
+            lang_code = (
+                request.POST.get('language')
+                or request.GET.get('lang')
+                or request.GET.get('language')
+                or 'so'
+            )
 
     lang_code = str(lang_code)[:2].lower()
     if lang_code not in ['so', 'en', 'ar']:
@@ -1872,18 +1956,36 @@ def set_language_preference(request, lang_code=None):
 
     if hasattr(request, 'session'):
         request.session['_language'] = lang_code
+        request.session[LANGUAGE_SESSION_KEY] = lang_code
         request.session[getattr(translation, 'LANGUAGE_SESSION_KEY', '_language')] = lang_code
 
     if request.user.is_authenticated:
         try:
-            profile, _ = Profile.objects.get_or_create(user=request.user)
+            profile = get_or_create_profile(request.user)
             profile.preferred_language = lang_code
             profile.save(update_fields=['preferred_language'])
         except Exception as e:
             logger.warning(f"Could not persist language preference to profile: {e}")
 
-    next_url = request.GET.get('next') or request.META.get('HTTP_REFERER') or '/'
-    response = redirect(next_url)
     cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
+
+    # Return JSON for AJAX/fetch requests
+    is_ajax = (
+        request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        or request.content_type == 'application/json'
+        or request.GET.get('format') == 'json'
+    )
+    if is_ajax:
+        res = JsonResponse({'status': 'success', 'language': lang_code})
+        res.set_cookie(cookie_name, lang_code, max_age=365 * 24 * 60 * 60, samesite='Lax')
+        return res
+
+    next_url = (
+        request.POST.get('next')
+        or request.GET.get('next')
+        or request.META.get('HTTP_REFERER')
+        or '/'
+    )
+    response = redirect(next_url)
     response.set_cookie(cookie_name, lang_code, max_age=365 * 24 * 60 * 60, samesite='Lax')
     return response
