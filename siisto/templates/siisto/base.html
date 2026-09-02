@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Siisto — Fitness &amp; AI{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>{% block title %}Siisto — Fitness &amp; AI Mobile App{% endblock %}</title>
     <!-- Google Fonts: Inter + Plus Jakarta Sans + Cairo for Arabic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,26 +25,13 @@
                     },
                     colors: {
                         brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                            cyan: '#00d2ff',
-                        },
-                        darkbg: {
-                            base: '#060810',
-                            card: '#0A0D17',
-                            card2: '#0F1521',
-                            surface: '#162035',
-                            border: '#162035',
-                            borderlight: '#1E2D45',
-                            textmuted: '#94a3b8',
+                            cyan: '#00f0ff',
+                            blue: '#00a3ff',
+                            navy: '#0a101d',
+                            card: '#0d1527',
+                            surface: '#111c33',
+                            border: 'rgba(0, 240, 255, 0.16)',
+                            borderlight: 'rgba(0, 163, 255, 0.28)',
                         }
                     },
                     borderRadius: {
@@ -59,41 +46,39 @@
     
     <style>
         :root {
-            --blue-primary:  #1E90FF;
-            --blue-bright:   #00BFFF;
-            --blue-deep:     #0052CC;
-            --blue-vivid:    #0066FF;
+            --cyan-neon:     #00f0ff;
+            --blue-vivid:    #00a3ff;
+            --navy-base:     #0a101d;
+            --navy-card:     #0d1527;
+            --navy-surface:  #111c33;
+            --navy-border:   rgba(0, 240, 255, 0.16);
             --white-pure:    #FFFFFF;
-            --white-soft:    #E8F0FE;
-            --black-pure:    #000000;
-            --black-rich:    #060810;
-            --black-card:    #0A0D17;
-            --black-surface: #0F1521;
-            --black-border:  #162035;
-            --blue-muted:    rgba(30, 144, 255, 0.10);
-            --blue-glow-sm:  0 0 14px rgba(30,144,255,0.35);
-            --blue-glow-md:  0 0 28px rgba(30,144,255,0.45), 0 0 56px rgba(0,102,255,0.15);
+            --white-muted:   #94a3b8;
+            --cyan-glow-sm:  0 0 14px rgba(0, 240, 255, 0.35);
+            --cyan-glow-md:  0 0 28px rgba(0, 240, 255, 0.5), 0 0 50px rgba(0, 163, 255, 0.2);
         }
 
         /* ─── SCROLLBAR ─────────────────────────────────── */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: var(--black-rich); }
+        ::-webkit-scrollbar-track { background: var(--navy-base); }
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #1E90FF, #0052CC);
+            background: linear-gradient(180deg, #00f0ff, #00a3ff);
             border-radius: 9999px;
         }
 
-        /* ─── BODY ──────────────────────────────────────── */
+        /* ─── BODY (CYAN #00f0ff + DARK NAVY #0a101d + BLUE #00a3ff) ── */
         body {
-            background-color: var(--black-rich);
+            background-color: var(--navy-base);
             background-image:
-                radial-gradient(ellipse 70% 40% at 10% 0%,   rgba(30,144,255,0.10) 0%, transparent 70%),
-                radial-gradient(ellipse 50% 30% at 90% 100%, rgba(0, 102,255,0.07)  0%, transparent 60%),
-                radial-gradient(ellipse 40% 25% at 50% 50%,  rgba(0,  0,  0, 0.5)  0%, transparent 80%);
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 240, 255, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(0, 163, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 0% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 40%);
             color: var(--white-pure);
             font-family: 'Plus Jakarta Sans', 'Cairo', 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
         /* ─── RTL SUPPORT ADJUSTMENTS ────────────────────── */
@@ -104,405 +89,387 @@
             margin-right: 0 !important;
             margin-left: 0.75rem !important;
         }
-        html[dir="rtl"] aside {
-            animation: slideInRight 0.40s cubic-bezier(0.4,0,0.2,1) both;
-        }
-        html[dir="rtl"] .sidebar-section-label {
-            text-align: right;
-        }
-        html[dir="rtl"] .text-left {
-            text-align: right;
-        }
 
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(24px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-24px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        @keyframes shimmer {
-            0%   { background-position: -300% center; }
-            100% { background-position:  300% center; }
-        }
-        @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 0 14px rgba(30,144,255,0.35); }
-            50%       { box-shadow: 0 0 32px rgba(30,144,255,0.70), 0 0 60px rgba(0,102,255,0.25); }
-        }
-
-        /* ─── SIDEBAR CARD ──────────────────────────────── */
-        .skillset-card {
-            background: linear-gradient(160deg, #0C1020 0%, #080B14 60%, #06080F 100%);
+        /* ─── GLASS CARDS (DARK NAVY WITH CYAN GLOW BORDERS) ─── */
+        .glass-card {
+            background: rgba(13, 21, 39, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.15);
             border-radius: 24px;
-            border: 1px solid rgba(30,144,255,0.18);
-            box-shadow:
-                0 8px 40px rgba(0,0,0,0.75),
-                inset 0 1px 0 rgba(255,255,255,0.04),
-                inset 0 0 30px rgba(30,144,255,0.02);
-            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(0, 240, 255, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .skillset-card:hover {
-            border-color: rgba(30,144,255,0.40);
-            box-shadow:
-                0 20px 55px rgba(0,0,0,0.85),
-                0 0 35px rgba(30,144,255,0.10);
-        }
-
-        /* ─── BLUE GRADIENT CARD ────────────────────────── */
-        .skillset-blue-card, .skillset-mauve-card {
-            background: linear-gradient(145deg,
-                rgba(0,82,204,0.22)  0%,
-                rgba(10,20,45,0.96)  45%,
-                rgba(6, 8,16,0.99)  100%);
-            border-radius: 24px;
-            color: #FFFFFF;
-            border: 1px solid rgba(30,144,255,0.38);
-            box-shadow:
-                0 14px 44px rgba(30,144,255,0.14),
-                inset 0 1px 0 rgba(30,144,255,0.18);
-            position: relative;
-            overflow: hidden;
+        .glass-card:hover {
+            border-color: rgba(0, 240, 255, 0.35);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 240, 255, 0.1);
         }
 
         /* ─── NAVIGATION ─────────────────────────────────── */
         .nav-link-item {
             display: flex;
             align-items: center;
-            padding: 9px 14px;
-            border-radius: 13px;
-            color: rgba(148,163,184,0.75);
+            padding: 10px 14px;
+            border-radius: 14px;
+            color: #94a3b8;
             font-weight: 600;
             font-size: 13.5px;
-            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+            transition: all 0.2s ease;
             text-decoration: none;
             position: relative;
             border: 1px solid transparent;
         }
         .nav-link-item:hover {
             color: #ffffff;
-            background: rgba(30,144,255,0.08);
-            border-color: rgba(30,144,255,0.15);
+            background: rgba(0, 240, 255, 0.08);
+            border-color: rgba(0, 240, 255, 0.2);
         }
         .nav-link-item.active {
-            color: #FFFFFF;
-            background: linear-gradient(135deg,
-                rgba(30,144,255,0.22) 0%,
-                rgba(0, 82,204,0.14) 100%);
-            border-color: rgba(30,144,255,0.38);
-            box-shadow: 0 4px 20px rgba(30,144,255,0.18);
+            color: #000000;
+            background: linear-gradient(135deg, #00f0ff 0%, #00a3ff 100%);
+            font-weight: 800;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4);
+            border-color: transparent;
+        }
+        .nav-link-item.active i {
+            color: #000000 !important;
+        }
+
+        /* ─── GLOW BUTTONS ─────────────────────────────── */
+        .btn-cyan {
+            background: linear-gradient(135deg, #00f0ff 0%, #00a3ff 100%);
+            color: #0a101d;
+            font-weight: 800;
+            border-radius: 14px;
+            padding: 10px 22px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 18px rgba(0, 240, 255, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-cyan:hover {
+            background: linear-gradient(135deg, #33f3ff 0%, #1ab0ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(0, 240, 255, 0.55);
+        }
+
+        .btn-white {
+            background: linear-gradient(135deg, #00f0ff 0%, #00a3ff 100%);
+            color: #0a101d;
+            font-weight: 800;
+            border-radius: 14px;
+            padding: 10px 22px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 18px rgba(0, 240, 255, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-white:hover {
+            background: linear-gradient(135deg, #33f3ff 0%, #1ab0ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(0, 240, 255, 0.55);
+        }
+
+        .btn-dark {
+            background: #111c33;
+            color: #ffffff;
+            font-weight: 700;
+            border-radius: 14px;
+            padding: 10px 20px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-dark:hover {
+            background: #162442;
+            border-color: rgba(0, 240, 255, 0.4);
+            color: #00f0ff;
         }
 
         /* ─── PILL TABS ──────────────────────────────────── */
         .pill-tab {
-            padding: 5px 14px;
+            padding: 6px 14px;
             border-radius: 9999px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
-            color: rgba(148,163,184,0.65);
+            color: #94a3b8;
             transition: all 0.2s ease;
             cursor: pointer;
             border: 1px solid transparent;
         }
         .pill-tab:hover {
-            color: #FFFFFF;
-            background: rgba(30,144,255,0.10);
+            color: #ffffff;
+            background: rgba(0, 240, 255, 0.08);
         }
         .pill-tab.active {
-            background: linear-gradient(135deg, #1E90FF 0%, #0052CC 100%);
-            color: #FFFFFF;
-            box-shadow: 0 3px 18px rgba(30,144,255,0.55);
+            background: linear-gradient(135deg, #00f0ff 0%, #00a3ff 100%);
+            color: #0a101d;
+            box-shadow: 0 2px 14px rgba(0, 240, 255, 0.4);
         }
 
-        /* ─── UPGRADE CARD ───────────────────────────────── */
-        .upgrade-card {
-            background: linear-gradient(145deg,
-                rgba(30,144,255,0.20) 0%,
-                rgba(0, 82,204,0.12) 40%,
-                rgba(6,  8, 16,0.96) 100%);
-            border: 1px solid rgba(30,144,255,0.40);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-blue-glow {
-            background: linear-gradient(135deg, #1E90FF 0%, #0052CC 100%);
-            color: #ffffff;
-            font-weight: 800;
-            border-radius: 13px;
-            padding: 10px 22px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 6px 24px rgba(30,144,255,0.50);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-blue-glow:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 38px rgba(30,144,255,0.65);
-        }
-
+        /* ─── PULSING LIVE INDICATOR ─────────────────────── */
         .status-live {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
-            letter-spacing: 0.09em;
-            text-transform: uppercase;
-            color: #00BFFF;
-            background: rgba(0,191,255,0.09);
-            border: 1px solid rgba(0,191,255,0.28);
+            color: #00f0ff;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            padding: 3px 9px;
             border-radius: 9999px;
-            padding: 3px 10px;
         }
-
-        .floating-pill {
-            background: rgba(10,13,23,0.90);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(30,144,255,0.20);
-            border-radius: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .avatar-ring {
-            background: linear-gradient(135deg, #1E90FF, #00BFFF 50%, #0052CC);
-            padding: 2px;
+        .status-live::before {
+            content: '';
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            box-shadow: 0 4px 18px rgba(30,144,255,0.45);
+            background: #00f0ff;
+            box-shadow: 0 0 8px #00f0ff;
+            animation: pulseCyan 2s infinite ease-in-out;
+        }
+        @keyframes pulseCyan {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
         }
 
-        .brand-logo-icon {
-            background: linear-gradient(135deg, #0052CC 0%, #1E90FF 55%, #00BFFF 100%);
-            box-shadow: 0 6px 22px rgba(30,144,255,0.55);
+        /* ─── MOBILE BOTTOM NAV DOCK ─────────────────────── */
+        .mobile-nav-dock {
+            background: rgba(10, 16, 29, 0.94);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.85);
         }
-
-        .sidebar-section-label {
-            font-size: 9.5px;
-            font-weight: 800;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: rgba(30,144,255,0.45);
-            padding: 0 4px;
-            margin-bottom: 4px;
+        .mobile-dock-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #64748b;
+            transition: all 0.2s ease;
+            position: relative;
+            padding: 6px 12px;
+            border-radius: 12px;
         }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #1E90FF, #0052CC);
+        .mobile-dock-btn.active {
+            color: #00f0ff;
+        }
+        .mobile-dock-btn.active i {
+            transform: translateY(-1px);
+            filter: drop-shadow(0 0 6px #00f0ff);
+        }
+        .mobile-dock-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            width: 16px;
+            height: 3px;
             border-radius: 9999px;
+            background: #00f0ff;
+            box-shadow: 0 0 8px #00f0ff;
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 
-<body class="min-h-screen flex flex-col md:flex-row p-3 md:p-5 gap-5">
+<body class="min-h-screen flex flex-col md:flex-row p-2 sm:p-4 md:p-6 gap-4 md:gap-6 max-w-[1600px] mx-auto">
 
-    <!-- SIDEBAR (NAVIGATION) -->
-    <aside class="hidden md:flex w-full md:w-64 lg:w-72 flex-shrink-0 flex-col justify-between skillset-card p-5">
-        <div>
+    <!-- ── DESKTOP SIDEBAR NAVIGATION ── -->
+    <aside class="hidden md:flex w-64 lg:w-72 flex-shrink-0 flex-col justify-between glass-card p-5 sticky top-6 h-[calc(100vh-3rem)]">
+        <div class="overflow-y-auto space-y-5 custom-scrollbar pr-1">
             <!-- BRAND LOGO -->
-            <div class="flex items-center justify-between mb-6 px-1">
+            <div class="flex items-center justify-between px-1">
                 <a href="{% url 'index' %}" class="flex items-center gap-3 group">
-                    <div class="w-11 h-11 rounded-2xl brand-logo-icon flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-dumbbell text-white text-base"></i>
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#00f0ff] to-[#00a3ff] text-[#0a101d] flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/30">
+                        <i class="fa-solid fa-dumbbell text-[#0a101d] text-base"></i>
                     </div>
                     <div>
                         <span class="text-xl font-black tracking-tight text-white block leading-none">Siisto</span>
-                        <span class="text-[10px] font-bold tracking-widest uppercase block mt-0.5" style="color:#1E90FF">Fitness &amp; AI</span>
+                        <span class="text-[10px] font-bold tracking-widest uppercase block mt-0.5 text-[#00f0ff]">Fitness &amp; AI</span>
                     </div>
                 </a>
                 <span class="status-live">Live</span>
             </div>
 
-            <!-- LANGUAGE SELECTOR WIDGET -->
-            <div class="mb-5 p-2 rounded-2xl bg-[#060810] border border-[#162035] flex items-center justify-between">
+            <!-- LANGUAGE SELECTOR -->
+            <div class="p-2 rounded-2xl bg-[#0a101d] border border-[rgba(0,240,255,0.18)] flex items-center justify-between">
                 <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 px-1.5">
-                    <i class="fa-solid fa-globe text-blue-400"></i> {{ "Language"|ui_trans:CURRENT_LANGUAGE }}
+                    <i class="fa-solid fa-globe text-[#00f0ff]"></i> {{ "Language"|ui_trans:CURRENT_LANGUAGE }}
                 </span>
                 <div class="flex items-center gap-1">
                     {% for l in AVAILABLE_LANGUAGES %}
-                    <form method="POST" action="{% url 'set_language_preference' %}" class="inline">
-                        {% csrf_token %}
-                        <input type="hidden" name="language" value="{{ l.code }}">
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <button type="submit"
-                            title="{{ l.name }}"
-                            class="px-2 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 {% if l.is_active %}bg-blue-600 text-white shadow-md{% else %}bg-[#0F1521] text-slate-400 hover:text-white hover:bg-[#162035]{% endif %}">
-                            <span>{{ l.flag }}</span>
-                            <span class="text-[10px] uppercase">{{ l.code }}</span>
-                        </button>
-                    </form>
+                    <button type="button"
+                        onclick="switchLanguage('{{ l.code }}')"
+                        title="{{ l.name }}"
+                        class="px-2 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 {% if l.is_active %}bg-gradient-to-r from-[#00f0ff] to-[#00a3ff] text-[#0a101d] font-extrabold shadow{% else %}bg-[#111c33] text-slate-400 hover:text-white hover:bg-[#162442]{% endif %}">
+                        <span>{{ l.flag }}</span>
+                        <span class="text-[10px] uppercase">{{ l.code }}</span>
+                    </button>
                     {% endfor %}
                 </div>
             </div>
 
             <!-- NAVIGATION LINKS -->
-            <div class="sidebar-section-label mb-2">{{ "Main Menu"|ui_trans:CURRENT_LANGUAGE }}</div>
-            <nav class="space-y-1">
+            <div class="space-y-1">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 mb-2">{{ "Main Menu"|ui_trans:CURRENT_LANGUAGE }}</div>
+                
                 <a href="{% url 'index' %}" class="nav-link-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                     <i class="fa-solid fa-house-chimney w-5 mr-3 text-sm"></i>
                     <span>{{ "Dashboard"|ui_trans:CURRENT_LANGUAGE }}</span>
                 </a>
 
                 <a href="{% url 'ai_coach' %}" class="nav-link-item {% if request.resolver_match.url_name == 'ai_coach' or request.resolver_match.url_name == 'chatbot' %}active{% endif %}">
-                    <i class="fa-solid fa-sparkles w-5 mr-3 text-sm" style="color:#00BFFF"></i>
+                    <i class="fa-solid fa-sparkles w-5 mr-3 text-sm text-[#00f0ff]"></i>
                     <span>{{ "AI Coach"|ui_trans:CURRENT_LANGUAGE }}</span>
-                    <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded-md font-bold" style="background:rgba(30,144,255,0.15);color:#1E90FF">AI</span>
-                </a>
-
-                <a href="{% url 'ai_form_detection' %}" class="nav-link-item {% if request.resolver_match.url_name == 'ai_form_detection' %}active{% endif %}">
-                    <i class="fa-solid fa-video w-5 mr-3 text-sm" style="color:#38bdf8"></i>
-                    <span>{{ "AI Form Detection"|ui_trans:CURRENT_LANGUAGE }}</span>
-                </a>
-
-                <a href="{% url 'challenge_90day' %}" class="nav-link-item {% if request.resolver_match.url_name == 'challenge_90day' %}active{% endif %}">
-                    <i class="fa-solid fa-trophy w-5 mr-3 text-sm" style="color:#f472b6"></i>
-                    <span>{{ "90-Day Challenge"|ui_trans:CURRENT_LANGUAGE }}</span>
-                    <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded-md font-bold" style="background:rgba(244,114,182,0.2);color:#f472b6">HOT</span>
-                </a>
-
-                <a href="{% url 'ai_recommendation' %}" class="nav-link-item {% if request.resolver_match.url_name == 'ai_recommendation' %}active{% endif %}">
-                    <i class="fa-solid fa-wand-magic-sparkles w-5 mr-3 text-sm" style="color:#c084fc"></i>
-                    <span>{{ "AI Plan Generator"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <span class="ml-auto text-[9px] px-2 py-0.5 rounded-full font-bold bg-[rgba(0,240,255,0.15)] text-[#00f0ff] border border-[rgba(0,240,255,0.3)]">AI</span>
                 </a>
 
                 <a href="{% url 'add_workout' %}" class="nav-link-item {% if request.resolver_match.url_name == 'add_workout' or request.resolver_match.url_name == 'gym' %}active{% endif %}">
                     <i class="fa-solid fa-dumbbell w-5 mr-3 text-sm"></i>
-                    <span>{{ "3D Exercises Library"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <span>{{ "3D Gym & Video"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-[rgba(0,240,255,0.15)] text-[#00f0ff]">3D</span>
+                </a>
+
+                <a href="{% url 'ai_form_detection' %}" class="nav-link-item {% if request.resolver_match.url_name == 'ai_form_detection' %}active{% endif %}">
+                    <i class="fa-solid fa-camera-viewfinder w-5 mr-3 text-sm"></i>
+                    <span>{{ "AI Form Detection"|ui_trans:CURRENT_LANGUAGE }}</span>
+                </a>
+
+                <a href="{% url 'challenge_90day' %}" class="nav-link-item {% if request.resolver_match.url_name == 'challenge_90day' %}active{% endif %}">
+                    <i class="fa-solid fa-trophy w-5 mr-3 text-sm"></i>
+                    <span>{{ "90-Day Challenge"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <span class="ml-auto text-[9px] px-2 py-0.5 rounded-full font-bold bg-[rgba(0,163,255,0.15)] text-[#00a3ff]">PRO</span>
+                </a>
+
+                <a href="{% url 'ai_recommendation' %}" class="nav-link-item {% if request.resolver_match.url_name == 'ai_recommendation' %}active{% endif %}">
+                    <i class="fa-solid fa-wand-magic-sparkles w-5 mr-3 text-sm"></i>
+                    <span>{{ "AI Plan Generator"|ui_trans:CURRENT_LANGUAGE }}</span>
                 </a>
 
                 <a href="{% url 'add_meal' %}" class="nav-link-item {% if request.resolver_match.url_name == 'add_meal' or request.resolver_match.url_name == 'food' %}active{% endif %}">
                     <i class="fa-solid fa-bowl-food w-5 mr-3 text-sm"></i>
-                    <span>{{ "Cuntooyinka (Meals)"|ui_trans:CURRENT_LANGUAGE }}</span>
-                </a>
-
-                <a href="{% url 'onboarding_3d' %}" class="nav-link-item {% if request.resolver_match.url_name == 'onboarding_3d' %}active{% endif %}" style="background:rgba(30,144,255,0.07);border-color:rgba(30,144,255,0.25)">
-                    <i class="fa-solid fa-cube w-5 mr-3 text-sm animate-pulse" style="color:#00BFFF"></i>
-                    <span class="flex items-center justify-between w-full">
-                        <span>{{ "3D Body Scan"|ui_trans:CURRENT_LANGUAGE }}</span>
-                        <span class="text-[9px] px-1.5 py-0.5 rounded font-mono font-black" style="background:rgba(30,144,255,0.2);color:#00BFFF">3D</span>
-                    </span>
+                    <span>{{ "Nutrition & Food"|ui_trans:CURRENT_LANGUAGE }}</span>
                 </a>
 
                 <a href="{% url 'progress' %}" class="nav-link-item {% if request.resolver_match.url_name == 'progress' %}active{% endif %}">
                     <i class="fa-solid fa-chart-simple w-5 mr-3 text-sm"></i>
-                    <span>{{ "Analytics / Hormarka"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <span>{{ "Analytics & Progress"|ui_trans:CURRENT_LANGUAGE }}</span>
                 </a>
 
                 <a href="{% url 'history' %}" class="nav-link-item {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
                     <i class="fa-solid fa-clock-rotate-left w-5 mr-3 text-sm"></i>
-                    <span>{{ "Diiwaanka / History"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <span>{{ "History / Diiwaanka"|ui_trans:CURRENT_LANGUAGE }}</span>
                 </a>
 
                 {% if request.user.is_staff %}
-                <a href="{% url 'admin_dashboard' %}" class="nav-link-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" style="background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.3)">
-                    <i class="fa-solid fa-shield-halved w-5 mr-3 text-sm" style="color:#fbbf24"></i>
-                    <span class="flex items-center justify-between w-full">
-                        <span style="color:#fbbf24;font-weight:bold">{{ "Admin Control"|ui_trans:CURRENT_LANGUAGE }}</span>
-                        <span class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background:rgba(245,158,11,0.2);color:#fbbf24">STAFF</span>
-                    </span>
+                <a href="{% url 'admin_dashboard' %}" class="nav-link-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %} bg-[#111c33] border-[rgba(0,240,255,0.2)]">
+                    <i class="fa-solid fa-shield-halved w-5 mr-3 text-sm text-[#00f0ff]"></i>
+                    <span class="text-white font-bold">{{ "Admin Control"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <span class="ml-auto text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#00f0ff] text-black">STAFF</span>
                 </a>
                 {% endif %}
-            </nav>
+            </div>
         </div>
 
-        <!-- UPGRADE TO PRO CARD -->
-        <div class="mt-5 space-y-3">
-            <div class="upgrade-card p-4 text-center">
-                <div class="relative inline-flex mb-2">
-                    <div class="w-3 h-3 rounded-full absolute top-0 right-0" style="background:#00BFFF;box-shadow:0 0 8px #00BFFF"></div>
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(30,144,255,0.15);border:1px solid rgba(30,144,255,0.35)">
-                        <i class="fa-solid fa-crown text-amber-300 text-sm"></i>
-                    </div>
+        <!-- UPGRADE TO PRO & FOOTER -->
+        <div class="mt-4 pt-4 border-t border-[rgba(0,240,255,0.15)] space-y-3">
+            <div class="p-3.5 rounded-2xl bg-gradient-to-b from-[#111c33] to-[#0a101d] border border-[rgba(0,240,255,0.2)] text-center">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#00f0ff] to-[#00a3ff] text-[#0a101d] flex items-center justify-center mx-auto mb-2 shadow">
+                    <i class="fa-solid fa-crown text-xs"></i>
                 </div>
-                <h4 class="text-white font-black text-sm mb-1">{{ "Upgrade To Pro"|ui_trans:CURRENT_LANGUAGE }}</h4>
-                <p class="text-[11px] mb-3 leading-relaxed" style="color:rgba(147,197,253,0.8)">
-                    VIP Gemini AI Coach, MediaPipe Pose Tracking &amp; Custom 3D Exercise Videos.
+                <h4 class="text-white font-black text-xs">{{ "Upgrade To Pro"|ui_trans:CURRENT_LANGUAGE }}</h4>
+                <p class="text-[10.5px] text-slate-400 mt-1 leading-tight">
+                    Unlimited AI Master Coach &amp; 3D Video Biomechanics.
                 </p>
-                <a href="{% url 'upgrade_pro' %}"
-                   class="btn-blue-glow inline-block w-full py-2.5 px-4 rounded-xl text-xs text-center">
-                    <i class="fa-solid fa-bolt mr-1"></i> {{ "Upgrade"|ui_trans:CURRENT_LANGUAGE }} ($9.99/mo)
+                <a href="{% url 'upgrade_pro' %}" class="btn-cyan w-full text-[11px] py-2 mt-2.5 rounded-xl">
+                    <i class="fa-solid fa-bolt text-[10px]"></i> {{ "Upgrade"|ui_trans:CURRENT_LANGUAGE }} ($9.99)
                 </a>
             </div>
 
-            <!-- FOOTER ACCOUNT LINKS -->
-            <div class="space-y-1" style="padding-top:12px;border-top:1px solid rgba(30,144,255,0.12)">
-                <div class="sidebar-section-label">{{ "Account"|ui_trans:CURRENT_LANGUAGE }}</div>
-                <a href="{% url 'profile' %}" class="nav-link-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" style="font-size:12px;padding:7px 12px">
-                    <i class="fa-solid fa-gear w-5 mr-2"></i>
-                    <span>{{ "Settings & Profile"|ui_trans:CURRENT_LANGUAGE }}</span>
+            <!-- SETTINGS & LOGOUT -->
+            <div class="flex items-center justify-between px-1">
+                <a href="{% url 'profile' %}" class="text-xs font-bold text-slate-400 hover:text-white flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-gear"></i> {{ "Settings"|ui_trans:CURRENT_LANGUAGE }}
                 </a>
-                <form method="POST" action="{% url 'logout' %}" class="block">
+                <form method="POST" action="{% url 'logout' %}" class="inline">
                     {% csrf_token %}
-                    <button type="submit" class="w-full text-left nav-link-item" style="font-size:12px;padding:7px 12px;color:rgba(248,113,113,0.8)">
-                        <i class="fa-solid fa-arrow-right-from-bracket w-5 mr-2"></i>
-                        <span>{{ "Log out"|ui_trans:CURRENT_LANGUAGE }}</span>
+                    <button type="submit" class="text-xs font-bold text-red-400 hover:text-red-300 flex items-center gap-1 transition">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> {{ "Log out"|ui_trans:CURRENT_LANGUAGE }}
                     </button>
                 </form>
             </div>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA -->
-    <div class="flex-1 flex flex-col min-w-0 space-y-6">
+    <!-- ── MAIN APPLICATION VIEWPORT ── -->
+    <div class="flex-1 flex flex-col min-w-0 space-y-4 md:space-y-6">
         
-        <!-- TOP HEADER BAR -->
-        <header class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl lg:text-3xl font-black text-white tracking-tight leading-none">
-                    {% block page_title %}{{ "Dashboard"|ui_trans:CURRENT_LANGUAGE }}{% endblock %}
-                </h1>
-                <p class="text-xs mt-1.5" style="color:rgba(148,163,184,0.7)">
-                    {{ "Welcome back"|ui_trans:CURRENT_LANGUAGE }}, <span class="font-bold" style="color:#1E90FF">{{ request.user.username|title }}</span>
-                </p>
+        <!-- TOP MOBILE/DESKTOP HEADER -->
+        <header class="glass-card p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'profile' %}" class="relative group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#00f0ff] to-[#00a3ff] text-[#0a101d] font-black text-base flex items-center justify-center shadow-md">
+                        {{ request.user.username|make_list|first|default:"U"|upper }}
+                    </div>
+                    <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#0a101d] border-2 border-[#00f0ff] flex items-center justify-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    </span>
+                </a>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">{{ "Athlete"|ui_trans:CURRENT_LANGUAGE }}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-black border {% if profile.has_active_pro %}bg-[#00f0ff] text-[#0a101d] border-[#00f0ff]{% else %}bg-[#111c33] text-slate-300 border-slate-700{% endif %}">
+                            {% if profile.has_active_pro %}PRO VIP{% else %}FREE{% endif %}
+                        </span>
+                    </div>
+                    <h2 class="text-lg sm:text-xl font-black text-white leading-tight">
+                        {{ request.user.first_name|default:request.user.username|title }}
+                    </h2>
+                </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-                <!-- LANGUAGE SELECTOR BUTTONS (TOP) -->
-                <div class="flex items-center p-1 rounded-full bg-[#0A0D17] border border-[#162035]">
+            <!-- HEADER ACTIONS (LANGUAGE & AI COACH QUICK ACCESS) -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Language Selector -->
+                <div class="hidden sm:flex items-center p-1 rounded-xl bg-[#0a101d] border border-[rgba(0,240,255,0.18)]">
                     {% for l in AVAILABLE_LANGUAGES %}
-                    <form method="POST" action="{% url 'set_language_preference' %}" class="inline">
-                        {% csrf_token %}
-                        <input type="hidden" name="language" value="{{ l.code }}">
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <button type="submit"
-                            title="{{ l.name }}"
-                            class="pill-tab {% if l.is_active %}active{% endif %}">
-                            {{ l.flag }} {{ l.name }}
-                        </button>
-                    </form>
+                    <button type="button"
+                        onclick="switchLanguage('{{ l.code }}')"
+                        title="{{ l.name }}"
+                        class="pill-tab {% if l.is_active %}active{% endif %}">
+                        {{ l.flag }} {{ l.code|upper }}
+                    </button>
                     {% endfor %}
                 </div>
 
-                <!-- AI + USER AVATAR -->
-                <div class="flex items-center gap-2">
-                    <a href="{% url 'ai_coach' %}"
-                       class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
-                       style="background:rgba(10,13,23,0.9);border:1px solid rgba(30,144,255,0.22)">
-                        <i class="fa-solid fa-sparkles text-sm" style="color:#00BFFF"></i>
-                    </a>
-                    <a href="{% url 'profile' %}" class="flex items-center gap-2 group">
-                        <div class="avatar-ring">
-                            <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-black uppercase overflow-hidden" style="background:var(--black-card)">
-                                {{ request.user.username|make_list|first|default:"U" }}
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                <!-- Chatbot Quick Icon -->
+                <a href="{% url 'ai_coach' %}"
+                   class="w-10 h-10 rounded-2xl bg-[#111c33] hover:bg-gradient-to-r hover:from-[#00f0ff] hover:to-[#00a3ff] hover:text-[#0a101d] text-[#00f0ff] border border-[rgba(0,240,255,0.25)] flex items-center justify-center transition shadow-md"
+                   title="AI Coach Chat">
+                    <i class="fa-solid fa-sparkles text-sm"></i>
+                </a>
+
+                <!-- 90-Day Quick Icon -->
+                <a href="{% url 'challenge_90day' %}"
+                   class="w-10 h-10 rounded-2xl bg-[#111c33] hover:bg-gradient-to-r hover:from-[#00f0ff] hover:to-[#00a3ff] hover:text-[#0a101d] text-white border border-[rgba(0,240,255,0.25)] flex items-center justify-center transition shadow-md"
+                   title="90-Day Challenge">
+                    <i class="fa-solid fa-trophy text-sm"></i>
+                </a>
             </div>
         </header>
 
@@ -510,8 +477,8 @@
         {% if messages %}
             <div class="space-y-2">
                 {% for message in messages %}
-                <div class="p-3.5 rounded-2xl text-xs sm:text-sm font-semibold flex items-center gap-3 {% if message.tags == 'error' %}flash-error{% else %}flash-success{% endif %}">
-                    <i class="fa-solid {% if message.tags == 'error' %}fa-circle-exclamation text-red-400{% else %}fa-circle-check{% endif %} flex-shrink-0" style="color:{% if message.tags == 'error' %}#f87171{% else %}#1E90FF{% endif %}"></i>
+                <div class="p-4 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-3 border {% if message.tags == 'error' %}bg-red-950/40 text-red-200 border-red-500/40{% else %}bg-[#111c33] text-white border-[rgba(0,240,255,0.3)]{% endif %}">
+                    <i class="fa-solid {% if message.tags == 'error' %}fa-circle-exclamation text-red-400{% else %}fa-circle-check text-[#00f0ff]{% endif %} text-base flex-shrink-0"></i>
                     <span>{{ message }}</span>
                 </div>
                 {% endfor %}
@@ -519,54 +486,64 @@
         {% endif %}
 
         <!-- INNER DYNAMIC CONTENT -->
-        <main class="flex-1 min-w-0 pb-24 md:pb-0">
+        <main class="flex-1 min-w-0 pb-24 md:pb-6">
             {% block content %}{% endblock %}
         </main>
 
-        <!-- BOTTOM FOOTER BAR -->
-        <div class="hidden md:flex items-center justify-between pt-3 pb-1">
-            <div class="flex items-center gap-2.5">
-                <a href="{% url 'index' %}" class="floating-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 font-bold transition text-xs" style="color:#1E90FF">
-                    <i class="fa-solid fa-bolt text-[10px]"></i>
-                    <span>Siisto 2026</span>
-                </a>
-                <span class="text-[11px]" style="color:rgba(148,163,184,0.45)">{% if CURRENT_LANGUAGE == 'ar' %}الصومالية 🇸🇴 &bull; الإنجليزية 🇬🇧 &bull; العربية 🇸🇦 &bull; مدعوم بـ Gemini AI{% elif CURRENT_LANGUAGE == 'en' %}Somali 🇸🇴 &bull; English 🇬🇧 &bull; Arabic 🇸🇦 &bull; Powered by Gemini AI{% else %}Soomaali 🇸🇴 &bull; English 🇬🇧 &bull; Carabi 🇸🇦 &bull; Waxaa Curyaamiyay Gemini AI{% endif %}</span>
-            </div>
-            <div>
-                <a href="{% url 'upgrade_pro' %}"
-                   class="btn-blue-glow inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[11px]">
-                    <i class="fa-solid fa-crown text-amber-300 text-[10px]"></i> Pro: $9.99/mo
-                </a>
-            </div>
-        </div>
-
     </div>
 
-    <!-- ── FLOATING MOBILE APP BOTTOM NAVIGATION BAR (MATCHING MOCKUP DOCK) ── -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#070a14]/95 backdrop-blur-lg border-t border-blue-500/20 px-4 py-2 flex items-center justify-around shadow-2xl" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 8px));">
-        <a href="{% url 'index' %}" class="flex flex-col items-center gap-1 text-blue-400">
+    <!-- ── FLOATING MOBILE APP BOTTOM NAVIGATION DOCK (CYAN & DARK NAVY) ── -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 mobile-nav-dock px-3 py-2 flex items-center justify-around" style="padding-bottom: max(0.6rem, env(safe-area-inset-bottom, 8px));">
+        <a href="{% url 'index' %}" class="mobile-dock-btn {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
             <i class="fa-solid fa-house text-base"></i>
             <span class="text-[9px] font-black uppercase tracking-wider">{{ "Home"|ui_trans:CURRENT_LANGUAGE }}</span>
         </a>
-        <a href="{% url 'add_workout' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
+        <a href="{% url 'add_workout' %}" class="mobile-dock-btn {% if request.resolver_match.url_name == 'add_workout' or request.resolver_match.url_name == 'gym' %}active{% endif %}">
             <i class="fa-solid fa-dumbbell text-base"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Workouts"|ui_trans:CURRENT_LANGUAGE }}</span>
         </a>
-        <a href="{% url 'progress' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
+        <a href="{% url 'progress' %}" class="mobile-dock-btn {% if request.resolver_match.url_name == 'progress' %}active{% endif %}">
             <i class="fa-solid fa-chart-line text-base"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Progress"|ui_trans:CURRENT_LANGUAGE }}</span>
         </a>
-        <a href="{% url 'add_meal' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
-            <i class="fa-solid fa-utensils text-base"></i>
+        <a href="{% url 'add_meal' %}" class="mobile-dock-btn {% if request.resolver_match.url_name == 'add_meal' or request.resolver_match.url_name == 'food' %}active{% endif %}">
+            <i class="fa-solid fa-bowl-food text-base"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Nutrition"|ui_trans:CURRENT_LANGUAGE }}</span>
         </a>
-        <a href="{% url 'profile' %}" class="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-300 transition">
+        <a href="{% url 'profile' %}" class="mobile-dock-btn {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
             <i class="fa-solid fa-user text-base"></i>
             <span class="text-[9px] font-bold uppercase tracking-wider">{{ "Profile"|ui_trans:CURRENT_LANGUAGE }}</span>
         </a>
     </nav>
 
     {% block extra_scripts %}{% endblock %}
+
+    <!-- Global Language Switcher AJAX Script -->
+    <script>
+    function switchLanguage(langCode) {
+        const csrfToken = document.cookie.split(';')
+            .map(c => c.trim())
+            .find(c => c.startsWith('csrftoken='));
+        const csrf = csrfToken ? csrfToken.split('=')[1] : '';
+
+        fetch('/set-language/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrf,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: 'language=' + encodeURIComponent(langCode) + '&next=' + encodeURIComponent(window.location.pathname)
+        })
+        .then(function(res) {
+            window.location.reload();
+        })
+        .catch(function(err) {
+            console.error('Language switch failed:', err);
+            window.location.reload();
+        });
+    }
+    </script>
 </body>
 
 </html>

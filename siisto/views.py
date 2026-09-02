@@ -1556,33 +1556,43 @@ def login_view(request):
             messages.error(request, "Fadlan geli magacaaga ama email-kaaga iyo furaha sirta ah.")
             return render(request, 'registration/login.html')
 
-        user = authenticate(request, username=login_input, password=password)
-        if user is not None:
-            login(request, user, backend='siisto.backends.EmailOrUsernameModelBackend')
+        # Try custom backend first (email or username), then fallback
+        from siisto.backends import EmailOrUsernameModelBackend
+        backend = EmailOrUsernameModelBackend()
+        user = backend.authenticate(request, username=login_input, password=password)
 
-            # Sync user's saved language preference into session
-            try:
-                profile = get_or_create_profile(user)
-                lang = profile.preferred_language or 'so'
-                request.session[LANGUAGE_SESSION_KEY] = lang
-                request.session['_language'] = lang
-                from django.utils import translation
-                translation.activate(lang)
-            except Exception:
-                pass
-
-            messages.success(request, f"Ku soo dhowow Siisto, {user.first_name or user.username}!")
-            next_url = request.POST.get('next') or request.GET.get('next') or 'index'
-            response = redirect(next_url)
-            try:
-                cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
-                if hasattr(user, 'profile') and user.profile.preferred_language:
-                    response.set_cookie(cookie_name, user.profile.preferred_language, max_age=365*24*60*60)
-            except Exception:
-                pass
-            return response
-        else:
+        if user is None:
             messages.error(request, "Magaca/Email-ka ama furaha sirta ah waa qaldan yahay. Fadlan dib u hubi.")
+            return render(request, 'registration/login.html')
+
+        if not user.is_active:
+            messages.error(request, "Koontadaada waa la xidhay. La xiriir taageerada.")
+            return render(request, 'registration/login.html')
+
+        # Login with explicit backend to avoid backend mismatch errors
+        login(request, user, backend='siisto.backends.EmailOrUsernameModelBackend')
+
+        # Sync user's saved language preference into session
+        try:
+            profile = get_or_create_profile(user)
+            lang = profile.preferred_language or 'so'
+            request.session[LANGUAGE_SESSION_KEY] = lang
+            request.session['_language'] = lang
+            from django.utils import translation
+            translation.activate(lang)
+        except Exception:
+            pass
+
+        messages.success(request, f"Ku soo dhowow Siisto, {user.first_name or user.username}!")
+        next_url = request.POST.get('next') or request.GET.get('next') or 'index'
+        response = redirect(next_url)
+        try:
+            cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
+            if hasattr(user, 'profile') and user.profile.preferred_language:
+                response.set_cookie(cookie_name, user.profile.preferred_language, max_age=365*24*60*60)
+        except Exception:
+            pass
+        return response
 
     return render(request, 'registration/login.html')
 
@@ -1620,28 +1630,43 @@ def register(request):
         if preferred_lang not in ['so', 'en', 'ar']:
             preferred_lang = 'so'
 
+        # Validate inputs
+        error = None
         if not username or not password:
-            messages.error(request, "Fadlan buuxi dhammaan meelaha banaan.")
+            error = "Fadlan buuxi dhammaan meelaha banaan."
+        elif len(username) < 3:
+            error = "Magaca isticmaalaha waa inuu ahaadaa ugu yaraan 3 xaraf."
+        elif not re.match(r'^[a-zA-Z0-9_@.+-]+$', username):
+            error = "Magaca isticmaalaha waxaa ku jiri kara xarfo, tiro, iyo _@.+- kaliya."
         elif password != password_confirm:
-            messages.error(request, "Furaha sirta ah isma laha (Passwords do not match).")
+            error = "Furaha sirta ah isma laha (Passwords do not match)."
         elif len(password) < 6:
-            messages.error(request, "Furaha sirta ah waa inuu ka dheer yahay 6 xaraf.")
+            error = "Furaha sirta ah waa inuu ka dheer yahay 6 xaraf."
         elif User.objects.filter(username__iexact=username).exists():
-            messages.error(request, "Magacan horay ayaa loo qaatay. Fadlan mid kale dooro.")
+            error = "Magacan horay ayaa loo qaatay. Fadlan mid kale dooro."
         elif email and User.objects.filter(email__iexact=email).exists():
-            messages.error(request, "Email-kan horay ayaa loo isticmaalay. Fadlan soo gal ama email kale isticmaal.")
-        else:
+            error = "Email-kan horay ayaa loo isticmaalay. Fadlan soo gal ama email kale isticmaal."
+
+        if error:
+            messages.error(request, error)
+            return render(request, 'registration/signup.html')
+
+        try:
             user = User.objects.create_user(
-                username=username, email=email, password=password,
+                username=username,
+                email=email,
+                password=password,
                 first_name=first_name,
             )
             profile, _ = Profile.objects.get_or_create(user=user)
             profile.preferred_language = preferred_lang
             profile.save()
 
+            # Log the user in immediately after registration
             login(request, user, backend='siisto.backends.EmailOrUsernameModelBackend')
             request.session[LANGUAGE_SESSION_KEY] = preferred_lang
             request.session['_language'] = preferred_lang
+            request.session.save()
             from django.utils import translation
             translation.activate(preferred_lang)
 
@@ -1656,6 +1681,9 @@ def register(request):
             cookie_name = getattr(settings, 'LANGUAGE_COOKIE_NAME', 'django_language')
             response.set_cookie(cookie_name, preferred_lang, max_age=365*24*60*60)
             return response
+        except Exception as e:
+            logger.error(f"Registration error for '{username}': {e}")
+            messages.error(request, "Dhibaato baa dhacday. Fadlan mar kale isku day.")
 
     return render(request, 'registration/signup.html')
 
