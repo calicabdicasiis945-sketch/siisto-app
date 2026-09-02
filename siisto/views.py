@@ -1556,10 +1556,8 @@ def login_view(request):
             messages.error(request, "Fadlan geli magacaaga ama email-kaaga iyo furaha sirta ah.")
             return render(request, 'registration/login.html')
 
-        # Try custom backend first (email or username), then fallback
-        from siisto.backends import EmailOrUsernameModelBackend
-        backend = EmailOrUsernameModelBackend()
-        user = backend.authenticate(request, username=login_input, password=password)
+        # Authenticate using configured backends (supports username or email)
+        user = authenticate(request, username=login_input, password=password)
 
         if user is None:
             messages.error(request, "Magaca/Email-ka ama furaha sirta ah waa qaldan yahay. Fadlan dib u hubi.")
@@ -1569,8 +1567,7 @@ def login_view(request):
             messages.error(request, "Koontadaada waa la xidhay. La xiriir taageerada.")
             return render(request, 'registration/login.html')
 
-        # Login with explicit backend to avoid backend mismatch errors
-        login(request, user, backend='siisto.backends.EmailOrUsernameModelBackend')
+        login(request, user)
 
         # Sync user's saved language preference into session
         try:
