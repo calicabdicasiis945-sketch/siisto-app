@@ -5,69 +5,155 @@
 
 {% block extra_head %}
 <style>
-    /* ─── 3D BODY SCAN SECTION ─── */
+    /* ═══ 3D BODY SCAN — HERO SHOWCASE STYLE ═══ */
     #bodyScanSection {
-        background: radial-gradient(ellipse at 50% 0%, #0d2140 0%, #0a101d 60%);
-        border: 1px solid rgba(0, 240, 255, 0.20);
-        border-radius: 24px;
+        background: linear-gradient(135deg, #080f1e 0%, #0b1830 40%, #0d2140 100%);
+        border: 1px solid rgba(0,240,255,0.18);
+        border-radius: 28px;
         position: relative;
         overflow: hidden;
+        min-height: 520px;
+    }
+    /* Ambient glow blobs */
+    #bodyScanSection::before {
+        content: '';
+        position: absolute;
+        top: -80px; left: -80px;
+        width: 420px; height: 420px;
+        background: radial-gradient(circle, rgba(0,240,255,0.07) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    #bodyScanSection::after {
+        content: '';
+        position: absolute;
+        bottom: -60px; right: -60px;
+        width: 320px; height: 320px;
+        background: radial-gradient(circle, rgba(0,100,255,0.06) 0%, transparent 70%);
+        pointer-events: none;
     }
 
-    /* Three.js Canvas Container */
+    /* Three.js canvas */
     #bodyCanvas3D {
         width: 100%;
-        height: 460px;
+        height: 100%;
+        min-height: 460px;
         display: block;
         cursor: grab;
-        border-radius: 18px;
         background: transparent;
     }
     #bodyCanvas3D:active { cursor: grabbing; }
 
-    /* View Controls */
+    /* Hero left text */
+    .scan-hero-label {
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+        color: #00f0ff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .scan-hero-title {
+        font-size: clamp(1.6rem, 4vw, 2.6rem);
+        font-weight: 900;
+        line-height: 1.12;
+        color: #fff;
+        letter-spacing: -.02em;
+    }
+    .scan-hero-title span {
+        background: linear-gradient(90deg, #00f0ff, #00a3ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .scan-hero-sub {
+        font-size: 13px;
+        color: #64748b;
+        line-height: 1.65;
+        max-width: 260px;
+    }
+
+    /* Muscle zone pills */
+    .muscle-zone-btn {
+        padding: 9px 16px;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 800;
+        background: rgba(10,16,29,0.7);
+        border: 1px solid rgba(0,240,255,0.16);
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        backdrop-filter: blur(8px);
+    }
+    .muscle-zone-btn:hover {
+        color: #fff;
+        border-color: rgba(0,240,255,0.4);
+        background: rgba(0,240,255,0.06);
+    }
+    .muscle-zone-btn.active {
+        background: linear-gradient(135deg, rgba(0,240,255,0.15) 0%, rgba(0,163,255,0.15) 100%);
+        border-color: #00f0ff;
+        color: #00f0ff;
+        box-shadow: 0 0 18px rgba(0,240,255,0.18), inset 0 1px 0 rgba(0,240,255,0.15);
+    }
+    .muscle-zone-btn .zone-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+    }
+
+    /* View control pills */
     .view-ctrl-btn {
-        padding: 6px 16px;
+        padding: 8px 18px;
         border-radius: 999px;
         font-size: 11px;
         font-weight: 800;
         letter-spacing: .06em;
-        background: rgba(13,21,39,0.85);
-        border: 1px solid rgba(0,240,255,0.22);
-        color: #94a3b8;
-        cursor: pointer;
-        transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
-        white-space: nowrap;
-    }
-    .view-ctrl-btn:hover { color: #fff; border-color: rgba(0,240,255,0.55); }
-    .view-ctrl-btn.active {
-        background: linear-gradient(135deg,#00f0ff 0%,#00a3ff 100%);
-        color: #0a101d;
-        border-color: transparent;
-        box-shadow: 0 3px 14px rgba(0,240,255,0.40);
-    }
-
-    /* Muscle Area Selector */
-    .muscle-zone-btn {
-        padding: 8px 14px;
-        border-radius: 14px;
-        font-size: 11px;
-        font-weight: 800;
-        background: rgba(13,21,39,0.85);
-        border: 1px solid rgba(0,240,255,0.18);
-        color: #94a3b8;
+        background: rgba(10,16,29,0.8);
+        border: 1px solid rgba(0,240,255,0.2);
+        color: #64748b;
         cursor: pointer;
         transition: all 0.22s;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        white-space: nowrap;
+        backdrop-filter: blur(8px);
     }
-    .muscle-zone-btn:hover { color:#fff; border-color: rgba(0,240,255,0.45); }
-    .muscle-zone-btn.active {
-        background: linear-gradient(135deg,#00f0ff22 0%,#00a3ff22 100%);
-        border-color: #00f0ff;
+    .view-ctrl-btn:hover { color: #fff; border-color: rgba(0,240,255,0.5); }
+    .view-ctrl-btn.active {
+        background: linear-gradient(135deg,#00f0ff 0%,#00a3ff 100%);
+        color: #060e1c;
+        border-color: transparent;
+        box-shadow: 0 4px 18px rgba(0,240,255,0.38);
+    }
+
+    /* Stat pill */
+    .scan-stat-pill {
+        background: rgba(10,16,29,0.75);
+        border: 1px solid rgba(0,240,255,0.14);
+        border-radius: 16px;
+        padding: 14px 18px;
+        text-align: center;
+        backdrop-filter: blur(8px);
+    }
+    .scan-stat-pill .stat-val {
+        font-size: 1.5rem;
+        font-weight: 900;
         color: #00f0ff;
-        box-shadow: 0 2px 12px rgba(0,240,255,0.25);
+        line-height: 1;
+    }
+    .scan-stat-pill .stat-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-top: 4px;
     }
 
     /* Scan HUD overlay badges */
@@ -76,14 +162,67 @@
         font-weight: 900;
         letter-spacing: .08em;
         text-transform: uppercase;
-        padding: 4px 11px;
-        border-radius: 8px;
-        backdrop-filter: blur(10px);
-        background: rgba(10,16,29,0.85);
-        border: 1px solid rgba(0,240,255,0.25);
+        padding: 5px 12px;
+        border-radius: 10px;
+        backdrop-filter: blur(12px);
+        background: rgba(6,14,28,0.88);
+        border: 1px solid rgba(0,240,255,0.22);
         color: #00f0ff;
         display: flex; align-items: center; gap: 6px;
     }
+
+    /* Bottom tagline bar */
+    .scan-tagline {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e3a5f;
+        letter-spacing: .06em;
+        text-align: center;
+        padding: 10px 0 0;
+        border-top: 1px solid rgba(0,240,255,0.07);
+    }
+
+    /* Loading spinner */
+    #scanLoader {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        background: linear-gradient(135deg, #080f1e 0%, #0b1830 40%, #0d2140 100%);
+        border-radius: 26px;
+    }
+    .spin-ring {
+        width: 60px; height: 60px;
+        border: 3px solid rgba(0,240,255,0.12);
+        border-top-color: #00f0ff;
+        border-radius: 50%;
+        animation: spinRing 0.85s linear infinite;
+    }
+    @keyframes spinRing { to { transform: rotate(360deg); } }
+
+    /* Zone tooltip */
+    #zoneLabel {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+        transition: opacity 0.35s;
+        white-space: nowrap;
+    }
+
+    /* ─── PULSE / ANIMATIONS ─── */
+    @keyframes scanPulse { 0%,100%{opacity:.55} 50%{opacity:1} }
+    .scan-pulse { animation: scanPulse 2s ease-in-out infinite; }
+
+    @keyframes floatBody {
+        0%,100% { transform: translateY(0px); }
+        50%      { transform: translateY(-10px); }
+    }
+    #scanCanvasWrap { animation: floatBody 4.5s ease-in-out infinite; }
 
     /* 3D Perspective Card Tilt */
     .exercise-3d-card {
@@ -113,7 +252,7 @@
         box-shadow: 0 4px 16px rgba(0, 240, 255, 0.4);
     }
 
-    /* Studio Viewport (lower exercise section) */
+    /* Studio Viewport */
     .studio-viewport {
         background: radial-gradient(circle at center, #111c33 0%, #0d1527 70%, #0a101d 100%);
         border: 1px solid rgba(0, 240, 255, 0.25);
@@ -123,43 +262,7 @@
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(0, 240, 255, 0.15);
     }
 
-    @keyframes scanPulse {
-        0%,100% { opacity:0.6; } 50% { opacity:1; }
-    }
-    .scan-pulse { animation: scanPulse 2s ease-in-out infinite; }
-
-    /* Zone tooltip */
-    #zoneLabel {
-        position: absolute;
-        bottom: 14px;
-        left: 50%;
-        transform: translateX(-50%);
-        pointer-events: none;
-        transition: opacity 0.3s;
-    }
-
-    /* Loading spinner */
-    #scanLoader {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-        background: radial-gradient(ellipse at 50% 0%, #0d2140 0%, #0a101d 60%);
-        border-radius: 18px;
-    }
-    .spin-ring {
-        width: 56px; height: 56px;
-        border: 3px solid rgba(0,240,255,0.15);
-        border-top-color: #00f0ff;
-        border-radius: 50%;
-        animation: spinRing 0.9s linear infinite;
-    }
-    @keyframes spinRing { to { transform: rotate(360deg); } }
-
-    /* Mannequin Animation for exercise studio */
+    /* Mannequin Animation */
     @keyframes skeletonCycle {
         0%, 100% { transform: translateY(0) scaleY(1); }
         50% { transform: translateY(8px) scaleY(0.92); }
@@ -174,148 +277,149 @@
 {% block content %}
 <div class="space-y-6">
 
-    <!-- ── 1. INTERACTIVE 3D BODY SCAN ── -->
-    <div id="bodyScanSection" class="p-5 sm:p-7 space-y-5">
+    <!-- ── 1. INTERACTIVE 3D BODY SCAN — HERO SHOWCASE ── -->
+    <div id="bodyScanSection" class="relative">
 
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[rgba(0,240,255,0.12)]">
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#00f0ff] to-[#00a3ff] text-[#0a101d]">3D BODY SCAN</span>
-                    <span class="text-xs text-slate-400 font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-circle text-[8px] text-[#00f0ff] scan-pulse"></i> Live Interactive Scanner
-                    </span>
+        <!-- Three-column hero layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr_260px] gap-0 min-h-[520px]">
+
+            <!-- ── LEFT PANEL: Title + Muscle Zones ── -->
+            <div class="flex flex-col justify-center gap-6 p-7 lg:p-8 z-10">
+
+                <!-- Badge + Title -->
+                <div class="space-y-3">
+                    <div class="scan-hero-label">
+                        <i class="fa-solid fa-circle text-[7px] scan-pulse"></i>
+                        3D BODY SCAN
+                    </div>
+                    <h2 class="scan-hero-title" id="scanZoneTitle">
+                        Scan Your<br><span>Body</span><br>In 3D
+                    </h2>
+                    <p class="scan-hero-sub" id="zoneDescription">
+                        Interactive 3D scanner. Tap a muscle group to focus and highlight the selected zone.
+                    </p>
                 </div>
-                <h2 class="text-xl sm:text-2xl font-black text-white mt-1" id="scanZoneTitle">
-                    Full Body — 3D Interactive Scanner
-                </h2>
+
+                <!-- Muscle Zone Buttons -->
+                <div class="space-y-1.5" id="muscleZoneButtons">
+                    <button type="button" class="muscle-zone-btn" onclick="focusMuscleZone('chest')" id="zone-chest">
+                        <span class="zone-dot"></span> Chest / Xabadka
+                    </button>
+                    <button type="button" class="muscle-zone-btn" onclick="focusMuscleZone('back')" id="zone-back">
+                        <span class="zone-dot"></span> Back / Dhabarka
+                    </button>
+                    <button type="button" class="muscle-zone-btn" onclick="focusMuscleZone('shoulders')" id="zone-shoulders">
+                        <span class="zone-dot"></span> Shoulders / Garbaha
+                    </button>
+                    <button type="button" class="muscle-zone-btn" onclick="focusMuscleZone('arms')" id="zone-arms">
+                        <span class="zone-dot"></span> Arms / Gacmaha
+                    </button>
+                    <button type="button" class="muscle-zone-btn" onclick="focusMuscleZone('abs')" id="zone-abs">
+                        <span class="zone-dot"></span> Abs / Core
+                    </button>
+                    <button type="button" class="muscle-zone-btn" onclick="focusMuscleZone('legs')" id="zone-legs">
+                        <span class="zone-dot"></span> Legs / Lugaha
+                    </button>
+                    <button type="button" class="muscle-zone-btn active" onclick="focusMuscleZone('full')" id="zone-full">
+                        <span class="zone-dot"></span> Full Body
+                    </button>
+                </div>
             </div>
 
-            <!-- View Controls -->
-            <div class="flex items-center gap-2 flex-wrap">
-                <button type="button" class="view-ctrl-btn active" id="viewBtn360" onclick="setScanView('auto')">
-                    <i class="fa-solid fa-rotate mr-1"></i> 360°
-                </button>
-                <button type="button" class="view-ctrl-btn" id="viewBtnFront" onclick="setScanView('front')">
-                    Front
-                </button>
-                <button type="button" class="view-ctrl-btn" id="viewBtnSide" onclick="setScanView('side')">
-                    Side
-                </button>
-                <button type="button" class="view-ctrl-btn" id="viewBtnBack" onclick="setScanView('back')">
-                    Back
-                </button>
-            </div>
-        </div>
-
-        <!-- Main 3D Canvas + Body Zone Selector -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-            <!-- LEFT: 3D Canvas -->
-            <div class="lg:col-span-8 relative rounded-2xl overflow-hidden" style="background:transparent;">
-                <!-- Loading State -->
+            <!-- ── CENTER: 3D Canvas (hero) ── -->
+            <div class="relative flex items-center justify-center overflow-hidden">
+                <!-- loader -->
                 <div id="scanLoader">
                     <div class="spin-ring mb-4"></div>
                     <span class="text-[11px] font-bold text-[#00f0ff] tracking-widest uppercase">Initializing 3D Scanner…</span>
                 </div>
 
-                <!-- Three.js Canvas -->
-                <canvas id="bodyCanvas3D"></canvas>
+                <!-- canvas wrapper with float animation -->
+                <div id="scanCanvasWrap" class="w-full h-full flex items-center justify-center">
+                    <canvas id="bodyCanvas3D"></canvas>
+                </div>
 
-                <!-- HUD Top Left -->
-                <div class="absolute top-3 left-3 flex items-center gap-2 z-10">
+                <!-- HUD: top-left SCANNING badge -->
+                <div class="absolute top-4 left-4 z-10">
                     <div class="scan-badge">
-                        <i class="fa-solid fa-circle text-[#00f0ff] text-[8px] scan-pulse"></i>
+                        <i class="fa-solid fa-circle text-[7px] scan-pulse"></i>
                         <span id="scanStatusBadge">SCANNING</span>
                     </div>
                 </div>
 
-                <!-- HUD Top Right -->
-                <div class="absolute top-3 right-3 z-10">
+                <!-- HUD: top-right zone badge -->
+                <div class="absolute top-4 right-4 z-10">
                     <div class="scan-badge">
-                        <i class="fa-solid fa-cube text-[#00f0ff]"></i>
+                        <i class="fa-solid fa-cube"></i>
                         <span id="currentZoneBadge">Full Body</span>
                     </div>
                 </div>
 
-                <!-- Zone Tooltip Bottom -->
+                <!-- HUD: bottom center zone tooltip -->
                 <div id="zoneLabel" class="opacity-0">
                     <div class="scan-badge">
-                        <i class="fa-solid fa-crosshairs text-[#00f0ff]"></i>
+                        <i class="fa-solid fa-crosshairs"></i>
                         <span id="zoneLabelText">Select a muscle group</span>
                     </div>
                 </div>
 
-                <!-- Drag hint -->
-                <div class="absolute bottom-3 right-3 z-10 opacity-50">
-                    <span class="text-[10px] text-slate-400 font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-hand-pointer"></i> Drag to rotate
+                <!-- drag hint -->
+                <div class="absolute bottom-4 right-4 z-10 opacity-40">
+                    <span class="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrows-up-down-left-right"></i> Drag to rotate
                     </span>
+                </div>
+
+                <!-- tagline bottom center -->
+                <div class="absolute bottom-4 left-4 z-10 opacity-30">
+                    <p class="text-[11px] font-bold text-slate-400 tracking-widest">SIISTO 3D SCANNER</p>
                 </div>
             </div>
 
-            <!-- RIGHT: Body Zone Selector -->
-            <div class="lg:col-span-4 space-y-4">
-                <div class="p-4 rounded-2xl bg-[#0a101d]/80 border border-[rgba(0,240,255,0.2)] space-y-3">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-[#00f0ff] flex items-center gap-2">
-                        <i class="fa-solid fa-bullseye text-[#00f0ff]"></i>
-                        Select Muscle Group
-                    </h4>
+            <!-- ── RIGHT PANEL: View Controls + Stats ── -->
+            <div class="flex flex-col justify-center gap-5 p-7 lg:p-8 z-10">
 
-                    <div class="space-y-2" id="muscleZoneButtons">
-                        <button type="button" class="muscle-zone-btn w-full" onclick="focusMuscleZone('chest')" id="zone-chest">
-                            <i class="fa-solid fa-heart-pulse"></i>
-                            <span>Chest / Xabadka</span>
+                <!-- View angle controls -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Camera View</p>
+                    <div class="flex flex-col gap-2">
+                        <button type="button" class="view-ctrl-btn active" id="viewBtn360" onclick="setScanView('auto')">
+                            <i class="fa-solid fa-rotate mr-2"></i>360° Auto
                         </button>
-                        <button type="button" class="muscle-zone-btn w-full" onclick="focusMuscleZone('back')" id="zone-back">
-                            <i class="fa-solid fa-person-walking"></i>
-                            <span>Back / Dhabarka</span>
+                        <button type="button" class="view-ctrl-btn" id="viewBtnFront" onclick="setScanView('front')">
+                            Front View
                         </button>
-                        <button type="button" class="muscle-zone-btn w-full" onclick="focusMuscleZone('shoulders')" id="zone-shoulders">
-                            <i class="fa-solid fa-dumbbell"></i>
-                            <span>Shoulders / Garbaha</span>
+                        <button type="button" class="view-ctrl-btn" id="viewBtnSide" onclick="setScanView('side')">
+                            Side View
                         </button>
-                        <button type="button" class="muscle-zone-btn w-full" onclick="focusMuscleZone('arms')" id="zone-arms">
-                            <i class="fa-solid fa-hand-fist"></i>
-                            <span>Arms / Gacmaha</span>
-                        </button>
-                        <button type="button" class="muscle-zone-btn w-full" onclick="focusMuscleZone('abs')" id="zone-abs">
-                            <i class="fa-solid fa-fire"></i>
-                            <span>Abs / Core — Caloosha</span>
-                        </button>
-                        <button type="button" class="muscle-zone-btn w-full" onclick="focusMuscleZone('legs')" id="zone-legs">
-                            <i class="fa-solid fa-shoe-prints"></i>
-                            <span>Legs / Lugaha</span>
-                        </button>
-                        <button type="button" class="muscle-zone-btn w-full active" onclick="focusMuscleZone('full')" id="zone-full">
-                            <i class="fa-solid fa-person"></i>
-                            <span>Full Body</span>
+                        <button type="button" class="view-ctrl-btn" id="viewBtnBack" onclick="setScanView('back')">
+                            Back View
                         </button>
                     </div>
                 </div>
 
-                <!-- Body Stats Mini Card -->
-                <div class="p-4 rounded-2xl bg-[#0a101d]/80 border border-[rgba(0,240,255,0.2)] space-y-2">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-[#00f0ff] flex items-center gap-2">
-                        <i class="fa-solid fa-chart-simple"></i>
-                        Scan Info
-                    </h4>
+                <!-- Stat Pills -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Scan Data</p>
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="text-center p-2 rounded-xl bg-[#111c33]">
-                            <div class="text-lg font-black text-[#00f0ff]" id="scanAngleVal">0°</div>
-                            <div class="text-[10px] text-slate-400">Rotation</div>
+                        <div class="scan-stat-pill">
+                            <div class="stat-val" id="scanAngleVal">0°</div>
+                            <div class="stat-label">Rotation</div>
                         </div>
-                        <div class="text-center p-2 rounded-xl bg-[#111c33]">
-                            <div class="text-lg font-black text-white" id="scanZoneVal">Full</div>
-                            <div class="text-[10px] text-slate-400">Active Zone</div>
+                        <div class="scan-stat-pill">
+                            <div class="stat-val" id="scanZoneVal" style="font-size:1rem;">Full</div>
+                            <div class="stat-label">Zone</div>
                         </div>
                     </div>
-                    <p class="text-[11px] text-slate-400 leading-relaxed" id="zoneDescription">
-                        Interactive 3D body model. Tap any muscle group to focus camera and highlight the selected zone.
+                </div>
+
+                <!-- Tagline like the reference image -->
+                <div class="mt-auto pt-4 border-t border-[rgba(0,240,255,0.08)]">
+                    <p class="text-[12px] font-bold text-slate-600 leading-relaxed">
+                        Precision,<br>wrapped in science.
                     </p>
                 </div>
             </div>
-
         </div>
     </div>
 
