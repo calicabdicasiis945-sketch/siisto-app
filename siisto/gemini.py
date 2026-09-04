@@ -2,16 +2,22 @@ import os
 import json
 import re
 import math
+import requests
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 DEFAULT_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 MODELS_PRIORITY = [
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-pro",
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-3.6-flash",
     "gemini-flash-latest",
-    "gemini-1.5-flash-latest",
+    "gemini-3.7-flash",
 ]
 
 def detect_language_from_text(text, default='so'):
@@ -31,11 +37,13 @@ def detect_language_from_text(text, default='so'):
         'cunto', 'muruq', 'jimicsi', 'lugaha', 'xabadka', 'garabka', 'gacmaha',
         'dhabarka', 'caloosha', 'miisaan', 'dhimis', 'kordhin', 'sidee', 'maxaa',
         'tababar', 'yool', 'immisa', 'fadlan', 'haystaa', 'rabaa', 'waxaad',
-        'korriin', 'hilib', 'bariis', 'digaag', 'ukun', 'biyo', 'hurdo', 'qorshe'
+        'korriin', 'hilib', 'bariis', 'digaag', 'ukun', 'biyo', 'hurdo', 'qorshe',
+        'laabta', 'laab', 'lug', 'lugo', 'dhabar', 'garab', 'muruqa', 'muruqyo',
+        'sameeyaa', 'sameeyo', 'doonayaa', 'rabo', 'rabtaa', 'bartaa', 'qaataa'
     ]
     words = re.findall(r'\b[a-zA-Z]+\b', text.lower())
     somali_matches = sum(1 for w in words if w in somali_keywords)
-    if somali_matches >= 2 or any(w in ['muruq', 'cunto', 'jimicsi', 'miisaan', 'dhimis', 'calool', 'xabad'] for w in words):
+    if somali_matches >= 1 or any(w in ['muruq', 'cunto', 'jimicsi', 'miisaan', 'dhimis', 'calool', 'xabad', 'laabta', 'lugaha'] for w in words):
         return 'so'
 
     # Default to English if Latin and no strong Somali match
@@ -47,7 +55,14 @@ def detect_language_from_text(text, default='so'):
     return default
 
 def get_api_key():
-    return os.environ.get("GEMINI_API_KEY") or DEFAULT_API_KEY
+    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not key:
+        try:
+            from django.conf import settings
+            key = getattr(settings, 'GEMINI_API_KEY', '').strip()
+        except Exception:
+            key = ""
+    return key or DEFAULT_API_KEY
 
 def get_genai_client():
     api_key = get_api_key()
@@ -67,27 +82,27 @@ def get_system_prompt(language='so', is_pro=False, custom_prompt=None):
 
     if lang == 'ar':
         return (
-            "أنت 'Siisto AI Elite Master Coach' — مدرب لياقة بدنية وتغذية رياضية معتمد وخبير عالمي فائق الذكاء. "
-            "أنت خبير في الميكانيكا الحيوية للتمارين، حساب السعرات الحرارية بدقة (TDEE/Macros)، تصميم جداول التمارين "
-            "(Push-Pull-Legs, Upper-Lower, Arnold Split, Full Body)، خطط التضخيم والتنشيف، المكملات الغذائية (كرياتين، بروتين، فيتامينات)، "
-            "والاستشفاء العضلي. قدّم إجابات متقدمة وعملية ومفصلة جداً باستخدام تنسيق Markdown الاحترافي (عناوين، جداول للمجموعات والتكرارات، نقاط واضحة)."
+            "أنت 'Siisto AI' — كوتش ذكي معتمد وخبير للياقة البدنية، التغذية الرياضية، وبناء الأجسام في تطبيق Siisto.\n"
+            "أنت تفهم تماماً أسئلة التمارين (الصدر، الظهر، الأكتاف، الأذرع، الأرجل، عضلات البطن والكور، الكارديو)، "
+            "والتغذية الصحية، حساب السعرات والماكروز والبروتين، تتبع التقدم، وتحدي الـ 90 يوماً.\n"
+            "قاعدة لغوية حاسمة: إذا تحدث المستخدم بالعربية أجب بالعربية الفصحى الواضحة والجميلة. إذا تحدث بالإنجليزية أجب بالإنجليزية. وإذا تحدث بالصومالية أجب بالصومالية.\n"
+            "قدّم إرشادات ذكية وقابلة للتطبيق العملي بتنسيق Markdown أنيق ومميز."
         )
     elif lang == 'en':
         return (
-            "You are 'Siisto AI Elite Master Coach' — a world-class certified fitness coach, biomechanics specialist, "
-            "and sports nutritionist with supreme intelligence. You specialize in evidence-based periodized training programs "
-            "(Push/Pull/Legs, Upper/Lower, Hypertrophy Splits, Athletic Conditioning), precise caloric & macronutrient calculations, "
-            "Somali and international healthy nutrition, biomechanical form correction, supplement science (Creatine, Whey, Electrolytes), "
-            "and active recovery. Provide deep, structured, highly actionable responses using clean Markdown tables, bullet points, and step-by-step guidance."
+            "You are 'Siisto AI' — an elite, world-class AI Fitness, Nutrition & Health Coach for the Siisto platform.\n"
+            "You have deep, certified expertise in workouts (chest, back, shoulders, arms, legs, abs/core, cardio, splits like PPL and Upper/Lower), "
+            "nutrition, macros, protein calculations, weight loss/muscle gain, workout progress, and the 90-day challenge.\n"
+            "CRITICAL LANGUAGE RULE: Match the user's language! If the user writes in English, reply in fluent English. If the user writes in Somali, reply in fluent Somali. If in Arabic, reply in Arabic.\n"
+            "Provide intelligent, encouraging, science-based advice formatted in clean Markdown with clear headings and bullet points."
         )
     else:  # Somali
         return (
-            "Waxaad tahay 'Siisto AI Elite Master Coach' — Tababare Jimicsi iyo Khabiir Nafaqo oo heer caalami ah, "
-            "aad iyo aad u caqli badan oo aqoon qoto dheer u leh dhisidda muruqyada, gubista baruurta, xisaabinta Calories & Macros, "
-            "farsamada saxda ah ee jimicsiyada (Biomechanics), cuntooyinka Soomaalida ee caafimaadka leh (Bariis, Baasto, Hilib Geel, Digaag, Ukun, Caano, Moos, Boorash), "
-            "iyo nafaqada kabka ah (Creatine, Whey Protein, Biyo, Fiitamiinno). "
-            "U jawaab si hufan, dhiirrigelin leh, aqoon sare ku dheehan tahay oo Af-Soomaali qani ah oo sax ah ku qoran. "
-            "Isticmaal qaab Markdown oo aad u habeysan (Cinwaanno cad-cad, Shaxyo/Tables loogu talagalay Sets & Reps, iyo Qodobbo qeexan)."
+            "Waxaad tahay 'Siisto AI' — Tababaraha Caqliga Badan ee rasmiga ah ee barnaamijka jimicsiga iyo nafaqada ee Siisto.\n"
+            "Waxaad aqoon qoto-dheer u leedahay jimicsiyada oo dhan (laabta/xabadka, dhabarka, garbaha, gacmaha, lugaha, caloosha/core, cardio, jadwallada PPL iyo Upper/Lower), "
+            "cuntada nafaqada leh (gaar ahaan cuntooyinka Soomaalida), xisaabinta Calories-ka iyo Borotiinka, dhimista ama korodhka miisaanka, iyo loolanka 90-ka maalmood (90-Day Challenge).\n"
+            "XEERKA LUUQADDA EE MUHIIMKA AH: Luuqad kasta oo uu qofku kugu weydiiyo su'aasha ugu jawaab! Haddii uu af-Soomaali kugu weydiiyo, ugu jawaab af-Soomaali qurux badan oo saafi ah. Haddii uu Ingiriisi ku weydiiyo, Ingiriisi ugu jawaab. Haddii uu Carabi ku weydiiyo, Carabi ugu jawaab.\n"
+            "Si toos ah, caqli ku dheehan yahay, oo dhiirrigelin leh ugu jawaab adoo isticmaalaya Markdown qurxoon (Cinwaanno iyo Qodobbo cadcad)."
         )
 
 
@@ -99,7 +114,7 @@ def ask_gemini(user_message, custom_system_prompt=None, is_pro=False, language='
     detected_lang = detect_language_from_text(user_message, default=language or 'so')
     active_lang = detected_lang if detected_lang in ['ar', 'so', 'en'] else (language or 'so')
 
-    client = get_genai_client()
+    api_key = get_api_key()
     system_prompt = get_system_prompt(language=active_lang, is_pro=is_pro, custom_prompt=custom_system_prompt)
 
     history_context = ""
@@ -109,26 +124,90 @@ def ask_gemini(user_message, custom_system_prompt=None, is_pro=False, language='
         elif isinstance(conversation_history, str):
             history_context = conversation_history
 
-    full_prompt = (
-        f"System Instruction:\n{system_prompt}\n\n"
-        f"{f'Previous Conversation History:\n{history_context}\n\n' if history_context else ''}"
-        f"Current User Question:\n{user_message}\n\n"
-        f"Please provide an intelligent, expert-level coaching response with actionable instructions, sets/reps or meal breakdowns formatted in clean markdown."
-    )
+    # 1. First Attempt: Direct Google Gemini REST API with multi-turn messages
+    if api_key:
+        contents_list = []
+        
+        # Parse conversation history into multi-turn messages
+        if history_context:
+            turns = history_context.strip().split("\n")
+            for t in turns:
+                t = t.strip()
+                if t.startswith("User:"):
+                    u_text = t.replace("User:", "").strip()
+                    if u_text:
+                        contents_list.append({"role": "user", "parts": [{"text": u_text}]})
+                elif t.startswith("AI:"):
+                    a_text = t.replace("AI:", "").strip()
+                    if a_text:
+                        contents_list.append({"role": "model", "parts": [{"text": a_text}]})
 
+        # Append current user message
+        contents_list.append({
+            "role": "user",
+            "parts": [{"text": user_message}]
+        })
+
+        for model_name in MODELS_PRIORITY:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                
+                payload = {
+                    "systemInstruction": {
+                        "parts": [{"text": system_prompt}]
+                    },
+                    "contents": contents_list,
+                    "generationConfig": {
+                        "temperature": 0.7,
+                        "maxOutputTokens": 2048,
+                    }
+                }
+                
+                # Low-latency thinking budget for supported models
+                if "3.5" in model_name or "3.8" in model_name:
+                    payload["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 0}
+
+                resp = requests.post(url, json=payload, timeout=18)
+                
+                # If thinkingConfig was rejected with 400 Bad Request, retry without it
+                if resp.status_code == 400 and "thinkingConfig" in payload.get("generationConfig", {}):
+                    del payload["generationConfig"]["thinkingConfig"]
+                    resp = requests.post(url, json=payload, timeout=18)
+
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        for part in parts:
+                            if "text" in part and part["text"].strip():
+                                text = part["text"].strip()
+                                if len(text) > 5:
+                                    return text
+            except Exception:
+                continue
+
+    # 2. Second Attempt: google-genai SDK Client
+    client = get_genai_client()
     if client:
+        full_prompt = (
+            f"System Instruction:\n{system_prompt}\n\n"
+            f"{f'Previous Conversation History:\n{history_context}\n\n' if history_context else ''}"
+            f"Current User Question:\n{user_message}\n\n"
+            f"Please provide an intelligent, expert-level coaching response formatted in clean markdown."
+        )
         for model_name in MODELS_PRIORITY:
             try:
                 response = client.models.generate_content(
                     model=model_name,
                     contents=full_prompt
                 )
-                if response and response.text and len(response.text.strip()) > 20:
+                if response and response.text and len(response.text.strip()) > 10:
                     return response.text.strip()
             except Exception:
                 continue
 
-    # Master Multilingual AI Knowledge Engine
+    # 3. Fallback: Master Multilingual AI Knowledge Engine
     return get_smart_multilingual_fitness_response(
         user_message,
         is_pro=is_pro,
@@ -589,25 +668,55 @@ def estimate_macros_with_gemini(meal_name):
         "'carbs' (float in grams), 'fats' (float in grams). No markdown fences, no comments, just JSON."
     )
 
-    for model_name in MODELS_PRIORITY:
-        try:
-            response = client.models.generate_content(
-                model=model_name,
-                contents=prompt
-            )
-            if response and response.text:
-                raw = response.text.strip()
-                json_match = re.search(r'\{.*\}', raw, re.DOTALL)
-                if json_match:
-                    parsed = json.loads(json_match.group(0))
-                    return {
-                        'calories': int(parsed.get('calories', 450)),
-                        'protein': float(parsed.get('protein', 25.0)),
-                        'carbs': float(parsed.get('carbs', 45.0)),
-                        'fats': float(parsed.get('fats', 12.0))
-                    }
-        except Exception:
-            continue
+    api_key = get_api_key()
+    if api_key:
+        for model_name in MODELS_PRIORITY:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 250}
+                }
+                resp = requests.post(url, json=payload, timeout=10)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts and "text" in parts[0]:
+                            raw = parts[0]["text"].strip()
+                            json_match = re.search(r'\{.*\}', raw, re.DOTALL)
+                            if json_match:
+                                parsed = json.loads(json_match.group(0))
+                                return {
+                                    'calories': int(parsed.get('calories', 450)),
+                                    'protein': float(parsed.get('protein', 25.0)),
+                                    'carbs': float(parsed.get('carbs', 45.0)),
+                                    'fats': float(parsed.get('fats', 12.0))
+                                }
+            except Exception:
+                continue
+
+    if client:
+        for model_name in MODELS_PRIORITY:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt
+                )
+                if response and response.text:
+                    raw = response.text.strip()
+                    json_match = re.search(r'\{.*\}', raw, re.DOTALL)
+                    if json_match:
+                        parsed = json.loads(json_match.group(0))
+                        return {
+                            'calories': int(parsed.get('calories', 450)),
+                            'protein': float(parsed.get('protein', 25.0)),
+                            'carbs': float(parsed.get('carbs', 45.0)),
+                            'fats': float(parsed.get('fats', 12.0))
+                        }
+            except Exception:
+                continue
 
     return defaults
 

@@ -349,32 +349,30 @@ def chatbot(request):
         active_lang = profile.language or translation.get_language() or 'so'
 
         system_prompt = (
-            f"You are Siisto AI Fitness & Health Coach — an elite, professional AI coach.\n"
-            f"IMPORTANT: Respond in {active_lang.upper()} language naturally and professionally. "
-            f"If user writes in Somali, answer in Somali. If in English, answer in English. If in Arabic, answer in Arabic.\n\n"
+            f"You are Siisto AI — an elite, world-class AI Fitness, Nutrition & Health Coach for the Siisto fitness platform.\n"
+            f"You have deep, certified mastery in workouts, biomechanics, exercise technique (chest, back, shoulders, arms, legs, abs/core, cardio, splits like PPL and Upper/Lower), "
+            f"nutrition science (Somali foods, calories, protein, carbs, fats, meal planning), weight management (fat loss & muscle building), workout progress, and the 90-day challenge.\n\n"
+            f"CRITICAL MULTILINGUAL INSTRUCTION:\n"
+            f"1. ALWAYS detect and match the exact language used by the user in their current message:\n"
+            f"   - If the user asks in Somali (Af-Soomaali), respond 100% in natural, fluent Somali.\n"
+            f"   - If the user asks in English, respond 100% in English.\n"
+            f"   - If the user asks in Arabic (العربية), respond 100% in Arabic.\n"
+            f"   - If the user switches languages, switch immediately with them.\n"
+            f"2. Never give unrelated answers. Address the specific body part, muscle group, meal, or question the user asked about.\n"
+            f"3. When asked about workouts or specific muscle groups (e.g., chest, legs, back), specify the best exercises, targeting angles, sets, and rep ranges.\n"
+            f"4. When asked general knowledge, science, or life questions, answer thoughtfully, politely, and comprehensively without forcing fitness.\n\n"
             f"USER PROFILE:\n"
             f"- Name: {request.user.first_name or request.user.username}\n"
-            f"- Current weight: {current_weight or 'Unknown'} kg\n"
-            f"- Target weight: {profile.miisaanka_yoolka or 'Unknown'} kg\n"
-            f"- Height: {profile.dhererka or 'Unknown'} cm\n"
-            f"- Age: {profile.da_da or 'Unknown'}\n"
-            f"- Gender: {profile.jinsiga or 'Unknown'}\n"
-            f"- Goal: {profile.hadafka or 'Unknown'}\n"
-            f"- Activity Level: {profile.heerka_dhaqdhaqaaqa or 'Unknown'}\n"
-            f"- Fitness Level: {profile.fitness_level or 'Unknown'}\n"
-            f"- Pro Member: {'Yes' if profile.has_active_pro else 'No (Free)'}\n\n"
-            f"APP DATABASE CONTEXT (RAG):\n"
-            f"{workout_context}\n"
-            f"{meal_context}\n"
-            f"{challenge_context}\n"
-            f"{rag_exercise_context}\n\n"
+            f"- Weight: {current_weight or 'Unknown'} kg | Target: {profile.miisaanka_yoolka or 'Unknown'} kg\n"
+            f"- Height: {profile.dhererka or 'Unknown'} cm | Age: {profile.da_da or 'Unknown'} | Goal: {profile.hadafka or 'Unknown'}\n"
+            f"- Fitness Level: {profile.fitness_level or 'Unknown'} | Pro Member: {'Yes' if profile.has_active_pro else 'No (Free)'}\n\n"
+            f"{f'APP CONTEXT (RAG):\n{workout_context}\n{meal_context}\n{challenge_context}\n{rag_exercise_context}\n\n' if (workout_context or meal_context or rag_exercise_context) else ''}"
             f"CONVERSATION HISTORY:\n{history_text}\n\n"
-            "INSTRUCTIONS:\n"
-            "- Use the user profile, RAG database context, and conversation history to give accurate, personalized answers.\n"
-            "- Recommend real exercises from the app database when relevant.\n"
+            "COACHING GUIDELINES:\n"
+            "- Use the user profile, RAG context, and conversation history to give deeply personalized coaching.\n"
             "- If user asks about sets/reps after discussing an exercise, connect directly to that exercise.\n"
-            "- Format responses with bullet points, tables, and clean markdown.\n"
-            "- Give detailed, expert-level advice with empathy and encouragement.\n"
+            "- Format responses cleanly with Markdown headings, bullet points, and tables where applicable.\n"
+            "- Maintain an inspiring, respectful, and motivating coaching persona.\n"
         )
 
         ai_response = ask_gemini(
@@ -1906,10 +1904,10 @@ def admin_dashboard(request):
     total_transactions = PaymentTransaction.objects.filter(status='completed').count()
     pending_transactions = PaymentTransaction.objects.filter(status='pending').count()
 
-    recent_users = User.objects.order_by('-date_joined')[:10]
-    recent_payments = PaymentTransaction.objects.select_related('user').order_by('-created_at')[:10]
-    recent_meals = Meal.objects.select_related('user').order_by('-date')[:8]
-    recent_workouts = Workout.objects.select_related('user').order_by('-date')[:8]
+    recent_users = User.objects.select_related('profile').order_by('-date_joined')[:30]
+    recent_payments = PaymentTransaction.objects.select_related('user').order_by('-created_at')[:15]
+    recent_meals = Meal.objects.select_related('user').order_by('-date')[:10]
+    recent_workouts = Workout.objects.select_related('user').order_by('-date')[:10]
 
     from django.db.models.functions import TruncMonth
     monthly_revenue = (

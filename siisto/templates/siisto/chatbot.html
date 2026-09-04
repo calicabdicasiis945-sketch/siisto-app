@@ -197,6 +197,9 @@
             <button type="button" class="chip-btn" onclick="sendQuickPrompt('Xisaabi kaloriyada iyo borotiinka aan u baahanahay miisaankayga')">
                 📊 Xisaabi Macros &amp; Calories
             </button>
+            <button type="button" class="chip-btn" onclick="sendQuickPrompt('Ii sheeg 3 talo oo muhiim u ah nolosha qofka maalin kasta?')">
+                💡 Talo Guud &amp; Dhiirrigelin
+            </button>
             <button type="button" class="chip-btn" onclick="sendQuickPrompt('Maxay yihiin cuntooyinka Soomaalida ee ugu fiican muruq dhiska?')">
                 🥗 Cuntooyinka Soomaalida &amp; Muruqa
             </button>
@@ -204,10 +207,7 @@
                 ⚡ Gubista Baruurta Caloosha
             </button>
             <button type="button" class="chip-btn" onclick="sendQuickPrompt('Sidee loo isticmaalaa Creatine Monohydrate iyo xilliga ugu fiican?')">
-                💊 Tilmaamaha Kiriyeetiinka
-            </button>
-            <button type="button" class="chip-btn" onclick="sendQuickPrompt('Jimicsiga xabadka iyo gacmaha maxaa ugu fiican sets iyo reps?')">
-                💪 Xabadka &amp; Gacmaha Sets/Reps
+                💊 Kiriyeetiin (Creatine)
             </button>
         </div>
 
@@ -222,20 +222,20 @@
                 <div class="bubble-ai">
                     <p class="font-bold text-white mb-1">
                         {% if CURRENT_LANGUAGE == 'ar' %}
-                        أهلاً بك يا {{ request.user.username|title }}! 👋 أنا كوتش Siisto الذكي المدرب المعتمد لك.
+                        أهلاً بك يا {{ request.user.username|title }}! 👋 أنا مساعدك الذكي Siisto AI.
                         {% elif CURRENT_LANGUAGE == 'en' %}
-                        Welcome, {{ request.user.username|title }}! 👋 I am your Siisto Elite AI Fitness Coach.
+                        Welcome, {{ request.user.username|title }}! 👋 I am your Siisto AI Assistant.
                         {% else %}
-                        Ku soo dhowow Siisto, {{ request.user.username|title }}! 👋 Waxaan ahay Tababarahaaga Caqliga Badan ee AI Coach.
+                        Ku soo dhowow Siisto AI, {{ request.user.username|title }}! 👋 Waxaan ahay Kaaliyahaaga Caqliga Badan ee AI.
                         {% endif %}
                     </p>
                     <p class="text-slate-300 text-xs leading-relaxed">
                         {% if CURRENT_LANGUAGE == 'ar' %}
-                        اسألني عن جداول التمارين، حساب السعرات والماكروز، تصحيح التكنيك، أو خطط التغذية وسأجيبك بدقة علمية كاملة!
+                        أنا هنا للإجابة عن أي سؤال تطرحه بدقة فائقة — سواء في التمارين الرياضية، التغذية الصحية، حساب السعرات والماكروز، أو أي موضوع عام تريده!
                         {% elif CURRENT_LANGUAGE == 'en' %}
-                        Ask me about workout programming (PPL/Upper-Lower), calorie & macro math, exercise biomechanics, or sports nutrition!
+                        Ask me anything — from workouts, training programs, and nutrition to science, general questions, and daily advice!
                         {% else %}
-                        I weydii jadwal jimicsi (PPL ama Upper/Lower), xisaabinta Calories & Macros, cuntada Soomaalida, ama farsamada jimicsi kasta si aan kuugu dhiso qorshe dhammaystiran!
+                        Waxaad i weydiin kartaa su'aal kasta oo aad rabto — ha ahaato jadwalka jimicsiga, cuntada Soomaalida, xisaabinta Calories &amp; Macros, ama wax kasta oo cilmiga guud iyo nolosha khuseeya!
                         {% endif %}
                     </p>
                 </div>
@@ -278,7 +278,7 @@
             <form id="chatForm" onsubmit="handleChatSubmit(event)" class="flex items-center gap-2">
                 {% csrf_token %}
                 <input type="text" id="chatInput" autocomplete="off"
-                       placeholder="{% if CURRENT_LANGUAGE == 'ar' %}اكتب سؤالك الرياضي أو الغذائي هنا...{% elif CURRENT_LANGUAGE == 'en' %}Type your fitness or nutrition question...{% else %}Halkan ku qor su'aashaada jimicsiga ama cuntada...{% endif %}"
+                       placeholder="{% if CURRENT_LANGUAGE == 'ar' %}اسأل أي سؤال تريده (لياقة، تغذية، علوم، استفسار عام)...{% elif CURRENT_LANGUAGE == 'en' %}Ask anything (workouts, nutrition, science, general questions)...{% else %}I weydii su'aal kasta (Jimicsi, Cunto, Cilmiga guud, Talo)...{% endif %}"
                        class="flex-1 bg-[#0a101d] border border-[rgba(0,240,255,0.2)] focus:border-[#00f0ff] text-white text-xs sm:text-sm rounded-2xl px-4 py-3 outline-none transition placeholder-slate-500">
 
                 <button type="submit" id="sendBtn" class="btn-cyan py-3 px-5 rounded-2xl flex-shrink-0 text-xs font-black">

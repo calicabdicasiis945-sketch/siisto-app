@@ -261,8 +261,11 @@
         </div>
 
         <!-- Muscle Category Buttons -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
-            <button type="button" onclick="filterMuscleCategory('Chest', this)" class="muscle-cat-btn active px-4 py-2 rounded-xl bg-gradient-to-r from-[#00f0ff] to-[#00a3ff] text-[#0a101d] text-xs font-bold whitespace-nowrap">
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar -mx-1 px-1">
+            <button type="button" onclick="filterMuscleCategory('All', this)" class="muscle-cat-btn active px-4 py-2 rounded-xl bg-gradient-to-r from-[#00f0ff] to-[#00a3ff] text-[#0a101d] text-xs font-black whitespace-nowrap shadow-md">
+                🌟 {{ "All"|ui_trans:CURRENT_LANGUAGE }} / Dhamaan
+            </button>
+            <button type="button" onclick="filterMuscleCategory('Chest', this)" class="muscle-cat-btn px-4 py-2 rounded-xl bg-[#0d1527] border border-[rgba(0,240,255,0.2)] text-slate-300 hover:text-white text-xs font-bold whitespace-nowrap">
                 Chest / Xabadka
             </button>
             <button type="button" onclick="filterMuscleCategory('Back', this)" class="muscle-cat-btn px-4 py-2 rounded-xl bg-[#0d1527] border border-[rgba(0,240,255,0.2)] text-slate-300 hover:text-white text-xs font-bold whitespace-nowrap">

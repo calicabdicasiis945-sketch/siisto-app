@@ -197,5 +197,26 @@
 
     </div>
 
+    <!-- ACCOUNT ACTIONS & LOGOUT CARD (SPECIALLY VISIBLE FOR MOBILE) -->
+    <div class="skillset-card p-5 sm:p-6 bg-[#0A0D17] border border-red-500/20 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+        <div class="space-y-1 text-center sm:text-left">
+            <h4 class="text-sm font-black text-white flex items-center justify-center sm:justify-start gap-2">
+                <i class="fa-solid fa-right-from-bracket text-red-400"></i>
+                <span>{{ "Account Session"|ui_trans:CURRENT_LANGUAGE }} ({{ request.user.username }})</span>
+            </h4>
+            <p class="text-xs text-slate-400">
+                Ka bax nidaamka taleefankan ama kombiyuutarkan haddii aad dhamaysatay.
+            </p>
+        </div>
+
+        <form method="POST" action="{% url 'logout' %}" class="w-full sm:w-auto">
+            {% csrf_token %}
+            <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-extrabold text-xs transition shadow-lg shadow-red-500/20 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>{{ "Log out"|ui_trans:CURRENT_LANGUAGE }} / Ka Bax Akoonka</span>
+            </button>
+        </form>
+    </div>
+
 </div>
 {% endblock %}

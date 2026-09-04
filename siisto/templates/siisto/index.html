@@ -322,6 +322,69 @@
                     </div>
                 </div>
 
+                <!-- 7. MOBILE QUICK TOOLS & AI COMPANION (SHOWN ON MOBILE/TABLET ONLY) -->
+                <div class="lg:hidden space-y-3 pt-2 border-t border-[rgba(0,240,255,0.15)]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[#00f0ff]"></i> {{ "Quick AI & 3D Tools"|ui_trans:CURRENT_LANGUAGE }}
+                        </span>
+                    </div>
+
+                    <!-- Quick Mobile AI Prompt Bar -->
+                    <form action="{% url 'chatbot' %}" method="POST" class="relative">
+                        {% csrf_token %}
+                        <input type="text" name="user_message"
+                               placeholder="{% if CURRENT_LANGUAGE == 'ar' %}اسأل كوتش الذكاء الاصطناعي...{% elif CURRENT_LANGUAGE == 'en' %}Ask AI Coach anything...{% else %}I weydii AI Coach tababarkaaga...{% endif %}"
+                               class="w-full bg-[#0a101d] border border-[rgba(0,240,255,0.25)] focus:border-[#00f0ff] text-white text-xs rounded-xl pl-3 pr-9 py-2.5 outline-none transition placeholder-slate-500 shadow-inner">
+                        <button type="submit" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#00f0ff] hover:text-white p-1">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </form>
+
+                    <!-- Mobile 4-Grid Feature Links -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <a href="{% url 'ai_form_detection' %}" class="p-3 rounded-2xl bg-[#0a101d] border border-[rgba(0,240,255,0.2)] hover:border-[#00f0ff] flex items-center gap-2.5 transition group">
+                            <div class="w-8 h-8 rounded-xl bg-[#111c33] group-hover:bg-[#00f0ff] group-hover:text-black text-[#00f0ff] flex items-center justify-center flex-shrink-0 transition">
+                                <i class="fa-solid fa-camera-viewfinder text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-white font-bold text-xs truncate">AI Form Scan</h4>
+                                <p class="text-[9px] text-slate-400">Live Camera</p>
+                            </div>
+                        </a>
+
+                        <a href="{% url 'challenge_90day' %}" class="p-3 rounded-2xl bg-[#0a101d] border border-[rgba(0,240,255,0.2)] hover:border-[#00f0ff] flex items-center gap-2.5 transition group">
+                            <div class="w-8 h-8 rounded-xl bg-[#111c33] group-hover:bg-[#00f0ff] group-hover:text-black text-amber-400 flex items-center justify-center flex-shrink-0 transition">
+                                <i class="fa-solid fa-trophy text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-white font-bold text-xs truncate">90-Day Pro</h4>
+                                <p class="text-[9px] text-slate-400">Challenge</p>
+                            </div>
+                        </a>
+
+                        <a href="{% url 'onboarding_3d' %}" class="p-3 rounded-2xl bg-[#0a101d] border border-[rgba(0,240,255,0.2)] hover:border-[#00f0ff] flex items-center gap-2.5 transition group">
+                            <div class="w-8 h-8 rounded-xl bg-[#111c33] group-hover:bg-[#00f0ff] group-hover:text-black text-[#00a3ff] flex items-center justify-center flex-shrink-0 transition">
+                                <i class="fa-solid fa-cube text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-white font-bold text-xs truncate">3D Body Scan</h4>
+                                <p class="text-[9px] text-slate-400">BMI &amp; BMR</p>
+                            </div>
+                        </a>
+
+                        <a href="{% url 'history' %}" class="p-3 rounded-2xl bg-[#0a101d] border border-[rgba(0,240,255,0.2)] hover:border-[#00f0ff] flex items-center gap-2.5 transition group">
+                            <div class="w-8 h-8 rounded-xl bg-[#111c33] group-hover:bg-[#00f0ff] group-hover:text-black text-[#00f0ff] flex items-center justify-center flex-shrink-0 transition">
+                                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-white font-bold text-xs truncate">Diiwaanka</h4>
+                                <p class="text-[9px] text-slate-400">All Logs</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
         </div>

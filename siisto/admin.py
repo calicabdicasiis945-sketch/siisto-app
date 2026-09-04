@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils import timezone
 from .models import (
     Profile, WeightLog, Meal, Workout, ChatMessage,
@@ -9,6 +12,47 @@ from .models import (
 admin.site.site_header = "Siisto Fitness Admin"
 admin.site.site_title = "Siisto Admin"
 admin.site.index_title = "Siisto Fitness Management"
+
+
+# ─────────────────────────────────────────
+#  USER & PROFILE INLINE ADMIN
+# ─────────────────────────────────────────
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+    verbose_name_plural = 'Fitness Profile'
+    fk_name = 'user'
+    fields = (
+        'is_pro', 'pro_started_at', 'pro_expires_at',
+        'da_da', 'jinsiga', 'dhererka', 'miisaanka_yoolka',
+        'hadafka', 'heerka_dhaqdhaqaaqa', 'fitness_level', 'onboarding_completed'
+    )
+
+
+admin.site.unregister(User)
+
+@admin.register(User)
+class CustomUserAdmin(BaseUserAdmin):
+    inlines = (ProfileInline,)
+    list_display = (
+        'username', 'email', 'first_name', 'pro_badge',
+        'is_staff', 'is_active', 'date_joined', 'last_login'
+    )
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'profile__is_pro', 'date_joined')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    ordering = ('-date_joined',)
+
+    def pro_badge(self, obj):
+        try:
+            if hasattr(obj, 'profile') and obj.profile.has_active_pro:
+                return mark_safe('<span style="background:#00f0ff;color:#0a101d;padding:2px 8px;border-radius:10px;font-weight:900;font-size:11px;">PRO VIP</span>')
+            elif hasattr(obj, 'profile') and obj.profile.is_pro:
+                return mark_safe('<span style="background:#ef4444;color:white;padding:2px 8px;border-radius:10px;font-weight:bold;font-size:11px;">Expired</span>')
+        except Exception:
+            pass
+        return mark_safe('<span style="color:#64748b;font-size:11px;">Free</span>')
+    pro_badge.short_description = 'Plan'
+
 
 
 # ─────────────────────────────────────────
@@ -57,10 +101,10 @@ class ExerciseLibraryAdmin(admin.ModelAdmin):
 
     def has_video(self, obj):
         if obj.video_file:
-            return format_html('<span style="color:green;">✅ Local File</span>')
+            return mark_safe('<span style="color:green;">✅ Local File</span>')
         elif obj.video_3d_url:
-            return format_html('<span style="color:orange;">🔗 URL</span>')
-        return format_html('<span style="color:red;">❌ None</span>')
+            return mark_safe('<span style="color:orange;">🔗 URL</span>')
+        return mark_safe('<span style="color:red;">❌ None</span>')
     has_video.short_description = 'Video'
 
     def has_image(self, obj):
@@ -132,10 +176,10 @@ class ProfileAdmin(admin.ModelAdmin):
 
     def pro_status_display(self, obj):
         if obj.has_active_pro:
-            return format_html('<span style="color:green;font-weight:bold;">✅ Active Pro</span>')
+            return mark_safe('<span style="color:green;font-weight:bold;">✅ Active Pro</span>')
         elif obj.is_pro:
-            return format_html('<span style="color:red;">⚠️ Expired</span>')
-        return format_html('<span style="color:gray;">Free</span>')
+            return mark_safe('<span style="color:red;">⚠️ Expired</span>')
+        return mark_safe('<span style="color:gray;">Free</span>')
     pro_status_display.short_description = 'Pro Status'
 
     def activate_pro(self, request, queryset):
@@ -200,6 +244,7 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
             color, obj.get_status_display()
         )
     status_badge.short_description = 'Status'
+
 
     def mark_completed_activate_pro(self, request, queryset):
         import datetime
