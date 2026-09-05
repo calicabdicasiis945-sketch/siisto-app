@@ -405,6 +405,119 @@ class SiistoComprehensiveTestSuite(TestCase):
         self.profile1.save()
         self.assertFalse(self.profile1.has_active_pro)
 
+    def test_paypal_webhook_rejects_missing_headers_or_signature(self):
+        """Unverified webhook calls without valid PayPal signature headers must be rejected."""
+        event_payload = {
+            'event_type': 'PAYMENT.CAPTURE.COMPLETED',
+            'resource': {
+                'id': 'CAP-FORGED-12345',
+                'amount': {'value': '9.99'}
+            }
+        }
+        # Post with no signature headers
+        response = self.client.post(
+            reverse('paypal_webhook'),
+            data=json.dumps(event_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertEqual(data.get('status'), 'error')
+        self.assertIn('signature verification failed', data.get('message', ''))
+
+    @patch('siisto.views.requests.post')
+    @patch('siisto.views.get_paypal_access_token')
+    def test_paypal_webhook_verified_activates_pro(self, mock_get_token, mock_post):
+        """Verified PayPal webhook activates user Pro membership correctly."""
+        mock_get_token.return_value = 'mock-access-token-123'
+
+        # Mock verify-webhook-signature API response
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {'verification_status': 'SUCCESS'}
+        mock_resp.raise_for_status.return_value = None
+        mock_post.return_value = mock_resp
+
+        # Create pending transaction
+        tx = PaymentTransaction.objects.create(
+            user=self.user1,
+            plan_name='Siisto Pro Monthly',
+            plan_type='monthly',
+            amount=9.99,
+            currency='USD',
+            payment_method='paypal',
+            transaction_id='TX-TEST-VERIFY-001',
+            paypal_order_id='ORD-TEST-001',
+            paypal_capture_id='CAP-REAL-123',
+            status='pending',
+        )
+
+        event_payload = {
+            'event_type': 'PAYMENT.CAPTURE.COMPLETED',
+            'resource': {
+                'id': 'CAP-REAL-123',
+                'amount': {'value': '9.99'}
+            }
+        }
+
+        with self.settings(PAYPAL_WEBHOOK_ID='WH-TEST-VALID-ID'):
+            response = self.client.post(
+                reverse('paypal_webhook'),
+                data=json.dumps(event_payload),
+                content_type='application/json',
+                HTTP_PAYPAL_AUTH_ALGO='SHA256withRSA',
+                HTTP_PAYPAL_CERT_URL='https://api.sandbox.paypal.com/v1/notifications/certs/CERT-123',
+                HTTP_PAYPAL_TRANSMISSION_ID='tx-uuid-1234',
+                HTTP_PAYPAL_TRANSMISSION_SIG='base64-sig-string',
+                HTTP_PAYPAL_TRANSMISSION_TIME='2026-09-05T12:00:00Z',
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json().get('status'), 'ok')
+
+        tx.refresh_from_db()
+        self.assertEqual(tx.status, 'completed')
+        self.assertEqual(tx.paypal_webhook_event, 'PAYMENT.CAPTURE.COMPLETED')
+
+        self.profile1.refresh_from_db()
+        self.assertTrue(self.profile1.is_pro)
+        self.assertTrue(self.profile1.has_active_pro)
+
+    @patch('siisto.views.requests.post')
+    @patch('siisto.views.get_paypal_access_token')
+    def test_paypal_webhook_rejects_failed_signature(self, mock_get_token, mock_post):
+        """If PayPal API verification returns FAILURE, reject with 400."""
+        mock_get_token.return_value = 'mock-access-token-123'
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {'verification_status': 'FAILURE'}
+        mock_resp.raise_for_status.return_value = None
+        mock_post.return_value = mock_resp
+
+        event_payload = {
+            'event_type': 'PAYMENT.CAPTURE.COMPLETED',
+            'resource': {
+                'id': 'CAP-FORGED-999',
+                'amount': {'value': '9.99'}
+            }
+        }
+
+        with self.settings(PAYPAL_WEBHOOK_ID='WH-TEST-VALID-ID'):
+            response = self.client.post(
+                reverse('paypal_webhook'),
+                data=json.dumps(event_payload),
+                content_type='application/json',
+                HTTP_PAYPAL_AUTH_ALGO='SHA256withRSA',
+                HTTP_PAYPAL_CERT_URL='https://api.sandbox.paypal.com/v1/notifications/certs/CERT-123',
+                HTTP_PAYPAL_TRANSMISSION_ID='tx-uuid-1234',
+                HTTP_PAYPAL_TRANSMISSION_SIG='invalid-sig',
+                HTTP_PAYPAL_TRANSMISSION_TIME='2026-09-05T12:00:00Z',
+            )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json().get('status'), 'error')
+
     # ─────────────────────────────────────────────────────
     #  9. USER DATA ISOLATION
     # ─────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ Complete, production-ready view layer with:
 - Notification system
 - Full profile management
 """
+import os
 import json
 import uuid
 import logging
@@ -619,16 +620,116 @@ def paypal_capture_order(request, order_id):
         return JsonResponse({'status': 'error', 'message': 'Unexpected error during payment.'}, status=500)
 
 
+def verify_paypal_webhook_signature(request, event):
+    """
+    Verifies PayPal webhook authenticity via the PayPal REST API:
+    POST /v1/notifications/verify-webhook-signature
+
+    Headers required by PayPal:
+    - PAYPAL-AUTH-ALGO
+    - PAYPAL-CERT-URL
+    - PAYPAL-TRANSMISSION-ID
+    - PAYPAL-TRANSMISSION-SIG
+    - PAYPAL-TRANSMISSION-TIME
+    """
+    webhook_id = getattr(settings, 'PAYPAL_WEBHOOK_ID', '') or os.environ.get('PAYPAL_WEBHOOK_ID', '')
+    if not webhook_id:
+        logger.error("PAYPAL_WEBHOOK_ID is not configured in settings; rejecting unverified webhook.")
+        return False
+
+    def _header(name):
+        val = request.headers.get(name)
+        if not val:
+            meta_key = f"HTTP_{name.replace('-', '_').upper()}"
+            val = request.META.get(meta_key)
+        return val
+
+    auth_algo = _header('paypal-auth-algo')
+    cert_url = _header('paypal-cert-url')
+    transmission_id = _header('paypal-transmission-id')
+    transmission_sig = _header('paypal-transmission-sig')
+    transmission_time = _header('paypal-transmission-time')
+
+    if not all([auth_algo, cert_url, transmission_id, transmission_sig, transmission_time]):
+        logger.warning(
+            f"PayPal webhook missing required signature headers. "
+            f"auth_algo={bool(auth_algo)}, cert_url={bool(cert_url)}, "
+            f"transmission_id={transmission_id}, transmission_sig={bool(transmission_sig)}, "
+            f"transmission_time={bool(transmission_time)}"
+        )
+        return False
+
+    access_token = get_paypal_access_token()
+    if not access_token:
+        logger.error("Could not obtain PayPal access token for webhook signature verification.")
+        return False
+
+    payload = {
+        'auth_algo': auth_algo,
+        'cert_url': cert_url,
+        'transmission_id': transmission_id,
+        'transmission_sig': transmission_sig,
+        'transmission_time': transmission_time,
+        'webhook_id': webhook_id,
+        'webhook_event': event,
+    }
+
+    verify_url = f"{settings.PAYPAL_API_BASE}/v1/notifications/verify-webhook-signature"
+    try:
+        resp = requests.post(
+            verify_url,
+            json=payload,
+            headers={
+                'Authorization': f'Bearer {access_token}',
+                'Content-Type': 'application/json',
+            },
+            timeout=15,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        status = data.get('verification_status')
+        if status == 'SUCCESS':
+            return True
+        logger.warning(
+            f"PayPal webhook verification rejected by PayPal: status={status}, transmission_id={transmission_id}"
+        )
+        return False
+    except requests.RequestException as e:
+        resp_text = getattr(getattr(e, 'response', None), 'text', '')
+        logger.error(f"PayPal webhook verification HTTP error: {e} | response: {resp_text}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during PayPal webhook verification: {e}")
+        return False
+
+
 @csrf_exempt
 @require_POST
 def paypal_webhook(request):
     """
     PayPal Webhook handler for server-side events.
-    Handles: PAYMENT.CAPTURE.COMPLETED, BILLING.SUBSCRIPTION.CANCELLED
+    Verifies webhook signature with PayPal API before trusting event data.
+    Handles: PAYMENT.CAPTURE.COMPLETED, BILLING.SUBSCRIPTION.CANCELLED, PAYMENT.CAPTURE.REFUNDED
     """
     try:
         webhook_body = request.body
         event = json.loads(webhook_body)
+    except Exception as e:
+        logger.error(f"PayPal webhook JSON decode error: {e}")
+        return JsonResponse({'status': 'invalid_json', 'message': 'Invalid JSON body.'}, status=400)
+
+    # Cryptographically verify the request originated from PayPal
+    if not verify_paypal_webhook_signature(request, event):
+        logger.warning(
+            f"PayPal webhook rejected: signature verification failed. "
+            f"IP={request.META.get('REMOTE_ADDR')}, event_id={event.get('id')}"
+        )
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Webhook signature verification failed.'
+        }, status=400)
+
+    try:
         event_type = event.get('event_type', '')
 
         if event_type == 'PAYMENT.CAPTURE.COMPLETED':
